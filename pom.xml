@@ -62,7 +62,7 @@
                 <artifactId>maven-scm-plugin</artifactId>
                 <version>1.8.1</version>
                 <configuration>
-                    <message>Initial commit</message>
+                    <message>Minor README amendments</message>
                 </configuration>
             </plugin>
             <plugin>
