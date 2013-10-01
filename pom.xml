@@ -4,11 +4,14 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.grunch.il2ssd</groupId>
+    <groupId>com.dgregory.il2ssd</groupId>
     <artifactId>il2ssd</artifactId>
     <packaging>jar</packaging>
     <version>0.0.1-SNAPSHOT</version>
     <name>IL-2 Simple Server Daemon</name>
+    <organization>
+        <name>IL-2 Community</name>
+    </organization>
 
     <scm>
         <connection>scm:hg:ssh://hg@bitbucket.org/dgregory084/il-2-simple-server-daemon</connection>
@@ -25,7 +28,7 @@
         <defaultGoal>package</defaultGoal>
         <finalName>${artifactId}-${version}</finalName>
         <plugins>
-            <plugin>
+            <!-- plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
                 <version>2.1</version>
@@ -56,18 +59,28 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
+            </plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-scm-plugin</artifactId>
                 <version>1.8.1</version>
                 <configuration>
-                    <message>Minor README amendments</message>
+                    <message>Packaging improvements; streamline text cleanup method</message>
                 </configuration>
             </plugin>
             <plugin>
                 <artifactId>maven-release-plugin</artifactId>
                 <version>2.4.1</version>
+            </plugin>
+            <plugin>
+                <groupId>com.zenjava</groupId>
+                <artifactId>javafx-maven-plugin</artifactId>
+                <version>2.0</version>
+                <configuration>
+                    <mainClass>com.dgregory.il2ssd.App</mainClass>
+                    <nativeReleaseVersion>0.0.1</nativeReleaseVersion>
+                    <identifier>${artifactId}-${version}</identifier>
+                </configuration>
             </plugin>
         </plugins>
         <resources>

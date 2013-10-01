@@ -39,7 +39,7 @@ public class ConsoleService extends Service<Void> {
                     }
                     try {
                         String text = connection.getInput().readLine();
-                        List<String> lines = Arrays.asList(text.split("\n"));
+                        List<String> lines = Arrays.asList(text.split("\\n"));
                         for (final String item : lines) {
                             if (item != null && !item.startsWith("<consoleN>"))
                                 Platform.runLater(new Runnable() {

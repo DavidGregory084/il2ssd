@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.nio.charset.Charset;
 
 /**
  * 23/09/13 20:46
@@ -25,7 +26,7 @@ public class Connection {
         try {
             socket = new Socket(Config.getIpAddress(), Integer.decode(Config.getPort()));
             output = new PrintWriter(socket.getOutputStream(), true);
-            input = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
+            input = new BufferedReader(new InputStreamReader(socket.getInputStream(), Charset.forName("UTF-8")));
             connected = true;
             if (socket.isConnected()) {
                 System.out.println("Connected to server " + Config.getIpAddress() + " on port " + Config.getPort());

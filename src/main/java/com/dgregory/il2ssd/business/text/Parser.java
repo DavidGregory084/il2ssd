@@ -8,15 +8,9 @@ public class Parser {
     private static final String ls = System.getProperty("line.separator");
 
     public static String cleanText(String text) {
-
-        if (text.startsWith("\\u0020")) {
-            text = " " + text.substring(6, text.length());
-        }
-
-        int sslen = text.length() - 2;
-        String sst = text.substring(0, sslen);
-        text = sst + ls;
+        text = text.replace("\\n", "\n");
         text = text.replace("\\t", "\t");
+        text = text.replace("\\u0020", "\u0020");
         return text;
     }
 
