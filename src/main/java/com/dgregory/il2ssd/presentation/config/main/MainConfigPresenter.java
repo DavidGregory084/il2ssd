@@ -101,20 +101,23 @@ public class MainConfigPresenter implements Initializable {
             }
         });
 
-        dcgPathLabel.textProperty().addListener(new ChangeListener<String>() {
-            @Override
-            public void changed(ObservableValue<? extends String> observableValue, String oldValue, String newValue) {
-                updateConfig();
-                enableDcgControls(Config.getDcgMode());
-
-            }
-        });
-
-        remoteModeToggle.selectedProperty().addListener(new InvalidationListener() {
+        dcgPathLabel.textProperty().addListener(new InvalidationListener() {
             @Override
             public void invalidated(Observable observable) {
                 updateConfig();
-                enableRemoteControls(Config.getRemoteMode());
+                enableDcgControls(true);
+            }
+        });
+
+        remoteModeToggle.selectedProperty().addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observableValue, Boolean oldValue, Boolean newValue) {
+                updateConfig();
+                if (newValue) {
+                    enableRemoteControls(true);
+                } else {
+                    enableRemoteControls(false);
+                }
             }
         });
 
@@ -149,10 +152,12 @@ public class MainConfigPresenter implements Initializable {
             }
             if (!Config.getDcgPath().equals("")) {
                 dcgPathLabel.setText(Config.getDcgPath());
+                enableDcgControls(true);
+            } else {
+                enableDcgControls(false);
             }
             remoteModeToggle.setSelected(Config.getRemoteMode());
             enableRemoteControls(Config.getRemoteMode());
-            enableDcgControls(Config.getDcgMode());
             dcgToggle.setSelected(Config.getDcgMode());
         } catch (NullPointerException e) {
             e.printStackTrace();
@@ -206,8 +211,6 @@ public class MainConfigPresenter implements Initializable {
             dcgToggle.setVisible(true);
             dcgModeLabel.setVisible(true);
         } else {
-            dcgToggle.setSelected(false);
-            updateConfig();
             dcgSettingsLabel.setVisible(false);
             dcgSettingsSeparator.setVisible(false);
             dcgToggle.setVisible(false);
@@ -219,9 +222,15 @@ public class MainConfigPresenter implements Initializable {
         Config.setIpAddress(ipAddressField.getText());
         Config.setPort(portField.getText());
         Config.setRemotePath(remotePathText.getText());
-        Config.setServerPath(serverPathLabel.getText());
-        Config.setMissionPath(missionPathLabel.getText());
-        Config.setDcgPath(dcgPathLabel.getText());
+        if (!serverPathLabel.getText().startsWith("<")) {
+            Config.setServerPath(serverPathLabel.getText());
+        }
+        if (!missionPathLabel.getText().startsWith("<")) {
+            Config.setMissionPath(missionPathLabel.getText());
+        }
+        if (!dcgPathLabel.getText().startsWith("<")) {
+            Config.setDcgPath(dcgPathLabel.getText());
+        }
         Config.setRemoteMode(remoteModeToggle.isSelected());
         Config.setDcgMode(dcgToggle.isSelected());
         Config.saveConfiguration();
@@ -232,14 +241,15 @@ public class MainConfigPresenter implements Initializable {
         Path missionPath;
         Path missionsRoot;
         Path missionLoadPath;
+        String missionLoadString;
 
         serverPath = Paths.get(Config.getServerPath());
         missionPath = Paths.get(Config.getMissionPath());
 
         missionsRoot = serverPath.getParent().resolve("Missions");
-        missionLoadPath = missionPath.relativize(missionsRoot).normalize();
-        System.out.println(missionLoadPath.toString());
-        return missionLoadPath.toString();
+        missionLoadPath = missionsRoot.relativize(missionPath).normalize();
+        missionLoadString = missionLoadPath.toString().replace("\\", "/");
+        return missionLoadString;
     }
 
     public void serverPathButtonAction() {

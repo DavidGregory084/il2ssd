@@ -1,14 +1,19 @@
 package com.dgregory.il2ssd.presentation.main;
 
 import com.dgregory.il2ssd.business.config.Config;
+import com.dgregory.il2ssd.business.icons.AwesomeIcons;
 import com.dgregory.il2ssd.business.server.Command;
 import com.dgregory.il2ssd.business.server.Connection;
 import com.dgregory.il2ssd.business.server.ConsoleService;
+import com.dgregory.il2ssd.business.server.Mission;
+import com.dgregory.il2ssd.business.text.Parser;
 import com.dgregory.il2ssd.presentation.config.main.MainConfigPresenter;
 import com.dgregory.il2ssd.presentation.config.main.MainConfigView;
 import com.dgregory.il2ssd.presentation.console.ConsolePresenter;
 import com.dgregory.il2ssd.presentation.console.ConsoleView;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
@@ -16,6 +21,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 
 import javax.inject.Inject;
+import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -73,11 +79,41 @@ public class MainPresenter implements Initializable {
     @Override
     @Inject
     public void initialize(URL url, ResourceBundle resourceBundle) {
+
         this.consolePresenter = (ConsolePresenter) consoleView.getPresenter();
         this.mainConfigPresenter = (MainConfigPresenter) mainConfigView.getPresenter();
         consolePane.getChildren().add(consoleView.getView());
         configPane.getChildren().add(mainConfigView.getView());
-        this.enableControl(false);
+        consoleService.setConsolePresenter(consolePresenter);
+
+        this.enableConnected(false);
+        consolePresenter.enableConnected(false);
+
+        connection.connectedProperty().addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observableValue, Boolean oldValue, Boolean newValue) {
+                if (newValue) {
+                    enableConnected(true);
+                    consolePresenter.enableConnected(true);
+                } else {
+                    enableConnected(false);
+                    consolePresenter.enableConnected(false);
+                }
+            }
+        });
+
+        Mission.missionRunningProperty().addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observableValue, Boolean oldValue, Boolean newValue) {
+                if (newValue) {
+                    enableRunning(true);
+                } else {
+                    enableRunning(false);
+                }
+            }
+        });
+
+
     }
 
     public ConsolePresenter getConsolePresenter() {
@@ -89,24 +125,18 @@ public class MainPresenter implements Initializable {
     }
 
     public void exitItemAction() {
+        disconnectButtonAction();
         mainConfigPresenter.updateConfig();
         Platform.exit();
     }
 
     @Inject
     public void connectButtonAction() {
-        if (!connection.getConnected()) {
-            mainConfigPresenter.updateConfig();
-            connection.connect();
-            if (connection.getConnected()) {
-                this.enableControl(true);
-                consolePresenter.enableControl(true);
-                consoleService.setConsolePresenterObjectProperty(consolePresenter);
-                consoleService.start();
-                command.sendCommand("server");
-            }
-        }
-
+        connection.connect();
+        initRunning();
+        consoleService.reset();
+        consoleService.restart();
+        command.sendCommand("server");
     }
 
     @Inject
@@ -115,23 +145,22 @@ public class MainPresenter implements Initializable {
             consoleService.cancel();
             consoleService.reset();
             connection.disconnect();
-            if (!connection.getConnected()) {
-                this.enableControl(false);
-                consolePresenter.enableControl(false);
-                consoleService.reset();
-            }
         }
-
     }
 
     @Inject
     public void startStopButtonAction() {
-        mainConfigPresenter.updateConfig();
-        if (Config.getRemoteMode()) {
-            command.loadMission(Config.getRemotePath());
+        if (Mission.getMissionRunning()) {
+            command.endMission();
+            command.askMission();
         } else {
-            command.loadMission(mainConfigPresenter.resolveMissionPath());
+            if (Config.getRemoteMode()) {
+                command.loadMission(Config.getRemotePath());
+            } else {
+                command.loadMission(mainConfigPresenter.resolveMissionPath());
+            }
         }
+
 
     }
 
@@ -139,17 +168,38 @@ public class MainPresenter implements Initializable {
         startStopButtonAction();
     }
 
-    public void enableControl(Boolean enable) {
+    public void enableConnected(Boolean enable) {
         if (enable) {
-            connectButton.disableProperty().set(true);
-            disconnectButton.disableProperty().set(false);
-            startStopButton.disableProperty().set(false);
-            nextButton.disableProperty().set(false);
+            connectButton.setDisable(true);
+            disconnectButton.setDisable(false);
+            startStopButton.setDisable(false);
         } else {
-            connectButton.disableProperty().set(false);
-            disconnectButton.disableProperty().set(true);
-            startStopButton.disableProperty().set(true);
-            nextButton.disableProperty().set(true);
+            connectButton.setDisable(false);
+            disconnectButton.setDisable(true);
+            startStopButton.setDisable(true);
+        }
+    }
+
+    public void enableRunning(Boolean enable) {
+        if (enable) {
+            startStopButton.setText(AwesomeIcons.ICON_STOP + " Stop");
+        } else {
+            startStopButton.setText(AwesomeIcons.ICON_PLAY + " Start");
+
+        }
+
+    }
+
+    public void initRunning() {
+        String loadedMessage = "";
+        command.askMission();
+        try {
+            loadedMessage = connection.getInput().readLine();
+        } catch (IOException e) {
+            System.out.println("Couldn't read status message.");
+        }
+        if (Parser.getLoaded(loadedMessage).equals("load")) {
+            Mission.setMissionRunning(true);
         }
     }
 }

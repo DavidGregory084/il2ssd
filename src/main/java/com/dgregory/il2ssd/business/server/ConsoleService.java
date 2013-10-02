@@ -21,14 +21,15 @@ public class ConsoleService extends Service<Void> {
 
     @Inject
     Connection connection;
-    ObjectProperty<ConsolePresenter> consolePresenterObjectProperty = new SimpleObjectProperty<>();
+    ObjectProperty<ConsolePresenter> consolePresenter = new SimpleObjectProperty<>();
 
-    public void setConsolePresenterObjectProperty(ConsolePresenter consolePresenter) {
-        consolePresenterObjectProperty.set(consolePresenter);
+    public void setConsolePresenter(ConsolePresenter consolePresenter) {
+        this.consolePresenter.set(consolePresenter);
     }
 
     @Inject
     public Task<Void> createTask() {
+
 
         return new Task<Void>() {
             @Override
@@ -39,13 +40,28 @@ public class ConsoleService extends Service<Void> {
                     }
                     try {
                         String text = connection.getInput().readLine();
+                        final String loadStat = Parser.getLoaded(text);
                         List<String> lines = Arrays.asList(text.split("\\n"));
-                        for (final String item : lines) {
+                        for (String item : lines) {
+                            item = Parser.cleanText(item);
+                            System.out.println(loadStat);
+                            System.out.println(Mission.getMissionRunning().toString());
+                            final String outputLine = item;
                             if (item != null && !item.startsWith("<consoleN>"))
                                 Platform.runLater(new Runnable() {
                                     @Override
                                     public void run() {
-                                        consolePresenterObjectProperty.get().outputText(Parser.cleanText(item));
+                                        consolePresenter.get().outputText(outputLine);
+                                        switch (loadStat) {
+                                            case "load":
+                                                Mission.setMissionRunning(true);
+                                                break;
+                                            case "unload":
+                                                Mission.setMissionRunning(false);
+                                                break;
+                                            case "ignore":
+                                                break;
+                                        }
                                     }
                                 });
                         }

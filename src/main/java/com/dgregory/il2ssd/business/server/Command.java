@@ -28,4 +28,8 @@ public class Command {
         sendCommand("mission DESTROY");
     }
 
+    public void askMission() {
+        sendCommand("mission");
+    }
+
 }

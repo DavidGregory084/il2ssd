@@ -25,14 +25,14 @@ public class ConsolePresenter implements Initializable {
     Command command;
 
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        this.enableControl(false);
+        this.enableConnected(false);
     }
 
     public void outputText(String text) {
         consoleTextArea.appendText(text);
     }
 
-    public void enableControl(Boolean enable) {
+    public void enableConnected(Boolean enable) {
         if (enable) {
             commandEntryField.setDisable(false);
             commandEntryField.clear();

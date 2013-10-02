@@ -27,7 +27,7 @@ public class Config {
         defaultConfiguration.addProperty("Path.DCGPath", "");
         defaultConfiguration.addProperty("Mode.RemoteLoad", true);
         defaultConfiguration.addProperty("Mode.RemoteLoadPath", "");
-        defaultConfiguration.addProperty("Mode.DCG", true);
+        defaultConfiguration.addProperty("Mode.DCG", false);
 
         if (Files.exists(Paths.get("il2ssd.ini"))) {
             try {
