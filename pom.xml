@@ -65,7 +65,7 @@
                 <artifactId>maven-scm-plugin</artifactId>
                 <version>1.8.1</version>
                 <configuration>
-                    <message>Parser service and skeleton parser implementation; further listener improvements</message>
+                    <message>Fix README readability on Bitbucket</message>
                 </configuration>
             </plugin>
             <plugin>
