@@ -105,7 +105,9 @@ public class MainConfigPresenter implements Initializable {
             @Override
             public void invalidated(Observable observable) {
                 updateConfig();
-                enableDcgControls(true);
+                if (!dcgPathLabel.getText().startsWith("<")) {
+                    enableDcgControls(true);
+                }
             }
         });
 

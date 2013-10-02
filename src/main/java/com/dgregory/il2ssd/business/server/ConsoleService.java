@@ -21,6 +21,7 @@ public class ConsoleService extends Service<Void> {
 
     @Inject
     Connection connection;
+    Boolean cancelled;
     ObjectProperty<ConsolePresenter> consolePresenter = new SimpleObjectProperty<>();
 
     public void setConsolePresenter(ConsolePresenter consolePresenter) {
@@ -30,38 +31,23 @@ public class ConsoleService extends Service<Void> {
     @Inject
     public Task<Void> createTask() {
 
+        cancelled = false;
 
         return new Task<Void>() {
             @Override
             protected Void call() throws Exception {
-                while (connection.getConnected()) {
-                    if (isCancelled()) {
-                        break;
-                    }
+                while (connection.getConnected() && !cancelled) {
                     try {
                         String text = connection.getInput().readLine();
-                        final String loadStat = Parser.getLoaded(text);
                         List<String> lines = Arrays.asList(text.split("\\n"));
                         for (String item : lines) {
-                            item = Parser.cleanText(item);
-                            System.out.println(loadStat);
-                            System.out.println(Mission.getMissionRunning().toString());
-                            final String outputLine = item;
+                            final String outputLine = Parser.cleanText(item);
                             if (item != null && !item.startsWith("<consoleN>"))
                                 Platform.runLater(new Runnable() {
                                     @Override
                                     public void run() {
                                         consolePresenter.get().outputText(outputLine);
-                                        switch (loadStat) {
-                                            case "load":
-                                                Mission.setMissionRunning(true);
-                                                break;
-                                            case "unload":
-                                                Mission.setMissionRunning(false);
-                                                break;
-                                            case "ignore":
-                                                break;
-                                        }
+                                        Parser.addParseLine(outputLine);
                                     }
                                 });
                         }
@@ -70,9 +56,16 @@ public class ConsoleService extends Service<Void> {
                     }
                 }
                 return null;
+
             }
         };
 
+    }
+
+    @Override
+    protected void cancelled() {
+        super.cancelled();
+        cancelled = true;
     }
 
 }

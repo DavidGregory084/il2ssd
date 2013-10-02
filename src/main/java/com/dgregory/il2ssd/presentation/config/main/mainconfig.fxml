@@ -12,33 +12,23 @@
         <AnchorPane prefHeight="-1.0" prefWidth="-1.0">
             <Label layoutX="15.0" layoutY="14.0" text="Path Details:" underline="false"/>
             <Separator layoutX="14.0" layoutY="28.0" prefWidth="200.0"/>
-            <Label id="dcgPathLabel" fx:id="serverPathLabel" layoutX="16.0" layoutY="82.0" prefHeight="49.0"
-                   text="&lt;no server .exe selected&gt;" textAlignment="CENTER" wrapText="true">
-                <labelFor>
-                    <Button fx:id="serverPathButton" layoutX="16.0" layoutY="49.0" mnemonicParsing="false"
-                            onAction="#serverPathButtonAction" prefHeight="26.0" prefWidth="180.0"
-                            text="  Select il2server.exe" textAlignment="LEFT"/>
-                </labelFor>
-            </Label>
-            <fx:reference source="serverPathButton"/>
-            <Label id="dcgPathLabel" fx:id="missionPathLabel" layoutX="15.0" layoutY="174.0" prefHeight="49.0"
-                   text="&lt;no .mis file selected&gt;" textAlignment="CENTER" wrapText="true">
-                <labelFor>
-                    <Button fx:id="missionPathButton" disable="true" layoutX="16.0" layoutY="141.0"
-                            mnemonicParsing="false" onAction="#missionPathButtonAction" prefHeight="26.0"
-                            prefWidth="180.0" text="  Select Mission File" textAlignment="LEFT"/>
-                </labelFor>
-            </Label>
-            <fx:reference source="missionPathButton"/>
-            <Label fx:id="dcgPathLabel" layoutX="16.0" layoutY="262.0" prefHeight="49.0"
-                   text="&lt;no dcg .exe selected&gt;" textAlignment="CENTER" wrapText="true">
-                <labelFor>
-                    <Button fx:id="dcgPathButton" layoutX="15.0" layoutY="229.0" mnemonicParsing="false"
-                            onAction="#dcgPathButtonAction" prefHeight="26.0" prefWidth="180.0"
-                            text="  Select il2dcg.exe" textAlignment="LEFT"/>
-                </labelFor>
-            </Label>
-            <fx:reference source="dcgPathButton"/>
+            <Button fx:id="serverPathButton" layoutX="16.0" layoutY="49.0" mnemonicParsing="false"
+                    onAction="#serverPathButtonAction" prefHeight="26.0" prefWidth="180.0"
+                    text="  Select il2server.exe" textAlignment="LEFT"/>
+            <Label id="dcgPathLabel" fx:id="serverPathLabel" labelFor="$serverPathButton" layoutX="16.0" layoutY="82.0"
+                   prefHeight="49.0" prefWidth="175.0" text="&lt;no server .exe selected&gt;" textAlignment="CENTER"
+                   wrapText="true"/>
+            <Button fx:id="missionPathButton" disable="true" layoutX="16.0" layoutY="141.0" mnemonicParsing="false"
+                    onAction="#missionPathButtonAction" prefHeight="26.0" prefWidth="180.0"
+                    text="  Select Mission File" textAlignment="LEFT"/>
+            <Label id="dcgPathLabel" fx:id="missionPathLabel" labelFor="$missionPathButton" layoutX="15.0"
+                   layoutY="174.0" prefHeight="49.0" prefWidth="175.0" text="&lt;no .mis file selected&gt;"
+                   textAlignment="CENTER" wrapText="true"/>
+            <Button fx:id="dcgPathButton" layoutX="15.0" layoutY="229.0" mnemonicParsing="false"
+                    onAction="#dcgPathButtonAction" prefHeight="26.0" prefWidth="180.0" text="  Select il2dcg.exe"
+                    textAlignment="LEFT"/>
+            <Label fx:id="dcgPathLabel" labelFor="$dcgPathButton" layoutX="16.0" layoutY="262.0" prefHeight="49.0"
+                   prefWidth="175.0" text="&lt;no dcg .exe selected&gt;" textAlignment="CENTER" wrapText="true"/>
         </AnchorPane>
     </left>
     <right>
@@ -54,11 +44,15 @@
                 </ToggleButton>
                 <Label labelFor="$remoteModeToggle" layoutX="62.0" layoutY="42.0" prefHeight="39.0" prefWidth="107.0"
                        text="Enable remote mission load" textAlignment="CENTER" wrapText="true"/>
-                <TextField fx:id="remotePathText" layoutX="14.0" layoutY="119.0" prefWidth="215.0" visible="false"/>
-                <Label fx:id="remotePathLabel" labelFor="$remotePathText" layoutX="17.0" layoutY="103.0" text="Path:"
-                       visible="false"/>
+                <Label fx:id="remotePathLabel" layoutX="17.0" layoutY="103.0" text="Path:" visible="true">
+                    <labelFor>
+                        <TextField fx:id="remotePathText" layoutX="14.0" layoutY="119.0" prefWidth="215.0"
+                                   visible="true"/>
+                    </labelFor>
+                </Label>
+                <fx:reference source="remotePathText"/>
                 <Label fx:id="remotePathDesc" layoutX="16.0" layoutY="151.0" text="e.g. FBDj/dcgmission.mis"
-                       visible="false"/>
+                       visible="true"/>
                 <Label fx:id="dcgSettingsLabel" layoutX="15.0" layoutY="190.0" text="DCG:" underline="false"/>
                 <Separator fx:id="dcgSettingsSeparator" layoutX="14.0" layoutY="204.0" prefWidth="200.0"/>
                 <ToggleButton fx:id="dcgToggle" font="$x1" layoutX="15.0" layoutY="229.0" mnemonicParsing="false"

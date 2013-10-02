@@ -7,11 +7,15 @@ import com.dgregory.il2ssd.business.server.Connection;
 import com.dgregory.il2ssd.business.server.ConsoleService;
 import com.dgregory.il2ssd.business.server.Mission;
 import com.dgregory.il2ssd.business.text.Parser;
+import com.dgregory.il2ssd.business.text.ParserService;
 import com.dgregory.il2ssd.presentation.config.main.MainConfigPresenter;
 import com.dgregory.il2ssd.presentation.config.main.MainConfigView;
 import com.dgregory.il2ssd.presentation.console.ConsolePresenter;
 import com.dgregory.il2ssd.presentation.console.ConsoleView;
 import javafx.application.Platform;
+import javafx.beans.binding.BooleanBinding;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
@@ -66,6 +70,8 @@ public class MainPresenter implements Initializable {
     @Inject
     MainConfigPresenter mainConfigPresenter;
     @Inject
+    ParserService parserService;
+    @Inject
     ConsoleService consoleService;
     @Inject
     ConsoleView consoleView;
@@ -75,6 +81,11 @@ public class MainPresenter implements Initializable {
     Connection connection;
     @Inject
     Command command;
+
+    BooleanProperty connectDisconnecting = new SimpleBooleanProperty();
+    BooleanProperty loadUnloading = new SimpleBooleanProperty();
+    BooleanProperty missionGenerating = new SimpleBooleanProperty();
+    BooleanBinding serverTasksRunning = connectDisconnecting.or(loadUnloading.or(missionGenerating));
 
     @Override
     @Inject
@@ -113,6 +124,16 @@ public class MainPresenter implements Initializable {
             }
         });
 
+        serverTasksRunning.addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observableValue, Boolean oldValue, Boolean newValue) {
+                if (newValue) {
+                    progressIndicator.setVisible(true);
+                } else {
+                    progressIndicator.setVisible(false);
+                }
+            }
+        });
 
     }
 
@@ -125,15 +146,21 @@ public class MainPresenter implements Initializable {
     }
 
     public void exitItemAction() {
-        disconnectButtonAction();
+        if (connection.getConnected()) {
+            disconnectButtonAction();
+        }
         mainConfigPresenter.updateConfig();
         Platform.exit();
     }
 
     @Inject
     public void connectButtonAction() {
+        connectDisconnecting.set(true);
+        connectButton.setDisable(true);
         connection.connect();
         initRunning();
+        parserService.reset();
+        parserService.restart();
         consoleService.reset();
         consoleService.restart();
         command.sendCommand("server");
@@ -141,15 +168,23 @@ public class MainPresenter implements Initializable {
 
     @Inject
     public void disconnectButtonAction() {
+
         if (connection.getConnected()) {
+            connectDisconnecting.set(true);
+            disconnectButton.setDisable(true);
+            parserService.cancel();
+            parserService.reset();
             consoleService.cancel();
             consoleService.reset();
             connection.disconnect();
         }
+
     }
 
     @Inject
     public void startStopButtonAction() {
+        loadUnloading.set(true);
+        startStopButton.setDisable(true);
         if (Mission.getMissionRunning()) {
             command.endMission();
             command.askMission();
@@ -169,23 +204,24 @@ public class MainPresenter implements Initializable {
     }
 
     public void enableConnected(Boolean enable) {
+        connectDisconnecting.set(false);
         if (enable) {
-            connectButton.setDisable(true);
             disconnectButton.setDisable(false);
             startStopButton.setDisable(false);
         } else {
             connectButton.setDisable(false);
-            disconnectButton.setDisable(true);
             startStopButton.setDisable(true);
         }
     }
 
     public void enableRunning(Boolean enable) {
+        loadUnloading.set(false);
         if (enable) {
             startStopButton.setText(AwesomeIcons.ICON_STOP + " Stop");
+            startStopButton.setDisable(false);
         } else {
             startStopButton.setText(AwesomeIcons.ICON_PLAY + " Start");
-
+            startStopButton.setDisable(false);
         }
 
     }
@@ -198,8 +234,6 @@ public class MainPresenter implements Initializable {
         } catch (IOException e) {
             System.out.println("Couldn't read status message.");
         }
-        if (Parser.getLoaded(loadedMessage).equals("load")) {
-            Mission.setMissionRunning(true);
-        }
+        Parser.parseMissionLine(loadedMessage);
     }
 }

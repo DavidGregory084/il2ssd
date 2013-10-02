@@ -1,5 +1,9 @@
 package com.dgregory.il2ssd.business.text;
 
+import com.dgregory.il2ssd.business.server.Mission;
+
+import java.util.Deque;
+import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -8,9 +12,19 @@ import java.util.regex.Pattern;
  * il2ssd
  */
 public class Parser {
-    static Pattern mission = Pattern.compile("Mission");
+    static Pattern mission = Pattern.compile("Mission\\b.+");
+    static Pattern chat = Pattern.compile("Chat:\\b.+");
     static Pattern nothingLoaded = Pattern.compile("Mission\\b.+\\bNOT loaded");
     static Pattern missionLoaded = Pattern.compile("Mission\\b.+\\bis Loaded");
+    static Deque<String> parserQueue = new ConcurrentLinkedDeque<>();
+
+    public static void addParseLine(String line) {
+        parserQueue.addLast(line);
+    }
+
+    public static String pollParseLine() {
+        return parserQueue.pollFirst();
+    }
 
 
     public static String cleanText(String text) {
@@ -20,16 +34,28 @@ public class Parser {
         return text;
     }
 
-    public static String getLoaded(String text) {
-        Matcher matchLoaded = missionLoaded.matcher(text);
-        Matcher matchNotLoaded = nothingLoaded.matcher(text);
+    public static void parseLine(String line) {
+        Matcher matchMission = mission.matcher(line);
+        Matcher matchChat = chat.matcher(line);
+        if (matchMission.find()) {
+            parseMissionLine(line);
+            return;
+        }
+        if (matchChat.find()) {
+
+        }
+    }
+
+    public static void parseMissionLine(String line) {
+        Matcher matchLoaded = missionLoaded.matcher(line);
+        Matcher matchNotLoaded = nothingLoaded.matcher(line);
         if (matchLoaded.find()) {
-            return "load";
+            Mission.setMissionRunning(true);
+            return;
         }
         if (matchNotLoaded.find()) {
-            return "unload";
+            Mission.setMissionRunning(false);
         }
-        return "ignore";
     }
 
 }
