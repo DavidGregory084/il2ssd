@@ -4,6 +4,8 @@ import com.dgregory.il2ssd.business.config.Config;
 import com.dgregory.il2ssd.business.icons.AwesomeIcons;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
@@ -11,6 +13,8 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import org.apache.commons.exec.CommandLine;
+import org.apache.commons.lang.SystemUtils;
 
 import java.io.File;
 import java.net.URL;
@@ -24,6 +28,8 @@ import java.util.ResourceBundle;
  */
 public class MainConfigPresenter implements Initializable {
 
+    public BooleanProperty missionConfigured = new SimpleBooleanProperty();
+    public BooleanProperty dcgConfigured = new SimpleBooleanProperty();
     @FXML
     TextField ipAddressField;
     @FXML
@@ -56,7 +62,6 @@ public class MainConfigPresenter implements Initializable {
     ToggleButton dcgToggle;
     @FXML
     Label dcgModeLabel;
-
     FileChooser serverChooser = new FileChooser();
     FileChooser missionChooser = new FileChooser();
     FileChooser dcgChooser = new FileChooser();
@@ -65,9 +70,6 @@ public class MainConfigPresenter implements Initializable {
 
         Config.loadConfiguration();
         initControls();
-        initServerChooser();
-        initMissionChooser();
-        initDcgChooser();
 
         ipAddressField.focusedProperty().addListener(new ChangeListener<Boolean>() {
             @Override
@@ -90,24 +92,24 @@ public class MainConfigPresenter implements Initializable {
         serverPathLabel.textProperty().addListener(new InvalidationListener() {
             @Override
             public void invalidated(Observable observable) {
-                updateConfig();
+                setMissionConfigured();
             }
         });
 
         missionPathLabel.textProperty().addListener(new InvalidationListener() {
             @Override
             public void invalidated(Observable observable) {
-                updateConfig();
+                setMissionConfigured();
             }
         });
 
         dcgPathLabel.textProperty().addListener(new InvalidationListener() {
             @Override
             public void invalidated(Observable observable) {
-                updateConfig();
-                if (!dcgPathLabel.getText().startsWith("<")) {
+                if (!Config.getDcgPath().equals("")) {
                     enableDcgControls(true);
                 }
+                setDcgConfigured();
             }
         });
 
@@ -120,6 +122,7 @@ public class MainConfigPresenter implements Initializable {
                 } else {
                     enableRemoteControls(false);
                 }
+                setMissionConfigured();
             }
         });
 
@@ -129,6 +132,7 @@ public class MainConfigPresenter implements Initializable {
                 if (!newValue) {
                     updateConfig();
                 }
+                setMissionConfigured();
             }
         });
 
@@ -136,6 +140,7 @@ public class MainConfigPresenter implements Initializable {
             @Override
             public void invalidated(Observable observable) {
                 updateConfig();
+                setDcgConfigured();
             }
         });
     }
@@ -146,21 +151,36 @@ public class MainConfigPresenter implements Initializable {
             ipAddressField.setText(Config.getIpAddress());
             portField.setText(Config.getPort());
             remotePathText.setText(Config.getRemotePath());
+
             if (!Config.getServerPath().equals("")) {
                 serverPathLabel.setText(Config.getServerPath());
-            }
+                missionPathButton.setDisable(false);
+            } else missionPathButton.setDisable(true);
+
             if (!Config.getMissionPath().equals("")) {
                 missionPathLabel.setText(Config.getMissionPath());
             }
+
             if (!Config.getDcgPath().equals("")) {
                 dcgPathLabel.setText(Config.getDcgPath());
                 enableDcgControls(true);
             } else {
                 enableDcgControls(false);
             }
+
             remoteModeToggle.setSelected(Config.getRemoteMode());
             enableRemoteControls(Config.getRemoteMode());
             dcgToggle.setSelected(Config.getDcgMode());
+            setMissionConfigured();
+            setDcgConfigured();
+            initServerChooser();
+            initMissionChooser();
+            initDcgChooser();
+
+            if (!SystemUtils.IS_OS_WINDOWS) {
+                dcgPathButton.setDisable(true);
+            }
+
         } catch (NullPointerException e) {
             e.printStackTrace();
         }
@@ -199,7 +219,9 @@ public class MainConfigPresenter implements Initializable {
         } else {
             remoteModeToggle.setText(AwesomeIcons.ICON_REMOVE);
             serverPathButton.setDisable(false);
-            missionPathButton.setDisable(false);
+            if (!Config.getServerPath().equals("")) {
+                missionPathButton.setDisable(false);
+            }
             remotePathLabel.setVisible(false);
             remotePathText.setVisible(false);
             remotePathDesc.setVisible(false);
@@ -224,38 +246,31 @@ public class MainConfigPresenter implements Initializable {
         Config.setIpAddress(ipAddressField.getText());
         Config.setPort(portField.getText());
         Config.setRemotePath(remotePathText.getText());
-        if (!serverPathLabel.getText().startsWith("<")) {
-            Config.setServerPath(serverPathLabel.getText());
-        }
-        if (!missionPathLabel.getText().startsWith("<")) {
-            Config.setMissionPath(missionPathLabel.getText());
-        }
-        if (!dcgPathLabel.getText().startsWith("<")) {
-            Config.setDcgPath(dcgPathLabel.getText());
-        }
         Config.setRemoteMode(remoteModeToggle.isSelected());
         Config.setDcgMode(dcgToggle.isSelected());
         Config.saveConfiguration();
     }
 
     public String resolveMissionPath() {
-        Path serverPath;
         Path missionPath;
         Path missionsRoot;
         Path missionLoadPath;
         String missionLoadString;
 
-        serverPath = Paths.get(Config.getServerPath());
+        missionsRoot = getMissionDir();
         missionPath = Paths.get(Config.getMissionPath());
+        System.out.println(missionPath);
 
-        missionsRoot = serverPath.getParent().resolve("Missions");
         missionLoadPath = missionsRoot.relativize(missionPath).normalize();
+        System.out.println(missionLoadPath.toString());
         missionLoadString = missionLoadPath.toString().replace("\\", "/");
+        System.out.println(missionLoadString);
         return missionLoadString;
     }
 
     public void serverPathButtonAction() {
         String serverPath;
+        serverChooser.setInitialDirectory(Paths.get("").toAbsolutePath().toFile());
         File file = serverChooser.showOpenDialog(new Stage());
         if (file != null) {
             serverPath = file.toString();
@@ -271,6 +286,8 @@ public class MainConfigPresenter implements Initializable {
 
     public void missionPathButtonAction() {
         String missionPath;
+        Path missionsRoot = getMissionDir();
+        missionChooser.setInitialDirectory(missionsRoot.toFile());
         File file = missionChooser.showOpenDialog(new Stage());
         if (file != null) {
             missionPath = file.toString();
@@ -293,6 +310,35 @@ public class MainConfigPresenter implements Initializable {
             dcgPathLabel.setText("<no dcg .exe selected>");
         }
 
+    }
+
+    public void setMissionConfigured() {
+        if (!Config.getServerPath().equals("") &&
+                !Config.getMissionPath().equals("") &&
+                !Config.getRemoteMode()
+                ||
+                !Config.getRemotePath().equals("") &&
+                        Config.getRemoteMode()) {
+            missionConfigured.set(true);
+        } else missionConfigured.set(false);
+    }
+
+    public void setDcgConfigured() {
+        if (!Config.getDcgPath().equals("") &&
+                Config.getDcgMode()) {
+            dcgConfigured.set(true);
+        } else dcgConfigured.set(false);
+    }
+
+    public void initDcgCommand(String dcgPath) {
+        CommandLine dcgCommand = new CommandLine(dcgPath);
+        dcgCommand.addArgument("/netdogfight");
+        System.out.println(dcgCommand.toString());
+    }
+
+    public Path getMissionDir() {
+        Path serverPath = Paths.get(Config.getServerPath());
+        return serverPath.getParent().resolve("Missions");
     }
 
 }

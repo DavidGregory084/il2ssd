@@ -81,11 +81,13 @@ public class MainPresenter implements Initializable {
     Connection connection;
     @Inject
     Command command;
+    BooleanBinding serverTasksRunning;
+    BooleanBinding readyToLoad;
+    BooleanBinding readyForDCG;
 
     BooleanProperty connectDisconnecting = new SimpleBooleanProperty();
     BooleanProperty loadUnloading = new SimpleBooleanProperty();
     BooleanProperty missionGenerating = new SimpleBooleanProperty();
-    BooleanBinding serverTasksRunning = connectDisconnecting.or(loadUnloading.or(missionGenerating));
 
     @Override
     @Inject
@@ -97,18 +99,42 @@ public class MainPresenter implements Initializable {
         configPane.getChildren().add(mainConfigView.getView());
         consoleService.setConsolePresenter(consolePresenter);
 
-        this.enableConnected(false);
         consolePresenter.enableConnected(false);
+
+        serverTasksRunning = connectDisconnecting.or(loadUnloading.or(missionGenerating));
+        readyToLoad = mainConfigPresenter.missionConfigured.and(connection.connectedProperty().and(loadUnloading.not()));
+        readyForDCG = mainConfigPresenter.dcgConfigured.and(readyToLoad);
 
         connection.connectedProperty().addListener(new ChangeListener<Boolean>() {
             @Override
             public void changed(ObservableValue<? extends Boolean> observableValue, Boolean oldValue, Boolean newValue) {
                 if (newValue) {
                     enableConnected(true);
-                    consolePresenter.enableConnected(true);
+                    System.out.println(mainConfigPresenter.missionConfigured);
+                    System.out.println(loadUnloading.not());
+                    System.out.println(mainConfigPresenter.dcgConfigured);
                 } else {
                     enableConnected(false);
-                    consolePresenter.enableConnected(false);
+                }
+            }
+        });
+
+        readyToLoad.addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observableValue, Boolean oldValue, Boolean newValue) {
+                if (newValue) {
+                    enableLoad(true);
+                } else enableLoad(false);
+            }
+        });
+
+        readyForDCG.addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observableValue, Boolean oldValue, Boolean newValue) {
+                if (newValue) {
+                    enableNext(true);
+                } else {
+                    enableNext(false);
                 }
             }
         });
@@ -116,6 +142,7 @@ public class MainPresenter implements Initializable {
         Mission.missionRunningProperty().addListener(new ChangeListener<Boolean>() {
             @Override
             public void changed(ObservableValue<? extends Boolean> observableValue, Boolean oldValue, Boolean newValue) {
+                loadUnloading.set(false);
                 if (newValue) {
                     enableRunning(true);
                 } else {
@@ -156,7 +183,6 @@ public class MainPresenter implements Initializable {
     @Inject
     public void connectButtonAction() {
         connectDisconnecting.set(true);
-        connectButton.setDisable(true);
         connection.connect();
         initRunning();
         parserService.reset();
@@ -164,6 +190,11 @@ public class MainPresenter implements Initializable {
         consoleService.reset();
         consoleService.restart();
         command.sendCommand("server");
+        if (!connection.getConnected()) {
+            connectDisconnecting.set(false);
+        }
+
+
     }
 
     @Inject
@@ -171,12 +202,14 @@ public class MainPresenter implements Initializable {
 
         if (connection.getConnected()) {
             connectDisconnecting.set(true);
-            disconnectButton.setDisable(true);
             parserService.cancel();
             parserService.reset();
             consoleService.cancel();
             consoleService.reset();
             connection.disconnect();
+            if (connection.getConnected()) {
+                connectDisconnecting.set(false);
+            }
         }
 
     }
@@ -195,22 +228,23 @@ public class MainPresenter implements Initializable {
                 command.loadMission(mainConfigPresenter.resolveMissionPath());
             }
         }
-
-
     }
 
     public void nextButtonAction() {
+        mainConfigPresenter.initDcgCommand(Config.getDcgPath());
         startStopButtonAction();
     }
 
     public void enableConnected(Boolean enable) {
         connectDisconnecting.set(false);
         if (enable) {
+            connectButton.setDisable(true);
             disconnectButton.setDisable(false);
-            startStopButton.setDisable(false);
+            consolePresenter.enableConnected(true);
         } else {
             connectButton.setDisable(false);
-            startStopButton.setDisable(true);
+            disconnectButton.setDisable(true);
+            consolePresenter.enableConnected(false);
         }
     }
 
@@ -218,12 +252,25 @@ public class MainPresenter implements Initializable {
         loadUnloading.set(false);
         if (enable) {
             startStopButton.setText(AwesomeIcons.ICON_STOP + " Stop");
-            startStopButton.setDisable(false);
         } else {
             startStopButton.setText(AwesomeIcons.ICON_PLAY + " Start");
-            startStopButton.setDisable(false);
         }
+    }
 
+    public void enableNext(Boolean enable) {
+        if (enable) {
+            nextButton.setDisable(false);
+        } else {
+            nextButton.setDisable(true);
+        }
+    }
+
+    public void enableLoad(Boolean enable) {
+        if (enable) {
+            startStopButton.setDisable(false);
+        } else {
+            startStopButton.setDisable(true);
+        }
     }
 
     public void initRunning() {
