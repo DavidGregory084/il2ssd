@@ -14,6 +14,7 @@ import javafx.scene.control.*;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.apache.commons.exec.CommandLine;
+import org.apache.commons.exec.DefaultExecutor;
 import org.apache.commons.lang.SystemUtils;
 
 import java.io.File;
@@ -93,6 +94,7 @@ public class MainConfigPresenter implements Initializable {
             @Override
             public void invalidated(Observable observable) {
                 setMissionConfigured();
+                updateConfig();
             }
         });
 
@@ -100,6 +102,7 @@ public class MainConfigPresenter implements Initializable {
             @Override
             public void invalidated(Observable observable) {
                 setMissionConfigured();
+                updateConfig();
             }
         });
 
@@ -110,6 +113,7 @@ public class MainConfigPresenter implements Initializable {
                     enableDcgControls(true);
                 }
                 setDcgConfigured();
+                updateConfig();
             }
         });
 
@@ -136,9 +140,14 @@ public class MainConfigPresenter implements Initializable {
             }
         });
 
-        dcgToggle.selectedProperty().addListener(new InvalidationListener() {
+        dcgToggle.selectedProperty().addListener(new ChangeListener<Boolean>() {
             @Override
-            public void invalidated(Observable observable) {
+            public void changed(ObservableValue<? extends Boolean> observableValue, Boolean oldValue, Boolean newValue) {
+                if (newValue) {
+                    dcgToggle.setText(AwesomeIcons.ICON_OK);
+                } else {
+                    dcgToggle.setText(AwesomeIcons.ICON_REMOVE);
+                }
                 updateConfig();
                 setDcgConfigured();
             }
@@ -328,12 +337,6 @@ public class MainConfigPresenter implements Initializable {
                 Config.getDcgMode()) {
             dcgConfigured.set(true);
         } else dcgConfigured.set(false);
-    }
-
-    public void initDcgCommand(String dcgPath) {
-        CommandLine dcgCommand = new CommandLine(dcgPath);
-        dcgCommand.addArgument("/netdogfight");
-        System.out.println(dcgCommand.toString());
     }
 
     public Path getMissionDir() {

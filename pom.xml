@@ -33,7 +33,7 @@
                 <artifactId>maven-scm-plugin</artifactId>
                 <version>1.8.1</version>
                 <configuration>
-                    <message>Bindings for button availability and running background tasks; skeleton DCG implementation.</message>
+                    <message>Bugfixes: time out bad connections instead of loading forever, save paths immediately. Add full DCG generation function.</message>
                 </configuration>
             </plugin>
             <plugin>

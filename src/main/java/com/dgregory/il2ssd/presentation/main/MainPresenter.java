@@ -23,6 +23,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
+import org.apache.commons.exec.*;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -184,17 +185,14 @@ public class MainPresenter implements Initializable {
     public void connectButtonAction() {
         connectDisconnecting.set(true);
         connection.connect();
-        initRunning();
-        parserService.reset();
-        parserService.restart();
-        consoleService.reset();
-        consoleService.restart();
-        command.sendCommand("server");
-        if (!connection.getConnected()) {
-            connectDisconnecting.set(false);
-        }
-
-
+        if (connection.getConnected()) {
+            initRunning();
+            parserService.reset();
+            parserService.restart();
+            consoleService.reset();
+            consoleService.restart();
+            command.sendCommand("server");
+        } else connectDisconnecting.set(false);
     }
 
     @Inject
@@ -231,7 +229,18 @@ public class MainPresenter implements Initializable {
     }
 
     public void nextButtonAction() {
-        mainConfigPresenter.initDcgCommand(Config.getDcgPath());
+        DefaultExecuteResultHandler generated;
+        loadUnloading.set(true);
+        generated = execDcgCommand(Config.getDcgPath());
+        try {
+            generated.waitFor();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            loadUnloading.set(false);
+        }
+        if (Mission.getMissionRunning()) {
+            startStopButtonAction();
+        }
         startStopButtonAction();
     }
 
@@ -282,5 +291,26 @@ public class MainPresenter implements Initializable {
             System.out.println("Couldn't read status message.");
         }
         Parser.parseMissionLine(loadedMessage);
+    }
+
+
+    public DefaultExecuteResultHandler execDcgCommand(String dcgPath) {
+
+        CommandLine dcgCommand = new CommandLine(dcgPath);
+        dcgCommand.addArgument("/netdogfight");
+        Executor executor = new DefaultExecutor();
+        ExecuteWatchdog watchdog = new ExecuteWatchdog(60000);
+        DefaultExecuteResultHandler resultHandler = new DefaultExecuteResultHandler();
+        executor.setWatchdog(watchdog);
+
+        try {
+            executor.execute(dcgCommand, resultHandler);
+        } catch (IOException e) {
+            e.printStackTrace();
+            loadUnloading.set(false);
+        }
+
+        return resultHandler;
+
     }
 }

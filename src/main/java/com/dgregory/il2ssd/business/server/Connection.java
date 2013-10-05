@@ -9,6 +9,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.charset.Charset;
 
@@ -26,17 +27,17 @@ public class Connection {
     public void connect() {
 
         try {
-            socket = new Socket(Config.getIpAddress(), Integer.decode(Config.getPort()));
+            socket = new Socket();
+            socket.connect(new InetSocketAddress(Config.getIpAddress(), Integer.decode(Config.getPort())), 10000);
             output = new PrintWriter(socket.getOutputStream(), true);
             input = new BufferedReader(new InputStreamReader(socket.getInputStream(), Charset.forName("UTF-8")));
             setConnected(true);
             if (socket.isConnected()) {
                 System.out.println("Connected to server " + Config.getIpAddress() + " on port " + Config.getPort());
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             setConnected(false);
             System.out.println("Failed to connect to socket.");
-            e.printStackTrace();
         }
 
     }
@@ -49,9 +50,8 @@ public class Connection {
             input.close();
             socket.close();
             setConnected(false);
-        } catch (IOException e) {
+        } catch (Exception e) {
             System.out.println("Failed to close socket.");
-            e.printStackTrace();
         }
     }
 
