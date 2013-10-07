@@ -111,9 +111,6 @@ public class MainPresenter implements Initializable {
             public void changed(ObservableValue<? extends Boolean> observableValue, Boolean oldValue, Boolean newValue) {
                 if (newValue) {
                     enableConnected(true);
-                    System.out.println(mainConfigPresenter.missionConfigured);
-                    System.out.println(loadUnloading.not());
-                    System.out.println(mainConfigPresenter.dcgConfigured);
                 } else {
                     enableConnected(false);
                 }
@@ -216,12 +213,25 @@ public class MainPresenter implements Initializable {
     public void startStopButtonAction() {
         loadUnloading.set(true);
         startStopButton.setDisable(true);
+
         if (Mission.getMissionRunning()) {
             command.endMission();
             command.askMission();
         } else {
+
             if (Config.getRemoteMode()) {
                 command.loadMission(Config.getRemotePath());
+            }
+
+            if (Config.getDcgMode()) {
+
+                if (mainConfigPresenter.getDcgMission().equals("")) {
+                    generateDcgMission();
+                    startStopButtonAction();
+                } else {
+                    command.loadMission(mainConfigPresenter.getDcgMission());
+                }
+
             } else {
                 command.loadMission(mainConfigPresenter.resolveMissionPath());
             }
@@ -229,21 +239,22 @@ public class MainPresenter implements Initializable {
     }
 
     public void nextButtonAction() {
-        DefaultExecuteResultHandler generated;
-        loadUnloading.set(true);
-        generated = execDcgCommand(Config.getDcgPath());
-        try {
-            generated.waitFor();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            loadUnloading.set(false);
-        }
+        generateDcgMission();
         if (Mission.getMissionRunning()) {
-            startStopButtonAction();
+            command.endMission();
+            command.askMission();
+        }
+        while (Mission.getMissionRunning()) {
+            try {
+                wait();
+            } catch (InterruptedException e) {
+                System.out.println("Wait interrupted.");
+            }
         }
         startStopButtonAction();
     }
 
+    @Inject
     public void enableConnected(Boolean enable) {
         connectDisconnecting.set(false);
         if (enable) {
@@ -282,6 +293,7 @@ public class MainPresenter implements Initializable {
         }
     }
 
+    @Inject
     public void initRunning() {
         String loadedMessage = "";
         command.askMission();
@@ -312,5 +324,17 @@ public class MainPresenter implements Initializable {
 
         return resultHandler;
 
+    }
+
+    public void generateDcgMission() {
+        DefaultExecuteResultHandler generated;
+        loadUnloading.set(true);
+        generated = execDcgCommand(Config.getDcgPath());
+        try {
+            generated.waitFor();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            loadUnloading.set(false);
+        }
     }
 }

@@ -17,8 +17,12 @@ import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;
 import org.apache.commons.lang.SystemUtils;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ResourceBundle;
@@ -123,6 +127,7 @@ public class MainConfigPresenter implements Initializable {
                 updateConfig();
                 if (newValue) {
                     enableRemoteControls(true);
+                    dcgToggle.setSelected(false);
                 } else {
                     enableRemoteControls(false);
                 }
@@ -145,11 +150,13 @@ public class MainConfigPresenter implements Initializable {
             public void changed(ObservableValue<? extends Boolean> observableValue, Boolean oldValue, Boolean newValue) {
                 if (newValue) {
                     dcgToggle.setText(AwesomeIcons.ICON_OK);
+                    remoteModeToggle.setSelected(false);
                 } else {
                     dcgToggle.setText(AwesomeIcons.ICON_REMOVE);
                 }
                 updateConfig();
                 setDcgConfigured();
+                setMissionConfigured();
             }
         });
     }
@@ -179,9 +186,18 @@ public class MainConfigPresenter implements Initializable {
 
             remoteModeToggle.setSelected(Config.getRemoteMode());
             enableRemoteControls(Config.getRemoteMode());
-            dcgToggle.setSelected(Config.getDcgMode());
+
+            if (Config.getDcgMode()) {
+                dcgToggle.setSelected(true);
+                dcgToggle.setText(AwesomeIcons.ICON_OK);
+            } else {
+                dcgToggle.setSelected(false);
+                dcgToggle.setText(AwesomeIcons.ICON_REMOVE);
+            }
+
             setMissionConfigured();
             setDcgConfigured();
+
             initServerChooser();
             initMissionChooser();
             initDcgChooser();
@@ -322,12 +338,14 @@ public class MainConfigPresenter implements Initializable {
     }
 
     public void setMissionConfigured() {
-        if (!Config.getServerPath().equals("") &&
+        if ((!Config.getServerPath().equals("") &&
                 !Config.getMissionPath().equals("") &&
-                !Config.getRemoteMode()
+                !Config.getRemoteMode())
                 ||
-                !Config.getRemotePath().equals("") &&
-                        Config.getRemoteMode()) {
+                (!Config.getRemotePath().equals("") &&
+                        Config.getRemoteMode())
+                ||
+                dcgConfigured.get()){
             missionConfigured.set(true);
         } else missionConfigured.set(false);
     }
@@ -344,4 +362,19 @@ public class MainConfigPresenter implements Initializable {
         return serverPath.getParent().resolve("Missions");
     }
 
+    public String getDcgMission() {
+        BufferedReader reader;
+        String dcgMission;
+        Path dcgDir = Paths.get(Config.getDcgPath()).getParent();
+        Path dcgMisFile = dcgDir.resolve("missions.txt");
+        if (Files.exists(dcgMisFile)) {
+            try {
+                reader = Files.newBufferedReader(dcgMisFile, Charset.defaultCharset());
+                dcgMission = "Net/" + reader.readLine();
+                return dcgMission = dcgMission.replace("\\", "/");
+            } catch (IOException e) {
+                System.out.println("Couldn't read from DCG missions file.");
+            }
+        } return "";
+    }
 }

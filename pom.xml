@@ -33,7 +33,7 @@
                 <artifactId>maven-scm-plugin</artifactId>
                 <version>1.8.1</version>
                 <configuration>
-                    <message>Bugfixes: time out bad connections instead of loading forever, save paths immediately. Add full DCG generation function.</message>
+                    <message>Fix for new mission name format in DCG; read names from missions.txt</message>
                 </configuration>
             </plugin>
             <plugin>
