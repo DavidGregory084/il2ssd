@@ -1,4 +1,4 @@
-package com.dgregory.il2ssd.presentation.config.main;
+package com.dgregory.il2ssd.presentation.config.server;
 
 import com.dgregory.il2ssd.business.config.Config;
 import com.dgregory.il2ssd.business.icons.AwesomeIcons;
@@ -13,8 +13,6 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import org.apache.commons.exec.CommandLine;
-import org.apache.commons.exec.DefaultExecutor;
 import org.apache.commons.lang.SystemUtils;
 
 import java.io.BufferedReader;
@@ -31,7 +29,7 @@ import java.util.ResourceBundle;
  * 23/09/13 01:11
  * il2ssd
  */
-public class MainConfigPresenter implements Initializable {
+public class ServerConfigPresenter implements Initializable {
 
     public BooleanProperty missionConfigured = new SimpleBooleanProperty();
     public BooleanProperty dcgConfigured = new SimpleBooleanProperty();
@@ -371,7 +369,7 @@ public class MainConfigPresenter implements Initializable {
             try {
                 reader = Files.newBufferedReader(dcgMisFile, Charset.defaultCharset());
                 dcgMission = "Net/" + reader.readLine();
-                return dcgMission = dcgMission.replace("\\", "/");
+                return dcgMission.replace("\\", "/");
             } catch (IOException e) {
                 System.out.println("Couldn't read from DCG missions file.");
             }

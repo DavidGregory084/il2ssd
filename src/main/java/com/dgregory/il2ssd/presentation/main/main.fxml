@@ -15,13 +15,11 @@
                     prefHeight="30.0" prefWidth="113.0" text="  Disconnect"/>
             <StackPane id="StackPane" maxHeight="39.0" maxWidth="70.0" prefHeight="39.0" prefWidth="50.0"
                        visible="true">
-                <children>
-                    <ProgressIndicator fx:id="progressIndicator" maxHeight="-1.0" maxWidth="-1.0" prefHeight="-1.0"
-                                       prefWidth="-1.0" progress="-1.0" visible="false"/>
-                </children>
                 <padding>
                     <Insets bottom="3.0" top="3.0"/>
                 </padding>
+                <ProgressIndicator fx:id="progressIndicator" maxHeight="-1.0" maxWidth="-1.0" prefHeight="-1.0"
+                                   prefWidth="-1.0" progress="-1.0" visible="false"/>
             </StackPane>
             <Button fx:id="startStopButton" disable="true" mnemonicParsing="false" onAction="#startStopButtonAction"
                     prefHeight="30.0" prefWidth="95.0" text="  Start"/>
@@ -32,14 +30,10 @@
     <center>
         <TabPane fx:id="tabPane" prefHeight="-1.0" prefWidth="-1.0" tabClosingPolicy="UNAVAILABLE">
             <Tab fx:id="consoleTab" closable="false" text="Console">
-                <content>
-                    <Pane fx:id="consolePane" prefHeight="-1.0" prefWidth="-1.0"/>
-                </content>
+                <Pane fx:id="consolePane" prefHeight="-1.0" prefWidth="-1.0"/>
             </Tab>
-            <Tab fx:id="configTab" closable="false" text="Settings">
-                <content>
-                    <Pane fx:id="configPane" prefHeight="-1.0" prefWidth="-1.0"/>
-                </content>
+            <Tab fx:id="serverConfigTab" closable="false" text="Settings">
+                <Pane fx:id="serverConfigPane" prefHeight="-1.0" prefWidth="-1.0"/>
             </Tab>
         </TabPane>
     </center>

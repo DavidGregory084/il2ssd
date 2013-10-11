@@ -8,8 +8,8 @@ import com.dgregory.il2ssd.business.server.ConsoleService;
 import com.dgregory.il2ssd.business.server.Mission;
 import com.dgregory.il2ssd.business.text.Parser;
 import com.dgregory.il2ssd.business.text.ParserService;
-import com.dgregory.il2ssd.presentation.config.main.MainConfigPresenter;
-import com.dgregory.il2ssd.presentation.config.main.MainConfigView;
+import com.dgregory.il2ssd.presentation.config.server.ServerConfigPresenter;
+import com.dgregory.il2ssd.presentation.config.server.ServerConfigView;
 import com.dgregory.il2ssd.presentation.console.ConsolePresenter;
 import com.dgregory.il2ssd.presentation.console.ConsoleView;
 import javafx.application.Platform;
@@ -53,9 +53,9 @@ public class MainPresenter implements Initializable {
     @FXML
     Pane consolePane;
     @FXML
-    Tab configTab;
+    Tab serverConfigTab;
     @FXML
-    Pane configPane;
+    Pane serverConfigPane;
     @FXML
     Button connectButton;
     @FXML
@@ -69,7 +69,7 @@ public class MainPresenter implements Initializable {
     @Inject
     ConsolePresenter consolePresenter;
     @Inject
-    MainConfigPresenter mainConfigPresenter;
+    ServerConfigPresenter serverConfigPresenter;
     @Inject
     ParserService parserService;
     @Inject
@@ -77,7 +77,7 @@ public class MainPresenter implements Initializable {
     @Inject
     ConsoleView consoleView;
     @Inject
-    MainConfigView mainConfigView;
+    ServerConfigView serverConfigView;
     @Inject
     Connection connection;
     @Inject
@@ -95,16 +95,16 @@ public class MainPresenter implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
         this.consolePresenter = (ConsolePresenter) consoleView.getPresenter();
-        this.mainConfigPresenter = (MainConfigPresenter) mainConfigView.getPresenter();
+        this.serverConfigPresenter = (ServerConfigPresenter) serverConfigView.getPresenter();
         consolePane.getChildren().add(consoleView.getView());
-        configPane.getChildren().add(mainConfigView.getView());
+        serverConfigPane.getChildren().add(serverConfigView.getView());
         consoleService.setConsolePresenter(consolePresenter);
 
         consolePresenter.enableConnected(false);
 
         serverTasksRunning = connectDisconnecting.or(loadUnloading.or(missionGenerating));
-        readyToLoad = mainConfigPresenter.missionConfigured.and(connection.connectedProperty().and(loadUnloading.not()));
-        readyForDCG = mainConfigPresenter.dcgConfigured.and(readyToLoad);
+        readyToLoad = serverConfigPresenter.missionConfigured.and(connection.connectedProperty().and(loadUnloading.not()));
+        readyForDCG = serverConfigPresenter.dcgConfigured.and(readyToLoad);
 
         connection.connectedProperty().addListener(new ChangeListener<Boolean>() {
             @Override
@@ -166,15 +166,15 @@ public class MainPresenter implements Initializable {
         return consolePresenter;
     }
 
-    public MainConfigPresenter getMainConfigPresenter() {
-        return mainConfigPresenter;
+    public ServerConfigPresenter getServerConfigPresenter() {
+        return serverConfigPresenter;
     }
 
     public void exitItemAction() {
         if (connection.getConnected()) {
             disconnectButtonAction();
         }
-        mainConfigPresenter.updateConfig();
+        serverConfigPresenter.updateConfig();
         Platform.exit();
     }
 
@@ -225,15 +225,16 @@ public class MainPresenter implements Initializable {
 
             if (Config.getDcgMode()) {
 
-                if (mainConfigPresenter.getDcgMission().equals("")) {
+                if (serverConfigPresenter.getDcgMission().equals("")) {
                     generateDcgMission();
                     startStopButtonAction();
                 } else {
-                    command.loadMission(mainConfigPresenter.getDcgMission());
+                    command.loadMission(serverConfigPresenter.getDcgMission());
                 }
+            }
 
-            } else {
-                command.loadMission(mainConfigPresenter.resolveMissionPath());
+            if (!Config.getDcgMode() && !Config.getRemoteMode()) {
+                command.loadMission(serverConfigPresenter.resolveMissionPath());
             }
         }
     }

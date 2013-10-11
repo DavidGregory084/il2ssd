@@ -33,7 +33,7 @@
                 <artifactId>maven-scm-plugin</artifactId>
                 <version>1.8.1</version>
                 <configuration>
-                    <message>Fix for new mission name format in DCG; read names from missions.txt</message>
+                    <message>Fix start/stop button logic bug; Groundwork for mission config panel.</message>
                 </configuration>
             </plugin>
             <plugin>

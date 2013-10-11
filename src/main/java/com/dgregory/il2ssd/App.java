@@ -35,7 +35,7 @@ public class App extends Application {
                 windowEvent.consume();
                 MainPresenter mainPresenter = (MainPresenter) appView.getPresenter();
                 mainPresenter.disconnectButtonAction();
-                mainPresenter.getMainConfigPresenter().updateConfig();
+                mainPresenter.getServerConfigPresenter().updateConfig();
                 Platform.exit();
             }
         });
