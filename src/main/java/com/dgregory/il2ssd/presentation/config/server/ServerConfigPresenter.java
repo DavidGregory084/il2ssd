@@ -343,7 +343,7 @@ public class ServerConfigPresenter implements Initializable {
                 (!Config.getRemotePath().equals("") &&
                         Config.getRemoteMode())
                 ||
-                dcgConfigured.get()){
+                dcgConfigured.get()) {
             missionConfigured.set(true);
         } else missionConfigured.set(false);
     }
@@ -373,6 +373,7 @@ public class ServerConfigPresenter implements Initializable {
             } catch (IOException e) {
                 System.out.println("Couldn't read from DCG missions file.");
             }
-        } return "";
+        }
+        return "";
     }
 }

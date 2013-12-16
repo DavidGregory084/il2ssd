@@ -26,14 +26,14 @@
 
     <build>
         <defaultGoal>package</defaultGoal>
-        <finalName>${artifactId}-${version}</finalName>
+        <finalName>${project.artifactId}-${project.version}</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-scm-plugin</artifactId>
                 <version>1.8.1</version>
                 <configuration>
-                    <message>Fix start/stop button logic bug; Groundwork for mission config panel.</message>
+                    <message>Final Java-only commit; full code reformat.</message>
                 </configuration>
             </plugin>
             <plugin>
@@ -47,7 +47,7 @@
                 <configuration>
                     <mainClass>com.dgregory.il2ssd.App</mainClass>
                     <nativeReleaseVersion>0.0.1</nativeReleaseVersion>
-                    <identifier>${artifactId}-${version}</identifier>
+                    <identifier>${project.artifactId}-${project.version}</identifier>
                 </configuration>
             </plugin>
         </plugins>
@@ -70,7 +70,7 @@
 
     <developers>
         <developer>
-            <id>david</id>
+            <id>dgregory084</id>
             <name>David Gregory</name>
             <email>davidgregory084@gmail.com</email>
             <roles>

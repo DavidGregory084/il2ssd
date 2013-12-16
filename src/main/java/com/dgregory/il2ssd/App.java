@@ -17,6 +17,10 @@ import javafx.stage.WindowEvent;
  */
 public class App extends Application {
 
+    public static void main(String[] args) {
+        launch(args);
+    }
+
     @Override
     public void start(Stage stage) throws Exception {
         final MainView appView = new MainView();
@@ -45,10 +49,6 @@ public class App extends Application {
     @Override
     public void stop() throws Exception {
         InjectionProvider.forgetAll();
-    }
-
-    public static void main(String[] args) {
-        launch(args);
     }
 
 }

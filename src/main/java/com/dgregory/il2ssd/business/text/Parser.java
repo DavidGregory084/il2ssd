@@ -26,7 +26,6 @@ public class Parser {
         return parserQueue.pollFirst();
     }
 
-
     public static String cleanText(String text) {
         text = text.replace("\\n", "\n");
         text = text.replace("\\t", "\t");

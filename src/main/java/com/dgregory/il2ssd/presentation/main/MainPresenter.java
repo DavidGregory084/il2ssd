@@ -85,7 +85,6 @@ public class MainPresenter implements Initializable {
     BooleanBinding serverTasksRunning;
     BooleanBinding readyToLoad;
     BooleanBinding readyForDCG;
-
     BooleanProperty connectDisconnecting = new SimpleBooleanProperty();
     BooleanProperty loadUnloading = new SimpleBooleanProperty();
     BooleanProperty missionGenerating = new SimpleBooleanProperty();
@@ -305,7 +304,6 @@ public class MainPresenter implements Initializable {
         }
         Parser.parseMissionLine(loadedMessage);
     }
-
 
     public DefaultExecuteResultHandler execDcgCommand(String dcgPath) {
 
