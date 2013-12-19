@@ -1,17 +1,16 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.dgregory.il2ssd</groupId>
+    <groupId>uk.org.il2ssd</groupId>
     <artifactId>il2ssd</artifactId>
+    <version>0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
-    <version>0.0.1-SNAPSHOT</version>
-    <name>IL-2 Simple Server Daemon</name>
     <organization>
         <name>IL-2 Community</name>
     </organization>
+
+    <name>il2ssd</name>
 
     <scm>
         <connection>scm:hg:ssh://hg@bitbucket.org/dgregory084/il-2-simple-server-daemon</connection>
@@ -20,6 +19,7 @@
     </scm>
 
     <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.7</maven.compiler.source>
         <maven.compiler.target>1.7</maven.compiler.target>
     </properties>
@@ -33,7 +33,7 @@
                 <artifactId>maven-scm-plugin</artifactId>
                 <version>1.8.1</version>
                 <configuration>
-                    <message>Final Java-only commit; full code reformat.</message>
+                    <message>Initial skeleton Clojure rewrite; dependencies added for future use.</message>
                 </configuration>
             </plugin>
             <plugin>
@@ -45,10 +45,16 @@
                 <artifactId>javafx-maven-plugin</artifactId>
                 <version>2.0</version>
                 <configuration>
-                    <mainClass>com.dgregory.il2ssd.App</mainClass>
-                    <nativeReleaseVersion>0.0.1</nativeReleaseVersion>
+                    <mainClass>uk.org.il2ssd.core</mainClass>
+                    <nativeReleaseVersion>${project.version}</nativeReleaseVersion>
                     <identifier>${project.artifactId}-${project.version}</identifier>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.theoryinpractise</groupId>
+                <artifactId>clojure-maven-plugin</artifactId>
+                <version>1.3.17</version>
+                <extensions>true</extensions>
             </plugin>
         </plugins>
         <resources>
@@ -80,11 +86,18 @@
         </developer>
     </developers>
 
+    <repositories>
+        <repository>
+            <id>clojars.org</id>
+            <url>http://clojars.org/repo</url>
+        </repository>
+    </repositories>
+
     <dependencies>
         <dependency>
             <groupId>com.airhacks</groupId>
             <artifactId>afterburner.fx</artifactId>
-            <version>1.0</version>
+            <version>1.3</version>
         </dependency>
         <dependency>
             <groupId>commons-configuration</groupId>
@@ -96,6 +109,26 @@
             <artifactId>commons-exec</artifactId>
             <version>1.1</version>
         </dependency>
+        <dependency>
+            <groupId>org.clojure</groupId>
+            <artifactId>clojure</artifactId>
+            <version>1.5.1</version>
+        </dependency>
+        <dependency>
+            <groupId>lamina</groupId>
+            <artifactId>lamina</artifactId>
+            <version>0.5.0</version>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>3.8.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.mikera</groupId>
+            <artifactId>cljunit</artifactId>
+            <version>0.3.0</version>
+        </dependency>
     </dependencies>
-
 </project>

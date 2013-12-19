@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?scenebuilder-stylesheet main.css?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import java.net.URL?>
+<BorderPane id="borderPane" prefHeight="528.0" prefWidth="500.0" xmlns:fx="http://javafx.com/fxml/1"
+            xmlns="http://javafx.com/javafx/2.2" fx:controller="uk.org.il2ssd.MainPresenter">
+    <bottom>
+        <ToolBar>
+            <Button fx:id="connectButton" alignment="CENTER" mnemonicParsing="false" prefHeight="30.0" prefWidth="95.0"
+                    text="  Connect" textAlignment="CENTER"/>
+            <Button fx:id="disconnectButton" disable="true" mnemonicParsing="false" prefHeight="30.0" prefWidth="113.0"
+                    text="  Disconnect"/>
+            <StackPane id="StackPane" maxHeight="39.0" maxWidth="70.0" prefHeight="39.0" prefWidth="50.0"
+                       visible="true">
+                <children>
+                    <ProgressIndicator fx:id="progressIndicator" maxHeight="-1.0" maxWidth="-1.0" prefHeight="-1.0"
+                                       prefWidth="-1.0" progress="-1.0" visible="false"/>
+                </children>
+                <padding>
+                    <Insets/>
+                </padding>
+            </StackPane>
+            <Button fx:id="startStopButton" disable="true" mnemonicParsing="false" prefHeight="30.0" prefWidth="95.0"
+                    text="  Start"/>
+            <Button fx:id="nextButton" alignment="CENTER" disable="true" mnemonicParsing="false" prefHeight="30.0"
+                    prefWidth="95.0" text=" Next"/>
+        </ToolBar>
+    </bottom>
+    <center>
+        <TabPane  prefHeight="-1.0" prefWidth="-1.0" tabClosingPolicy="UNAVAILABLE">
+            <Tab  closable="false" text="Console">
+                <content>
+                    <BorderPane prefHeight="200.0" prefWidth="200.0">
+                        <bottom>
+                            <AnchorPane minHeight="-1.0" prefHeight="-1.0" prefWidth="500.0">
+                                <children>
+                                    <TextField fx:id="commandEntryField" disable="true" maxHeight="30.0"
+                                               minHeight="30.0" prefHeight="30.0" prefWidth="-1.0"
+                                               promptText="&lt;enter command&gt;" AnchorPane.bottomAnchor="0.0"
+                                               AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+                                               AnchorPane.topAnchor="0.0"/>
+                                </children>
+                                <padding>
+                                    <Insets bottom="10.0" left="10.0" right="10.0" top="5.0"/>
+                                </padding>
+                            </AnchorPane>
+                        </bottom>
+                        <center>
+                            <AnchorPane prefHeight="374.0" prefWidth="500.0">
+                                <TextArea fx:id="consoleTextArea" disable="false" editable="false"
+                                          focusTraversable="false" prefHeight="-1.0" prefWidth="-1.0" promptText=""
+                                          text="&lt;disconnected&gt;" wrapText="false" AnchorPane.bottomAnchor="0.0"
+                                          AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+                                          AnchorPane.topAnchor="0.0"/>
+                                <padding>
+                                    <Insets bottom="5.0" left="10.0" right="10.0" top="10.0"/>
+                                </padding>
+                            </AnchorPane>
+                        </center>
+                    </BorderPane>
+                </content>
+            </Tab>
+            <Tab id="missionTab" closable="false" text="Mission">
+                <content>
+                    <BorderPane prefHeight="200.0" prefWidth="200.0">
+                        <bottom>
+                            <AnchorPane prefHeight="200.0" prefWidth="200.0"/>
+                        </bottom>
+                        <center>
+                            <AnchorPane prefHeight="200.0" prefWidth="200.0"/>
+                        </center>
+                        <top>
+                            <ToolBar disable="false" visible="true">
+                                <items>
+                                    <ChoiceBox fx:id="missionModeChoice"/>
+                                </items>
+                            </ToolBar>
+                        </top>
+                    </BorderPane>
+                </content>
+            </Tab>
+            <Tab id="configTab" closable="false" text="Settings">
+                <content>
+                    <BorderPane prefHeight="200.0" prefWidth="200.0">
+                        <bottom>
+                            <BorderPane prefHeight="200.0" prefWidth="200.0">
+                                <center>
+                                    <TableView prefHeight="200.0" prefWidth="200.0">
+                                        <columns>
+                                            <TableColumn prefWidth="75.0" text="Column X"/>
+                                            <TableColumn prefWidth="75.0" text="Column X"/>
+                                        </columns>
+                                    </TableView>
+                                </center>
+                                <right>
+                                    <VBox prefHeight="200.0" prefWidth="100.0"/>
+                                </right>
+                            </BorderPane>
+                        </bottom>
+                    </BorderPane>
+                </content>
+            </Tab>
+        </TabPane>
+    </center>
+    <stylesheets>
+        <URL value="@main.css"/>
+    </stylesheets>
+    <top>
+        <MenuBar>
+            <Menu mnemonicParsing="false" text="File">
+                <MenuItem mnemonicParsing="false" text="Exit" fx:id="exitItem"/>
+            </Menu>
+            <Menu disable="false" mnemonicParsing="false" text="Help" visible="true">
+                <MenuItem mnemonicParsing="false" text="About" fx:id="aboutItem"/>
+            </Menu>
+        </MenuBar>
+    </top>
+</BorderPane>
