@@ -11,6 +11,8 @@
              (javafx.scene.text Font)
              (javafx.stage Stage)
              (uk.org.il2ssd MainView MainPresenter)))
+	
+(def controls (atom nil))
 
 (defn init-stage [primaryStage]
     (let [stage primaryStage
@@ -26,7 +28,7 @@
         (.getPresenter view)))
 
 (defn init-objects [presenter]
-    (hash-map :connect-btn (.getConnectButton presenter)
+    (->> (hash-map :connect-btn (.getConnectButton presenter)
         :disconn-btn (.getDisconnectButton presenter)
         :prog-ind (.getProgressIndicator presenter)
         :start-btn (.getStartStopButton presenter)
@@ -35,7 +37,9 @@
         :console (.getConsoleTextArea presenter)
         :mode-choice (.getMissionModeChoice presenter)
         :exit-btn (.getExitItem presenter)
-        :about-btn (.getAboutItem presenter)))
+        :about-btn (.getAboutItem presenter))
+		(reset! controls))
+		controls)
 
 (defn init-handlers [control-map]
     (let [{:keys [connect-btn
@@ -48,7 +52,7 @@
                  mode-choice
                  exit-btn
                  about-btn]}
-          control-map]
+          @control-map]
         (.setOnAction connect-btn (event/nothing))
         (.setOnAction disconn-btn (event/nothing))
         (.setOnAction start-btn (event/nothing))
