@@ -6,27 +6,20 @@
                 :extends javafx.application.Application
                 :main true)
 
-    (:require [uk.org.il2ssd.jfx :as jfx])
+    (:require [uk.org.il2ssd.ui :as ui])
 
-    (:import (javafx.application Application Platform)
-             (javafx.scene Scene)
-             (javafx.scene.text Font)
-             (javafx.stage Stage WindowEvent)
-             (com.airhacks.afterburner.injection InjectionProvider)
-             (uk.org.il2ssd MainView MainPresenter)))
+    (:import (javafx.application Application)
+             (com.airhacks.afterburner.injection InjectionProvider)))
 
 (defn -main [& args]
     (Application/launch uk.org.il2ssd.core (into-array String [args])))
 
 (defn -start [this primaryStage]
-    (let [scene (Scene. (.getView (MainView.)))]
-        (Font/loadFont "fontawesome-webfont.ttf" 12.0)
-        (doto primaryStage
-            (.setTitle "Il-2 Simple Server Daemon")
-            (.setScene scene)
-            (.show)
-            (.setOnCloseRequest
-                (jfx/event-handler [_] (Platform/exit))))))
+    (-> primaryStage
+        (ui/init-stage)
+        (ui/init-objects)
+        (ui/init-handlers)
+        (println)))
 
 (defn -stop [& args]
     (InjectionProvider/forgetAll))
