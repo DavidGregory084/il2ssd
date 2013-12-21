@@ -13,8 +13,8 @@
     <name>il2ssd</name>
 
     <scm>
-        <connection>scm:hg:https://dgregory084@bitbucket.org/dgregory084/il-2-simple-server-daemon</connection>
-        <developerConnection>scm:hg:https://dgregory084@bitbucket.org/dgregory084/il-2-simple-server-daemon</developerConnection>
+        <connection>scm:hg:ssh://hg@bitbucket.org/dgregory084/il-2-simple-server-daemon</connection>
+        <developerConnection>scm:hg:ssh://hg@bitbucket.org/dgregory084/il-2-simple-server-daemon</developerConnection>
         <url>https://bitbucket.org/dgregory084/il-2-simple-server-daemon</url>
     </scm>
 
@@ -33,7 +33,7 @@
                 <artifactId>maven-scm-plugin</artifactId>
                 <version>1.8.1</version>
                 <configuration>
-                    <message>Move instantiated controls into atom for access throughout namespace.</message>
+                    <message>Remove event and keep all UI actions in the ui namespace. Initialisation of controls.</message>
                 </configuration>
             </plugin>
             <plugin>

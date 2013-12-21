@@ -15,11 +15,9 @@
     (Application/launch uk.org.il2ssd.core (into-array String [args])))
 
 (defn -start [this primaryStage]
-    (-> primaryStage
-        (ui/init-stage)
-        (ui/init-objects)
+    ((-> (ui/init-stage primaryStage) (ui/init-objects))
         (ui/init-handlers)
-        (println)))
+        (ui/init-controls)))
 
 (defn -stop [& args]
     (InjectionProvider/forgetAll))
