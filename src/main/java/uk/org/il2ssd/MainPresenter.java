@@ -25,9 +25,21 @@ public class MainPresenter {
     @FXML
     ChoiceBox<String> missionModeChoice;
     @FXML
+    TextField ipAddressField;
+    @FXML
+    TextField portField;
+    @FXML
     MenuItem exitItem;
     @FXML
     MenuItem aboutItem;
+
+    public TextField getIpAddressField() {
+        return ipAddressField;
+    }
+
+    public TextField getPortField() {
+        return portField;
+    }
 
     public Button getConnectButton() {
         return connectButton;

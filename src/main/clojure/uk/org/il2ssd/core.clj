@@ -11,6 +11,8 @@
     (:import (javafx.application Application)
              (com.airhacks.afterburner.injection InjectionProvider)))
 
+(set! *warn-on-reflection* true)
+
 (defn -main [& args]
     (Application/launch uk.org.il2ssd.core (into-array String [args])))
 

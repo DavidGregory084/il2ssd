@@ -33,7 +33,7 @@
                 <artifactId>maven-scm-plugin</artifactId>
                 <version>1.8.1</version>
                 <configuration>
-                    <message>Remove event and keep all UI actions in the ui namespace. Initialisation of controls.</message>
+                    <message>Basic non-blocking console input and output.</message>
                 </configuration>
             </plugin>
             <plugin>
@@ -105,9 +105,14 @@
             <version>1.5.1</version>
         </dependency>
         <dependency>
-            <groupId>aleph</groupId>
-            <artifactId>aleph</artifactId>
-            <version>0.3.1</version>
+            <groupId>org.clojure</groupId>
+            <artifactId>core.async</artifactId>
+            <version>0.1.267.0-0d7780-alpha</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+            <version>2.3</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>

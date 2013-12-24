@@ -19,7 +19,7 @@
           <ProgressIndicator fx:id="progressIndicator" maxHeight="-1.0" maxWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" progress="-1.0" visible="false" />
         </children>
         <padding>
-          <Insets />
+          <Insets fx:id="x1" />
         </padding>
       </StackPane>
       <Button fx:id="startStopButton" disable="true" mnemonicParsing="false" prefHeight="30.0" prefWidth="95.0" text="  Start" />
@@ -69,7 +69,7 @@
         <content>
           <BorderPane prefHeight="200.0" prefWidth="200.0">
             <bottom>
-              <BorderPane prefHeight="200.0" prefWidth="200.0">
+              <BorderPane prefHeight="-1.0" prefWidth="-1.0">
                 <center>
                   <TableView prefHeight="200.0" prefWidth="300.0">
                     <columns>
@@ -90,22 +90,49 @@
                       <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
                     </padding>
                     <BorderPane.margin>
-                      <Insets />
+                      <Insets fx:id="x1" />
                     </BorderPane.margin>
                   </VBox>
                 </right>
                 <top>
-                  <VBox fillWidth="true" prefHeight="-1.0" prefWidth="-1.0">
+                  <VBox fillWidth="true" prefHeight="-1.0" prefWidth="-1.0" spacing="0.0">
                     <children>
                       <Label alignment="CENTER_LEFT" text="Difficulty Settings" textAlignment="LEFT" underline="true" />
                     </children>
+                    <padding>
+                      <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" fx:id="x2" />
+                    </padding>
                     <BorderPane.margin>
-                      <Insets bottom="5.0" left="5.0" top="5.0" />
+                      <Insets fx:id="x1" />
                     </BorderPane.margin>
                   </VBox>
                 </top>
               </BorderPane>
             </bottom>
+            <left>
+              <VBox fillWidth="true" padding="$x2" prefHeight="-1.0" prefWidth="-1.0" spacing="10.0">
+                <children>
+                  <Label text="Server Settings" underline="true" />
+                  <GridPane hgap="5.0" padding="$x1" vgap="5.0">
+                    <children>
+                      <TextField fx:id="ipAddressField" prefWidth="-1.0" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                      <Label text="IP Address:" GridPane.columnIndex="0" GridPane.halignment="RIGHT" GridPane.rowIndex="0" />
+                      <TextField fx:id="portField" prefWidth="-1.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                      <Label text="Port:" GridPane.columnIndex="0" GridPane.halignment="RIGHT" GridPane.margin="$x1" GridPane.rowIndex="1" />
+                    </children>
+                    <columnConstraints>
+                      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="-1.0" />
+                      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="-1.0" />
+                    </columnConstraints>
+                    <rowConstraints>
+                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                    </rowConstraints>
+                  </GridPane>
+                </children>
+              </VBox>
+            </left>
           </BorderPane>
         </content>
       </Tab>

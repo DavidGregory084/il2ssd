@@ -3,7 +3,10 @@
 ;;;;
 (ns uk.org.il2ssd.ui
 
-    (:require [uk.org.il2ssd.jfx :as jfx])
+    (:require [clojure.core.async :refer [go thread <! <!!]]
+              [uk.org.il2ssd.channel :refer :all]
+              [uk.org.il2ssd.jfx :as jfx]
+              [uk.org.il2ssd.socket :as socket])
 
     (:import (javafx.application Platform)
              (javafx.scene Scene)
@@ -23,11 +26,37 @@
                                          (println "Exiting...")
                                          (Platform/exit))))
 
+(defn update-console []
+    (let [{:keys [console]} @controls]
+        (thread (while @socket/connected
+                    (let [text (<!! cln-channel)]
+                        (if (not= text nil)
+                            (jfx/run-later (.appendText console text))))))))
+
 (defn enter-command []
     (jfx/event-handler [keyevent] (let [{:keys [cmd-entry]} @controls]
                                       (if (= (.. keyevent getCode getName) "Enter")
-                                          (do (println (.getText cmd-entry))
-                                              (.clear cmd-entry))))))
+                                          (if (= (.getText cmd-entry) "clear")
+                                              (.clear cmd-entry)
+                                              (do (socket/write-socket (.getText cmd-entry))
+                                                  (.clear cmd-entry)))))))
+
+(defn connect-command []
+    (jfx/event-handler [_] (let [{:keys [connect-btn disconn-btn console ip-field port-field]} @controls]
+                               (go (socket/connect (.getText ip-field) (Integer/decode (.getText port-field)))
+                                   (.setDisable connect-btn true)
+                                   (.setDisable disconn-btn false)
+                                   (.clear console)
+                                   (socket/read-service)
+                                   (update-console)))))
+
+(defn disconnect-command []
+    (jfx/event-handler [_] (let [{:keys [connect-btn disconn-btn console]} @controls]
+                               (go (socket/disconnect)
+                                   (.clear console)
+                                   (.setDisable disconn-btn true)
+                                   (.setDisable connect-btn false)
+                                   (.setText console "<disconnected>")))))
 
 (defn init-stage [primaryStage]
     (let [stage primaryStage
@@ -52,6 +81,8 @@
             :cmd-entry (.getCommandEntryField presenter)
             :console (.getConsoleTextArea presenter)
             :mode-choice (.getMissionModeChoice presenter)
+            :ip-field (.getIpAddressField presenter)
+            :port-field (.getPortField presenter)
             :exit-btn (.getExitItem presenter)
             :about-btn (.getAboutItem presenter))))
 
@@ -65,8 +96,8 @@
                   exit-btn
                   about-btn]}
           @controls]
-        (.setOnAction connect-btn (nothing))
-        (.setOnAction disconn-btn (nothing))
+        (.setOnAction connect-btn (connect-command))
+        (.setOnAction disconn-btn (disconnect-command))
         (.setOnAction start-btn (nothing))
         (.setOnAction next-btn (nothing))
         (.setOnAction exit-btn (close))
