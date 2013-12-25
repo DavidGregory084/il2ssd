@@ -8,6 +8,9 @@
 (def cln-channel (filter< #(= (re-find #"<consoleN><\d+>" %) nil) in-channel))
 (def mult-channel (mult cln-channel))
 (def parse-channel (let [c (chan)]
-                       (filter< #(not= (re-find #"\s*\w+\s+[0-1]" %) nil) (tap mult-channel c))))
+                       (filter< #(not= (re-find #"\s*\w+\s+[0-1]\s+" %) nil) (tap mult-channel c))))
 (def print-channel (let [c (chan)]
                        (tap mult-channel c)))
+
+(def ui-channel (let [c (chan)]
+                    c))

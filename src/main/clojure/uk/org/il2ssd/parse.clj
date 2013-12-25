@@ -8,7 +8,7 @@
               [clojure.core.async :refer [thread <!!]]
               [instaparse.core :as insta]))
 
-(def parse-difficulty
+(def difficulty-parser
     (insta/parser
         "<difficulty-rec> = <sp>* setting <sp> number <nl>
         <sp> = <#'\\s+'>
@@ -16,9 +16,9 @@
         setting = #'\\w+'
         number = #'[0-1]'"))
 
-(defn parse []
-        (thread (while @state/connected
-                    (let [text (<!! parse-channel)]
-                        (let [parsed (parse-difficulty text)
-                              [[_ setting] [_ number]] parsed]
-                            (swap! settings/difficulties assoc setting number))))))
+(defn parse-difficulty []
+    (thread (while @state/connected
+                (let [text (<!! parse-channel)]
+                    (let [parsed (difficulty-parser text)
+                          [[_ setting] [_ number]] parsed]
+                        (swap! settings/difficulties assoc setting number))))))

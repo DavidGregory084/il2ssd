@@ -1,5 +1,5 @@
 ;;;;
-;;;; JavaFX helper functions shamelessly ripped from Upshot
+;;;; JavaFX helper functions; most shamelessly ripped from Upshot
 ;;;;
 (ns uk.org.il2ssd.jfx)
 
@@ -29,3 +29,20 @@
 
 (defmacro event-handler [arg & body]
     `(event-handler* (fn ~arg ~@body)))
+
+(defn invalidation-listener*
+    [f]
+    (reify javafx.beans.InvalidationListener
+        (invalidated [this observable] (f observable))))
+
+(defmacro invalidation-listener [arg & body]
+    `(invalidation-listener* (fn ~arg ~@body)))
+
+(defn change-listener*
+    [f]
+    (reify javafx.beans.value.ChangeListener
+        (changed [this observable old new]
+            (f observable old new))))
+
+(defmacro change-listener [arg & body]
+    `(change-listener* (fn ~arg ~@body)))

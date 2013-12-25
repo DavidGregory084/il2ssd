@@ -33,7 +33,7 @@
                 <artifactId>maven-scm-plugin</artifactId>
                 <version>1.8.1</version>
                 <configuration>
-                    <message>Difficulty settings parsing, loading and editing features.</message>
+                    <message>Event listeners; skeleton config save and load functions.</message>
                 </configuration>
             </plugin>
             <plugin>

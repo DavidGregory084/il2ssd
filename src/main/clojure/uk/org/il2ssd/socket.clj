@@ -18,19 +18,29 @@
 (def socket-out (atom nil))
 
 (defn read-service []
-            (thread (while @state/connected
-                        (let [text (.readLine @socket-in)]
-                            (if (not= text nil)
-                                (->> text
-                                    (StringEscapeUtils/unescapeJava)
-                                    (>!! in-channel)))))))
+    (thread (while @state/connected
+                (let [text (.readLine @socket-in)]
+                    (if (not= text nil)
+                        (->> text
+                            (StringEscapeUtils/unescapeJava)
+                            (>!! in-channel)))))))
 
 (defn write-socket [text]
-        (.println @socket-out text))
+    (.println @socket-out text))
 
 (defn get-server-text [] (write-socket "server"))
 
 (defn get-difficulty [] (write-socket "difficulty"))
+
+(defn get-mission-state [] (write-socket "mission"))
+
+(defn load-mission [path-to-mission] (write-socket (str "mission LOAD " path-to-mission)))
+
+(defn start-mission [] (write-socket "mission BEGIN"))
+
+(defn end-mission [] (write-socket "mission END"))
+
+(defn unload-mission [] (write-socket "mission DESTROY"))
 
 (defn set-difficulty [setting value] (write-socket (str "difficulty " setting " " value)))
 
@@ -42,10 +52,11 @@
                                                         (.getInputStream @socket) (Charset/forName "UTF-8"))))
                               (reset! socket-out (PrintWriter. (.getOutputStream @socket) true))
                               (reset! state/connected true)
-                              (get-server-text)
                               (get-difficulty)
+                              (get-server-text)
+                              (get-mission-state)
                               (read-service)
-                              (parse/parse)))
+                              (parse/parse-difficulty)))
 (defn disconnect []
     (reset! state/connected false)
     (.shutdownInput @socket)

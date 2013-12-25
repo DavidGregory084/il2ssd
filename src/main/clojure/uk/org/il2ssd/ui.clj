@@ -18,14 +18,28 @@
              (uk.org.il2ssd DifficultySetting MainView MainPresenter)))
 
 (def controls (atom nil))
-(def modes ["Single Mission" "Mission Cycle" "DCG Generation"])
+(def modes {:single "Single Mission", :cycle "Mission Cycle", :dcg "DCG Generation"})
 
 (defn nothing []
     (jfx/event-handler [_] ()))
 
+(defn changed-state []
+    (jfx/change-listener [property old new]
+        (let [property-type (type property)
+              {:keys [ip-field port-field]} @controls]
+            (if (not new)
+                (println "focus lost")))))
+
+(defn invalid-state []
+    (jfx/invalidation-listener [property]
+        (let [property-type (type property)
+              {:keys [mode-choice]} @controls]
+            (println "changed"))))
+
 (defn close []
-    (jfx/event-handler [windowevent] (go (.consume windowevent)
+    (jfx/event-handler [windowevent] (do (.consume windowevent)
                                          (println "Exiting...")
+                                         (settings/save-to-file)
                                          (if @state/connected
                                              (socket/disconnect))
                                          (Platform/exit))))
@@ -39,7 +53,7 @@
                                (.clear diff-data)
                                (doseq [item diffs]
                                    (let [[setting value] item]
-                                   (.add diff-data (DifficultySetting. setting value)))))))
+                                       (.add diff-data (DifficultySetting. setting value)))))))
 
 (defn set-difficulties []
     (jfx/event-handler [_] (let [{:keys [diff-data]} @controls]
@@ -86,6 +100,7 @@
           view (MainView.)
           scene (Scene. (.getView view))]
         (Font/loadFont "fontawesome-webfont.ttf" 12.0)
+        (settings/load-from-file)
         (doto stage
             (.setTitle "Il-2 Simple Server Daemon")
             (.setScene scene)
@@ -123,7 +138,9 @@
                   exit-btn
                   about-btn
                   get-diff-btn
-                  set-diff-btn]}
+                  set-diff-btn
+                  ip-field
+                  port-field]}
           @controls]
         (.setOnAction connect-btn (connect-command))
         (.setOnAction disconn-btn (disconnect-command))
@@ -132,10 +149,14 @@
         (.setOnAction exit-btn (close))
         (.setOnAction get-diff-btn (get-difficulties))
         (.setOnAction set-diff-btn (set-difficulties))
-        (.setOnKeyPressed cmd-entry (enter-command))))
+        (.setOnKeyPressed cmd-entry (enter-command))
+        (.. ip-field focusedProperty (addListener (changed-state)))
+        (.. port-field focusedProperty (addListener (changed-state)))
+        (.. mode-choice valueProperty (addListener (invalid-state)))))
 
 (defn init-controls []
     (let [{:keys [mode-choice]} @controls]
-        (doto mode-choice
-            (.. getItems (addAll modes))
-            (.. getSelectionModel selectFirst))))
+        (let [{:keys [mode]} @settings/mission]
+            (doto mode-choice
+                (.. getItems (addAll (map modes [:single :cycle :dcg])))
+                (.. getSelectionModel selectFirst)))))
