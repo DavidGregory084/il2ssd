@@ -3,17 +3,19 @@
 ;;;;
 (ns uk.org.il2ssd.ui
 
-    (:require [clojure.core.async :refer [go thread <! <!!]]
+    (:require [clojure.core.async :refer [go thread <!!]]
               [uk.org.il2ssd.channel :refer :all]
               [uk.org.il2ssd.jfx :as jfx]
-              [uk.org.il2ssd.socket :as socket])
+              [uk.org.il2ssd.settings :as settings]
+              [uk.org.il2ssd.socket :as socket]
+              [uk.org.il2ssd.state :as state])
 
     (:import (javafx.application Platform)
              (javafx.scene Scene)
              (javafx.scene.input KeyEvent)
              (javafx.scene.text Font)
              (javafx.stage Stage WindowEvent)
-             (uk.org.il2ssd MainView MainPresenter)))
+             (uk.org.il2ssd DifficultySetting MainView MainPresenter)))
 
 (def controls (atom nil))
 (def modes ["Single Mission" "Mission Cycle" "DCG Generation"])
@@ -22,22 +24,44 @@
     (jfx/event-handler [_] ()))
 
 (defn close []
-    (jfx/event-handler [windowevent] (do (.consume windowevent)
+    (jfx/event-handler [windowevent] (go (.consume windowevent)
                                          (println "Exiting...")
+                                         (if @state/connected
+                                             (socket/disconnect))
                                          (Platform/exit))))
+
+(defn about []
+    (jfx/event-handler [_] ()))
+
+(defn get-difficulties []
+    (jfx/event-handler [_] (let [{:keys [diff-data]} @controls
+                                 diffs @settings/difficulties]
+                               (.clear diff-data)
+                               (doseq [item diffs]
+                                   (let [[setting value] item]
+                                   (.add diff-data (DifficultySetting. setting value)))))))
+
+(defn set-difficulties []
+    (jfx/event-handler [_] (let [{:keys [diff-data]} @controls]
+                               (doseq [item diff-data]
+                                   (let [setting (.getSetting item)
+                                         value (.getValue item)]
+                                       (socket/set-difficulty setting value)))
+                               (socket/get-difficulty))))
 
 (defn update-console []
     (let [{:keys [console]} @controls]
-        (thread (while @socket/connected
-                    (let [text (<!! cln-channel)]
+        (thread (while @state/connected
+                    (let [text (<!! print-channel)]
                         (if (not= text nil)
                             (jfx/run-later (.appendText console text))))))))
 
 (defn enter-command []
-    (jfx/event-handler [keyevent] (let [{:keys [cmd-entry]} @controls]
+    (jfx/event-handler [keyevent] (let [{:keys [cmd-entry console]} @controls]
                                       (if (= (.. keyevent getCode getName) "Enter")
                                           (if (= (.getText cmd-entry) "clear")
-                                              (.clear cmd-entry)
+                                              (do (.clear console)
+                                                  (.clear cmd-entry))
                                               (do (socket/write-socket (.getText cmd-entry))
                                                   (.clear cmd-entry)))))))
 
@@ -47,7 +71,6 @@
                                    (.setDisable connect-btn true)
                                    (.setDisable disconn-btn false)
                                    (.clear console)
-                                   (socket/read-service)
                                    (update-console)))))
 
 (defn disconnect-command []
@@ -84,7 +107,11 @@
             :ip-field (.getIpAddressField presenter)
             :port-field (.getPortField presenter)
             :exit-btn (.getExitItem presenter)
-            :about-btn (.getAboutItem presenter))))
+            :about-btn (.getAboutItem presenter)
+            :get-diff-btn (.getGetDifficultyButton presenter)
+            :set-diff-btn (.getSetDifficultyButton presenter)
+            :diff-table (.getDifficultyTable presenter)
+            :diff-data (.getDifficultyData presenter))))
 
 (defn init-handlers []
     (let [{:keys [connect-btn
@@ -94,13 +121,17 @@
                   cmd-entry
                   mode-choice
                   exit-btn
-                  about-btn]}
+                  about-btn
+                  get-diff-btn
+                  set-diff-btn]}
           @controls]
         (.setOnAction connect-btn (connect-command))
         (.setOnAction disconn-btn (disconnect-command))
         (.setOnAction start-btn (nothing))
         (.setOnAction next-btn (nothing))
         (.setOnAction exit-btn (close))
+        (.setOnAction get-diff-btn (get-difficulties))
+        (.setOnAction set-diff-btn (set-difficulties))
         (.setOnKeyPressed cmd-entry (enter-command))))
 
 (defn init-controls []

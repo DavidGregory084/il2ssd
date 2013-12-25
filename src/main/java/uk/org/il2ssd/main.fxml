@@ -5,7 +5,6 @@
 <?import java.net.*?>
 <?import java.net.URL?>
 <?import javafx.geometry.*?>
-<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
@@ -71,26 +70,24 @@
             <bottom>
               <BorderPane prefHeight="-1.0" prefWidth="-1.0">
                 <center>
-                  <TableView prefHeight="200.0" prefWidth="300.0">
+                  <TableView fx:id="difficultyTable" editable="true" prefHeight="-1.0" prefWidth="-1.0" tableMenuButtonVisible="false">
                     <columns>
-                      <TableColumn editable="false" maxWidth="5000.0" minWidth="10.0" prefWidth="343.0" resizable="false" text="Setting" />
-                      <TableColumn maxWidth="5000.0" minWidth="10.0" prefWidth="50.0" resizable="false" text="Value" />
+                      <TableColumn editable="false" maxWidth="5000.0" minWidth="10.0" prefWidth="343.0" resizable="false" text="Setting" fx:id="diffSettingColumn" />
+                      <TableColumn maxWidth="5000.0" minWidth="10.0" prefWidth="50.0" resizable="false" text="Value" fx:id="diffValueColumn" />
                     </columns>
                   </TableView>
                 </center>
                 <right>
                   <VBox id="difficultycontrols" prefHeight="200.0" prefWidth="106.0" spacing="15.0">
                     <children>
-                      <Button mnemonicParsing="false" prefHeight="25.0" prefWidth="100.0" text=" Get" />
-                      <Button mnemonicParsing="false" prefHeight="25.0" prefWidth="100.0" text=" Add" />
-                      <Button mnemonicParsing="false" prefHeight="25.0" prefWidth="100.0" text=" Remove" />
-                      <Button mnemonicParsing="false" prefHeight="25.0" prefWidth="100.0" text=" Save" />
+                      <Button fx:id="getDifficultyButton" mnemonicParsing="false" prefHeight="25.0" prefWidth="100.0" text=" Get" />
+                      <Button fx:id="setDifficultyButton" mnemonicParsing="false" prefHeight="25.0" prefWidth="100.0" text=" Put" />
                     </children>
                     <padding>
-                      <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+                      <Insets bottom="15.0" left="15.0" right="15.0" top="70.0" />
                     </padding>
                     <BorderPane.margin>
-                      <Insets fx:id="x1" />
+                      <Insets fx:id="x2" />
                     </BorderPane.margin>
                   </VBox>
                 </right>
@@ -100,39 +97,49 @@
                       <Label alignment="CENTER_LEFT" text="Difficulty Settings" textAlignment="LEFT" underline="true" />
                     </children>
                     <padding>
-                      <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" fx:id="x2" />
+                      <Insets bottom="10.0" left="10.0" right="5.0" top="5.0" />
                     </padding>
                     <BorderPane.margin>
-                      <Insets fx:id="x1" />
+                      <Insets fx:id="x3" />
                     </BorderPane.margin>
                   </VBox>
                 </top>
               </BorderPane>
             </bottom>
-            <left>
-              <VBox fillWidth="true" padding="$x2" prefHeight="-1.0" prefWidth="-1.0" spacing="10.0">
+            <top>
+              <VBox fillWidth="true" prefHeight="199.0" prefWidth="262.0" spacing="10.0">
                 <children>
                   <Label text="Server Settings" underline="true" />
-                  <GridPane hgap="5.0" padding="$x1" vgap="5.0">
+                  <GridPane hgap="5.0" vgap="5.0">
                     <children>
                       <TextField fx:id="ipAddressField" prefWidth="-1.0" GridPane.columnIndex="1" GridPane.rowIndex="0" />
                       <Label text="IP Address:" GridPane.columnIndex="0" GridPane.halignment="RIGHT" GridPane.rowIndex="0" />
                       <TextField fx:id="portField" prefWidth="-1.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                       <Label text="Port:" GridPane.columnIndex="0" GridPane.halignment="RIGHT" GridPane.margin="$x1" GridPane.rowIndex="1" />
+                      <Label text="Server Path:" textAlignment="LEFT" GridPane.columnIndex="0" GridPane.halignment="RIGHT" GridPane.rowIndex="2" />
+                      <Label fx:id="serverPathLabel" text="..." textOverrun="CLIP" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                      <Button fx:id="serverPathButton" mnemonicParsing="false" text="Select il2server.exe" GridPane.columnIndex="1" GridPane.rowIndex="3" />
                     </children>
                     <columnConstraints>
-                      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="-1.0" />
-                      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="-1.0" />
+                      <ColumnConstraints fillWidth="false" halignment="RIGHT" hgrow="SOMETIMES" maxWidth="189.0" minWidth="10.0" prefWidth="66.0" />
+                      <ColumnConstraints fillWidth="false" halignment="LEFT" hgrow="SOMETIMES" maxWidth="405.0" minWidth="10.0" prefWidth="399.0" />
                     </columnConstraints>
+                    <padding>
+                      <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" fx:id="x4" />
+                    </padding>
                     <rowConstraints>
+                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                       <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                       <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                       <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                     </rowConstraints>
                   </GridPane>
                 </children>
+                <padding>
+                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                </padding>
               </VBox>
-            </left>
+            </top>
           </BorderPane>
         </content>
       </Tab>

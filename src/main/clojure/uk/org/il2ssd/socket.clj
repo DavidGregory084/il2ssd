@@ -1,9 +1,13 @@
 ;;;;
-;;;; Socket connection functions
+;;;; Socket connection and IO functions
 ;;;;
 (ns uk.org.il2ssd.socket
-    (:require [clojure.core.async :refer [go thread >! >!!]]
-              [uk.org.il2ssd.channel :refer :all])
+
+    (:require [clojure.core.async :refer [thread >!!]]
+              [uk.org.il2ssd.channel :refer :all]
+              [uk.org.il2ssd.parse :as parse]
+              [uk.org.il2ssd.state :as state])
+
     (:import (org.apache.commons.lang StringEscapeUtils)
              (java.net InetSocketAddress Socket SocketTimeoutException)
              (java.io BufferedReader InputStreamReader PrintWriter)
@@ -12,10 +16,9 @@
 (def socket (atom nil))
 (def socket-in (atom nil))
 (def socket-out (atom nil))
-(def connected (atom nil))
 
 (defn read-service []
-            (thread (while @connected
+            (thread (while @state/connected
                         (let [text (.readLine @socket-in)]
                             (if (not= text nil)
                                 (->> text
@@ -25,6 +28,12 @@
 (defn write-socket [text]
         (.println @socket-out text))
 
+(defn get-server-text [] (write-socket "server"))
+
+(defn get-difficulty [] (write-socket "difficulty"))
+
+(defn set-difficulty [setting value] (write-socket (str "difficulty " setting " " value)))
+
 (defn connect [host port] (let [address (InetSocketAddress. host port)]
                               (reset! socket (Socket.))
                               (.connect @socket address 10000)
@@ -32,10 +41,13 @@
                                                     (InputStreamReader.
                                                         (.getInputStream @socket) (Charset/forName "UTF-8"))))
                               (reset! socket-out (PrintWriter. (.getOutputStream @socket) true))
-                              (reset! connected true)
-                              (write-socket "server")))
+                              (reset! state/connected true)
+                              (get-server-text)
+                              (get-difficulty)
+                              (read-service)
+                              (parse/parse)))
 (defn disconnect []
-    (reset! connected false)
+    (reset! state/connected false)
     (.shutdownInput @socket)
     (.flush @socket-out)
     (.close @socket-out)
