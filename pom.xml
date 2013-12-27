@@ -33,7 +33,7 @@
                 <artifactId>maven-scm-plugin</artifactId>
                 <version>1.8.1</version>
                 <configuration>
-                    <message>Event listeners; skeleton config save and load functions.</message>
+                    <message>Mission state and config file parsing, extensive refactoring, UI responds to mission state.</message>
                 </configuration>
             </plugin>
             <plugin>

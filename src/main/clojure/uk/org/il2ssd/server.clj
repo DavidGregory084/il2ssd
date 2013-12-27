@@ -1,11 +1,12 @@
 ;;;;
-;;;; Socket connection and IO functions
+;;;; Server connection and IO functions
 ;;;;
-(ns uk.org.il2ssd.socket
+(ns uk.org.il2ssd.server
 
     (:require [clojure.core.async :refer [thread >!!]]
               [uk.org.il2ssd.channel :refer :all]
               [uk.org.il2ssd.parse :as parse]
+              [uk.org.il2ssd.settings :as settings]
               [uk.org.il2ssd.state :as state])
 
     (:import (org.apache.commons.lang StringEscapeUtils)
@@ -17,7 +18,7 @@
 (def socket-in (atom nil))
 (def socket-out (atom nil))
 
-(defn read-service []
+(defn socket-listener []
     (thread (while @state/connected
                 (let [text (.readLine @socket-in)]
                     (if (not= text nil)
@@ -34,13 +35,15 @@
 
 (defn get-mission-state [] (write-socket "mission"))
 
-(defn load-mission [path-to-mission] (write-socket (str "mission LOAD " path-to-mission)))
+(defn load-mission [path-to-mission]
+    (write-socket (str "mission LOAD " path-to-mission)))
 
-(defn start-mission [] (write-socket "mission BEGIN"))
+(defn start-mission []
+    (write-socket (str "mission BEGIN")))
 
-(defn end-mission [] (write-socket "mission END"))
-
-(defn unload-mission [] (write-socket "mission DESTROY"))
+(defn end-mission []
+    (write-socket "mission END")
+    (get-mission-state))
 
 (defn set-difficulty [setting value] (write-socket (str "difficulty " setting " " value)))
 
@@ -52,13 +55,14 @@
                                                         (.getInputStream @socket) (Charset/forName "UTF-8"))))
                               (reset! socket-out (PrintWriter. (.getOutputStream @socket) true))
                               (reset! state/connected true)
+                              (socket-listener)
                               (get-difficulty)
                               (get-server-text)
-                              (get-mission-state)
-                              (read-service)
-                              (parse/parse-difficulty)))
+                              (get-mission-state)))
 (defn disconnect []
     (reset! state/connected false)
+    (reset! state/loaded false)
+    (reset! state/playing false)
     (.shutdownInput @socket)
     (.flush @socket-out)
     (.close @socket-out)

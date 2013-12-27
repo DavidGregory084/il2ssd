@@ -6,7 +6,7 @@
                 :extends javafx.application.Application
                 :main true)
 
-    (:require [uk.org.il2ssd.ui :as ui])
+    (:require [uk.org.il2ssd.ui-init :as ui])
 
     (:import (javafx.application Application)
              (com.airhacks.afterburner.injection InjectionProvider)))

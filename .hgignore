@@ -3,3 +3,4 @@ syntax: glob
 *.iml
 target/
 src/test
+*.ini
