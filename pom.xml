@@ -33,7 +33,7 @@
                 <artifactId>maven-scm-plugin</artifactId>
                 <version>1.8.1</version>
                 <configuration>
-                    <message>Mission state and config file parsing, extensive refactoring, UI responds to mission state.</message>
+                    <message>Restoration of settings from loaded config, early mission pane work.</message>
                 </configuration>
             </plugin>
             <plugin>
@@ -118,6 +118,11 @@
             <groupId>instaparse</groupId>
             <artifactId>instaparse</artifactId>
             <version>1.2.13</version>
+        </dependency>
+        <dependency>
+            <groupId>com.brainbot</groupId>
+            <artifactId>iniconfig</artifactId>
+            <version>0.2.0</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>

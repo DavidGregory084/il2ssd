@@ -10,4 +10,6 @@
 (def mode (atom nil))
 (def loaded (atom nil))
 (def playing (atom nil))
+(def mis-selected (atom nil))
+(def server-path (atom nil))
 (def modes {:single "Single Mission", :cycle "Mission Cycle", :dcg "DCG Generation"})

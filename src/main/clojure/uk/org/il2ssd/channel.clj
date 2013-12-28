@@ -5,7 +5,7 @@
     (:require [clojure.core.async :refer [chan filter< mult tap]]))
 
 (def in-channel (chan))
-(def cln-channel (filter< #(= (re-find #"<consoleN><\d+>" %) nil) in-channel))
+(def cln-channel (filter< #(not (re-find #"<consoleN><\d+>" %)) in-channel))
 (def mult-channel (mult cln-channel))
 (def print-channel (let [c (chan)]
                        (tap mult-channel c)))

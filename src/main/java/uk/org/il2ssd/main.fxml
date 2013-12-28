@@ -12,8 +12,8 @@
   <bottom>
     <ToolBar>
       <Button fx:id="connectButton" alignment="CENTER" mnemonicParsing="false" prefHeight="30.0" prefWidth="95.0" text="  Connect" textAlignment="CENTER" />
-      <Button fx:id="disconnectButton" disable="true" mnemonicParsing="false" prefHeight="30.0" prefWidth="113.0" text="  Disconnect" />
-      <StackPane id="StackPane" maxHeight="39.0" maxWidth="70.0" prefHeight="39.0" prefWidth="50.0" visible="true">
+      <Button fx:id="disconnectButton" disable="true" mnemonicParsing="false" prefHeight="30.0" prefWidth="95.0" text="  Disconnect" />
+      <StackPane id="StackPane" fx:id="progressStack" maxHeight="39.0" maxWidth="-1.0" prefHeight="39.0" prefWidth="-1.0" visible="true">
         <children>
           <ProgressIndicator fx:id="progressIndicator" maxHeight="-1.0" maxWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" progress="-1.0" visible="false" />
         </children>
@@ -53,11 +53,13 @@
       </Tab>
       <Tab id="missionTab" closable="false" text="Mission">
         <content>
-          <BorderPane prefHeight="200.0" prefWidth="200.0">
+          <BorderPane fx:id="missionPane" prefHeight="200.0" prefWidth="200.0">
             <top>
               <ToolBar disable="false" visible="true">
                 <items>
-                  <ChoiceBox fx:id="missionModeChoice" />
+                  <ChoiceBox fx:id="missionModeChoice" prefHeight="25.0" prefWidth="120.0" />
+                  <Region fx:id="missionBarSpring" prefHeight="-1.0" prefWidth="-1.0" />
+                  <Button fx:id="missionLoadButton" disable="true" mnemonicParsing="false" prefHeight="25.0" prefWidth="75.0" text=" Load" />
                 </items>
               </ToolBar>
             </top>

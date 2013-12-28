@@ -8,6 +8,9 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -22,6 +25,8 @@ public class MainPresenter implements Initializable {
     @FXML
     Button disconnectButton;
     @FXML
+    StackPane progressStack;
+    @FXML
     ProgressIndicator progressIndicator;
     @FXML
     Button startStopButton;
@@ -32,11 +37,21 @@ public class MainPresenter implements Initializable {
     @FXML
     TextArea consoleTextArea;
     @FXML
+    BorderPane missionPane;
+    @FXML
     ChoiceBox<String> missionModeChoice;
+    @FXML
+    Region missionBarSpring;
+    @FXML
+    Button missionLoadButton;
     @FXML
     TextField ipAddressField;
     @FXML
     TextField portField;
+    @FXML
+    Label serverPathLabel;
+    @FXML
+    Button serverPathButton;
     @FXML
     Button getDifficultyButton;
     @FXML
@@ -51,7 +66,32 @@ public class MainPresenter implements Initializable {
     MenuItem exitItem;
     @FXML
     MenuItem aboutItem;
+
     ObservableList<DifficultySetting> difficultyData = FXCollections.observableArrayList();
+
+    public BorderPane getMissionPane() {
+        return missionPane;
+    }
+
+    public Label getServerPathLabel() {
+        return serverPathLabel;
+    }
+
+    public Button getServerPathButton() {
+        return serverPathButton;
+    }
+
+    public Button getMissionLoadButton() {
+        return missionLoadButton;
+    }
+
+    public StackPane getProgressStack() {
+        return progressStack;
+    }
+
+    public Region getMissionBarSpring() {
+        return missionBarSpring;
+    }
 
     public ObservableList<DifficultySetting> getDifficultyData() {
         return difficultyData;

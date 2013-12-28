@@ -12,20 +12,6 @@
         setting = #'\\w+'
         number = #'[0-1]'"))
 
-(def file-parser
-    (insta/parser
-        "file = <header> <nl>+ section+
-         <sp> = #'\\s+'
-         <nl> = #'[\\s*\n]+'
-         <header> = #'\\[.+\\]'
-         <section> = mission | server
-         mission = <#'\\[Mission\\]'> (<nl> setting)*
-         server = <#'\\[Server\\]'> (<nl> setting)*
-         setting = key <equals> value? <nl>*
-         <key> = #'\\w+'
-         <value> = #'[\\w[\\.]]+'
-         <equals> = #'\\s?=\\s?'"))
-
 (def mission-parser
     (insta/parser
         "<line> = <'Mission'> (<':'> <sp> path mission <sp> <'is'>)? <sp> state <nl>?

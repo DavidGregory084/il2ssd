@@ -38,8 +38,12 @@
 (defn load-mission [path-to-mission]
     (write-socket (str "mission LOAD " path-to-mission)))
 
+(defn unload-mission []
+    (write-socket "mission DESTROY")
+    (get-mission-state))
+
 (defn start-mission []
-    (write-socket (str "mission BEGIN")))
+    (write-socket "mission BEGIN"))
 
 (defn end-mission []
     (write-socket "mission END")

@@ -14,7 +14,8 @@
               [uk.org.il2ssd.state :as state])
 
     (:import [javafx.application Platform]
-             [uk.org.il2ssd DifficultySetting]))
+             [javafx.stage Stage]
+             [uk.org.il2ssd DifficultySetting SingleView]))
 
 (defn nothing []
     (jfx/event-handler [_] ()))
@@ -32,6 +33,10 @@
                                (server/end-mission)
                                (server/start-mission))))
 
+(defn load-unload-command []
+    (jfx/event-handler [_] (if @state/loaded
+                               (server/unload-mission))))
+
 (defn get-difficulties []
     (jfx/event-handler [_] (let [{:keys [diff-data]} @state/controls
                                  diffs @settings/difficulty-settings]
@@ -48,6 +53,16 @@
                                        (server/set-difficulty setting value)))
                                (server/get-difficulty))))
 
+(defn get-saved-difficulties [path]
+    (let [saved-diffs (settings/read-difficulty-file path)]
+        (doseq [line (saved-diffs "Difficulty")])))
+
+(defn set-saved-difficulties []
+    (doseq [item @settings/saved-difficulties]
+        (let [[setting value] item]
+            (server/set-difficulty setting value)))
+    (server/get-difficulty))
+
 (defn set-title
     ([]
         (reset! state/title ["Il-2 Simple Server Daemon"])
@@ -60,8 +75,8 @@
 (defn set-connected []
     (let [{:keys [connect-btn
                   disconn-btn
-                  start-btn
-                  next-btn
+                  diff-data
+                  load-btn
                   get-diff-btn
                   set-diff-btn
                   cmd-entry
@@ -76,13 +91,15 @@
                 (.clear console))
             (do (.setDisable connect-btn false)
                 (.setDisable disconn-btn true)
+                (.setDisable load-btn true)
                 (.setDisable get-diff-btn true)
                 (.setDisable set-diff-btn true)
                 (.setDisable cmd-entry true)
+                (.clear diff-data)
                 (.setText console "<disconnected>")))))
 
 (defn set-mission-controls []
-    (let [{:keys [diff-table set-diff-btn start-btn]} @state/controls]
+    (let [{:keys [diff-table set-diff-btn start-btn load-btn]} @state/controls]
         (if @state/playing
             (do (.setEditable diff-table false)
                 (.setDisable set-diff-btn true)
@@ -91,8 +108,14 @@
                 (.setDisable set-diff-btn false)
                 (.setText start-btn "\uf04b Start")))
         (if @state/loaded
-            (.setDisable start-btn false)
-            (.setDisable start-btn true))))
+            (do (.setDisable start-btn false)
+                (.setDisable load-btn false)
+                (.setText load-btn "\uf05e Unload"))
+            (do (.setDisable start-btn true)
+                (.setText load-btn "\uf093 Load")
+                (if @state/mis-selected
+                    (.setDisable load-btn false)
+                    (.setDisable load-btn true))))))
 
 (defn console-listener []
     (thread (while @state/connected
@@ -160,20 +183,31 @@
 (defn disconnect-command []
     (jfx/event-handler [_] (go (server/disconnect)
                                (jfx/run-later
-                                   (do (set-connected)
+                                   (do (set-mission-controls)
                                        (set-title)
-                                       (set-mission-controls))))))
+                                       (set-connected))))))
 
-(defn changed-state []
+(defn field-exit []
     (jfx/change-listener [property old new]
         (let [{:keys [ip-field port-field]} @state/controls]
             (if (not new)
                 (settings/save-server (.getText ip-field) (.getText port-field))))))
 
-(defn invalid-state []
+(defn changed-choice []
     (jfx/invalidation-listener [property]
-        (let [{:keys [mode-choice]} @state/controls
+        (let [{:keys [mission-pane single-mis-pane mode-choice server-path-lbl]} @state/controls
+              srv-pth (.getText server-path-lbl)
               mode (name ((map-invert state/modes) (.getValue mode-choice)))]
+            (when (= mode "single")
+                (.setCenter mission-pane single-mis-pane))
             (reset! state/mode mode)
-            (settings/save-mission @state/mode))))
+            (reset! state/server-path srv-pth)
+            (settings/save-mission @state/mode)
+            (settings/save-server @state/server-path))))
 
+(defn server-choose-command []
+    (jfx/event-handler [_]
+        (let [{:keys [server-chooser server-path-lbl]} @state/controls
+              file (.showOpenDialog server-chooser (Stage.))
+              path (.getCanonicalPath file)]
+            (.setText server-path-lbl path))))
