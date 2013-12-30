@@ -1,11 +1,15 @@
 ;;;;
 ;;;; JavaFX helper functions; most shamelessly ripped from Upshot
 ;;;;
-(ns uk.org.il2ssd.jfx)
+(ns uk.org.il2ssd.jfx
+  (:import (javafx.application Platform)
+           (javafx.event EventHandler)
+           (javafx.beans InvalidationListener)
+           (javafx.beans.value ChangeListener)))
 
 (defn run-later*
     [f]
-    (javafx.application.Platform/runLater f))
+    (Platform/runLater f))
 
 (defmacro run-later
     [& body]
@@ -24,7 +28,7 @@
 
 (defn event-handler*
     [f]
-    (reify javafx.event.EventHandler
+    (reify EventHandler
         (handle [this e] (f e))))
 
 (defmacro event-handler [arg & body]
@@ -32,7 +36,7 @@
 
 (defn invalidation-listener*
     [f]
-    (reify javafx.beans.InvalidationListener
+    (reify InvalidationListener
         (invalidated [this observable] (f observable))))
 
 (defmacro invalidation-listener [arg & body]
@@ -40,7 +44,7 @@
 
 (defn change-listener*
     [f]
-    (reify javafx.beans.value.ChangeListener
+    (reify ChangeListener
         (changed [this observable old new]
             (f observable old new))))
 

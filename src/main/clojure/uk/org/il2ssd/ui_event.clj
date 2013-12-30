@@ -3,19 +3,19 @@
 ;;;;
 (ns uk.org.il2ssd.ui-event
 
-    (:require [clojure.core.async :refer [go thread <!!]]
-              [clojure.set :refer [map-invert]]
-              [clojure.string :as string]
-              [uk.org.il2ssd.channel :refer :all]
-              [uk.org.il2ssd.jfx :as jfx]
-              [uk.org.il2ssd.parse :as parse]
-              [uk.org.il2ssd.server :as server]
-              [uk.org.il2ssd.settings :as settings]
-              [uk.org.il2ssd.state :as state])
+  (:require [clojure.core.async :refer [go thread <!!]]
+            [clojure.set :refer [map-invert]]
+            [clojure.string :as string]
+            [uk.org.il2ssd.channel :refer :all]
+            [uk.org.il2ssd.jfx :as jfx]
+            [uk.org.il2ssd.parse :as parse]
+            [uk.org.il2ssd.server :as server]
+            [uk.org.il2ssd.settings :as settings]
+            [uk.org.il2ssd.state :as state])
 
-    (:import [javafx.application Platform]
-             [javafx.stage Stage]
-             [uk.org.il2ssd DifficultySetting SingleView]))
+  (:import (javafx.application Platform)
+           (javafx.stage Stage)
+           (uk.org.il2ssd DifficultySetting SingleView)))
 
 (defn nothing []
     (jfx/event-handler [_] ()))

@@ -9,12 +9,13 @@
     (:require [uk.org.il2ssd.ui-init :as ui])
 
     (:import (javafx.application Application)
-             (com.airhacks.afterburner.injection InjectionProvider)))
+             (com.airhacks.afterburner.injection InjectionProvider)
+             (uk.org.il2ssd core)))
 
 (set! *warn-on-reflection* true)
 
 (defn -main [& args]
-    (Application/launch uk.org.il2ssd.core (into-array String [args])))
+    (Application/launch core (into-array String [args])))
 
 (defn -start [this primaryStage]
     ((-> (ui/init-stage primaryStage) (ui/init-objects))

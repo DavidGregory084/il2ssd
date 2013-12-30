@@ -33,7 +33,7 @@
                 <artifactId>maven-scm-plugin</artifactId>
                 <version>1.8.1</version>
                 <configuration>
-                    <message>Restoration of settings from loaded config, early mission pane work.</message>
+                    <message>Miscellaneous cleanup.</message>
                 </configuration>
             </plugin>
             <plugin>

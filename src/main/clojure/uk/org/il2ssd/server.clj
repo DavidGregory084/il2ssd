@@ -53,16 +53,17 @@
 
 (defn connect [host port] (let [address (InetSocketAddress. host port)]
                               (reset! socket (Socket.))
-                              (.connect @socket address 10000)
-                              (reset! socket-in (BufferedReader.
-                                                    (InputStreamReader.
-                                                        (.getInputStream @socket) (Charset/forName "UTF-8"))))
-                              (reset! socket-out (PrintWriter. (.getOutputStream @socket) true))
-                              (reset! state/connected true)
-                              (socket-listener)
-                              (get-difficulty)
-                              (get-server-text)
-                              (get-mission-state)))
+                              (try (.connect @socket address 10000)
+                                   (reset! socket-in (BufferedReader.
+                                                       (InputStreamReader.
+                                                         (.getInputStream @socket) (Charset/forName "UTF-8"))))
+                                   (reset! socket-out (PrintWriter. (.getOutputStream @socket) true))
+                                   (reset! state/connected true)
+                                   (socket-listener)
+                                   (get-difficulty)
+                                   (get-server-text)
+                                   (get-mission-state)
+                                   (catch SocketTimeoutException e nil))))
 (defn disconnect []
     (reset! state/connected false)
     (reset! state/loaded false)
