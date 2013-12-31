@@ -3,13 +3,21 @@
 ;;;;
 (ns uk.org.il2ssd.state)
 
-(def title (atom nil))
-(def stage (atom nil))
-(def controls (atom nil))
-(def connected (atom nil))
-(def mode (atom nil))
-(def loaded (atom nil))
-(def playing (atom nil))
-(def mis-selected (atom nil))
-(def server-path (atom nil))
-(def modes {:single "Single Mission", :cycle "Mission Cycle", :dcg "DCG Generation"})
+(def stage
+  "Atom to store the stage instance."
+  (atom nil))
+(def controls
+  "Atom to store the map of instantiated controls from FXML."
+  (atom nil))
+(def connected
+  "Atom to store connection status."
+  (atom nil))
+(def loaded
+  "Atom to store mission loaded status."
+  (atom nil))
+(def playing
+  "Atom to store mission playing status."
+  (atom nil))
+(def mis-selected
+  "Atom to store mission selected status."
+  (atom nil))

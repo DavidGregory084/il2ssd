@@ -33,7 +33,7 @@
                 <artifactId>maven-scm-plugin</artifactId>
                 <version>1.8.1</version>
                 <configuration>
-                    <message>Miscellaneous cleanup.</message>
+                    <message>Read difficulties directly into data model; use watches instead of explicit calls on state change. More cleanup, started writing docstrings.</message>
                 </configuration>
             </plugin>
             <plugin>
