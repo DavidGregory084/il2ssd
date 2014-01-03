@@ -10,7 +10,7 @@
             [uk.org.il2ssd.state :as state])
 
   (:import (org.apache.commons.lang StringEscapeUtils)
-           (java.net InetSocketAddress Socket SocketTimeoutException)
+           (java.net InetSocketAddress Socket SocketTimeoutException ConnectException)
            (java.io BufferedReader InputStreamReader PrintWriter)
            (java.nio.charset Charset)))
 
@@ -22,7 +22,7 @@
   "While connected, reads the server socket input stream and puts any non-nil input into the parser input channel after unescaping Unicode characters."
   []
   (thread (while @state/connected
-            (let [text (.readLine @socket-in)]
+            (let [text (.readLine ^BufferedReader @socket-in)]
               (if (not= text nil)
                 (->> text
                      (StringEscapeUtils/unescapeJava)
@@ -31,7 +31,7 @@
 (defn write-socket
   "Prints the provided string to the server command line."
   [text]
-  (.println @socket-out text))
+  (.println ^PrintWriter @socket-out text))
 
 (defn get-server-text
   "Gets the server info text."
@@ -77,17 +77,18 @@
 
 (defn connect
   "Open a TCP socket connection on the specified hostname and port. Starts the socket-listener service."
-  [host port] (let [address (InetSocketAddress. host port)]
+  [host port] (let [address (InetSocketAddress. ^String host ^int port)]
                 (reset! socket (Socket.))
-                (try (.connect @socket address 10000)
+                (try (.connect ^Socket @socket address 10000)
                      (reset! socket-in (BufferedReader.
                                          (InputStreamReader.
-                                           (.getInputStream @socket) (Charset/forName "UTF-8"))))
-                     (reset! socket-out (PrintWriter. (.getOutputStream @socket) true))
+                                           (.getInputStream ^Socket @socket) (Charset/forName "UTF-8"))))
+                     (reset! socket-out (PrintWriter. (.getOutputStream ^Socket @socket) true))
                      (reset! state/connected true)
                      (socket-listener)
                      (get-server-text)
                      (get-mission-state)
+                     (catch ConnectException e nil)
                      (catch SocketTimeoutException e nil))))
 (defn disconnect
   "Resets all global state atoms and closes the socket."
@@ -95,9 +96,9 @@
   (reset! state/loaded false)
   (reset! state/playing false)
   (reset! state/connected false)
-  (.shutdownInput @socket)
-  (.flush @socket-out)
-  (.close @socket-out)
-  (.close @socket-in)
-  (.close @socket))
+  (.shutdownInput ^Socket @socket)
+  (.flush ^PrintWriter @socket-out)
+  (.close ^PrintWriter @socket-out)
+  (.close ^BufferedReader @socket-in)
+  (.close ^Socket @socket))
 

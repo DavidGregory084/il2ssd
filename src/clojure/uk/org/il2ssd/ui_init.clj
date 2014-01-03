@@ -9,19 +9,26 @@
             [uk.org.il2ssd.state :as state]
             [uk.org.il2ssd.ui-event :as event])
 
-  (:import (java.nio.file Paths)
+  (:import (java.nio.file Paths Path)
            (javafx.scene Scene)
-           (javafx.scene.layout HBox Priority)
+           (javafx.scene.layout HBox Priority StackPane Region)
            (javafx.scene.text Font)
-           (javafx.stage FileChooser FileChooser$ExtensionFilter)
-           (uk.org.il2ssd MainView MainPresenter SingleView SinglePresenter)))
+           (javafx.stage FileChooser FileChooser$ExtensionFilter Stage)
+           (uk.org.il2ssd MainView MainPresenter SingleView SinglePresenter)
+           (javafx.scene.control Button TextField ChoiceBox MenuItem Label SelectionModel)
+           (javafx.beans.property ReadOnlyBooleanProperty ObjectProperty StringProperty)
+           (javafx.collections ObservableList)
+           (java.io File)
+           (javafx.beans.value ChangeListener)
+           (javafx.beans InvalidationListener)
+           (java.util ArrayList)))
 
 (def modes
   "Map of mission loading modes."
   {:single "Single Mission", :cycle "Mission Cycle", :dcg "DCG Generation"})
 
 (defn init-stage
-  [primaryStage]
+  [^Stage primaryStage]
   (let [stage primaryStage
         main-view (MainView.)
         single-view (SingleView.)
@@ -37,7 +44,7 @@
     [(.getPresenter main-view) (.getPresenter single-view)]))
 
 (defn init-objects [presenters]
-  (let [[main-presenter single-presenter] presenters]
+  (let [[^MainPresenter main-presenter ^SinglePresenter single-presenter] presenters]
     (reset! state/controls
             (hash-map :connect-btn (.getConnectButton main-presenter)
                       :disconn-btn (.getDisconnectButton main-presenter)
@@ -67,21 +74,21 @@
                       :single-mis-pane (.getSingleMisPane single-presenter)))))
 
 (defn init-handlers []
-  (let [{:keys [connect-btn
-                disconn-btn
-                start-btn
-                next-btn
-                cmd-entry
-                mode-choice
-                load-btn
-                exit-btn
-                about-btn
-                server-path-lbl
-                server-path-btn
-                get-diff-btn
-                set-diff-btn
-                ip-field
-                port-field]}
+  (let [{:keys [^Button connect-btn
+                ^Button disconn-btn
+                ^Button start-btn
+                ^Button next-btn
+                ^TextField cmd-entry
+                ^ChoiceBox mode-choice
+                ^Button load-btn
+                ^MenuItem exit-btn
+                ^MenuItem about-btn
+                ^Label server-path-lbl
+                ^Button server-path-btn
+                ^Button get-diff-btn
+                ^Button set-diff-btn
+                ^TextField ip-field
+                ^TextField port-field]}
         @state/controls]
     (.setOnAction connect-btn (event/connect-command))
     (.setOnAction disconn-btn (event/disconnect-command))
@@ -93,51 +100,51 @@
     (.setOnAction set-diff-btn (event/set-difficulties))
     (.setOnKeyPressed cmd-entry (event/enter-command))
     (.setOnAction load-btn (event/load-unload-command))
-    (.. ip-field focusedProperty (addListener (event/field-exit)))
-    (.. port-field focusedProperty (addListener (event/field-exit)))
-    (.. mode-choice valueProperty (addListener (event/changed-choice modes)))
-    (.. server-path-lbl textProperty (addListener (event/changed-choice modes)))
+    (-> ip-field .focusedProperty (.addListener (event/field-exit)))
+    (-> port-field .focusedProperty (.addListener (event/field-exit)))
+    (-> mode-choice .valueProperty (.addListener (event/changed-choice modes)))
+    (-> server-path-lbl .textProperty (.addListener (event/changed-choice modes)))
     (add-watch state/connected :connect event/set-connected)
     (add-watch state/loaded :load event/set-mission-loaded)
     (add-watch state/playing :play event/set-mission-playing)))
 
 (defn init-controls []
-  (let [{:keys [ip-field
-                port-field
-                prog-stack
-                mode-choice
-                mission-spring
-                server-chooser
-                server-path-lbl
-                mis-chooser
-                dcg-chooser]} @state/controls
+  (let [{:keys [^TextField ip-field
+                ^TextField port-field
+                ^StackPane prog-stack
+                ^ChoiceBox mode-choice
+                ^Region mission-spring
+                ^FileChooser server-chooser
+                ^Label server-path-lbl
+                ^FileChooser mis-chooser
+                ^FileChooser dcg-chooser]} @state/controls
         configuration (settings/read-config-file)]
-    (.. mode-choice getItems (addAll (map modes [:single :cycle :dcg])))
+    (-> mode-choice .getItems (.addAll ^ObservableList (map modes [:single :cycle :dcg])))
     (if configuration
-      (do (.. mode-choice getSelectionModel
-              (select
+      (do (-> mode-choice .getSelectionModel
+              (.select
                 ((comp modes keyword get-in) configuration ["Mission" "Mode"] "single")))
           (.setText ip-field (get-in configuration ["Server" "IP"] ""))
           (.setText port-field (get-in configuration ["Server" "Port"] ""))
-          (.setText server-path-lbl (get-in configuration ["Server" "Path"] ""))
+          (.setText server-path-lbl (get-in configuration ["Server" "Path"] "..."))
           (settings/save-server (.getText ip-field) (.getText port-field) (.getText server-path-lbl)))
-      (.. mode-choice getSelectionModel selectFirst))
+      (-> mode-choice .getSelectionModel .selectFirst))
     (HBox/setHgrow prog-stack Priority/ALWAYS)
     (HBox/setHgrow mission-spring Priority/ALWAYS)
     (doto server-chooser
       (.setTitle "Choose Il-2 Server Executable")
       (.setInitialDirectory
-        (.. (Paths/get "" (into-array [""])) toAbsolutePath toFile))
-      (.. getExtensionFilters
-          (add
-            (FileChooser$ExtensionFilter. "Il-2 Server (il2server.exe)" (into-array ["il2server.exe"])))))
+        (-> (Paths/get "" (into-array [""])) .toAbsolutePath .toFile))
+      (-> ^ObservableList .getExtensionFilters
+          (.add
+            (FileChooser$ExtensionFilter. "Il-2 Server (il2server.exe)" ^"[Ljava.lang.String;" (into-array ["il2server.exe"])))))
     (doto mis-chooser
       (.setTitle "Choose Il-2 Mission File")
-      (.. getExtensionFilters
-          (add
-            (FileChooser$ExtensionFilter. "Il-2 Mission (*.mis)" (into-array ["*.mis"])))))
+      (-> ^ObservableList .getExtensionFilters
+          (.add
+            (FileChooser$ExtensionFilter. "Il-2 Mission (*.mis)" ^"[Ljava.lang.String;" (into-array ["*.mis"])))))
     (doto dcg-chooser
       (.setTitle "Choose DCG Executable")
-      (.. getExtensionFilters
-          (add
-            (FileChooser$ExtensionFilter. "DCG Executable (il2dcg.exe)" (into-array ["il2dcg.exe"])))))))
+      (-> ^ObservableList .getExtensionFilters
+          (.add
+            (FileChooser$ExtensionFilter. "DCG Executable (il2dcg.exe)" ^"[Ljava.lang.String;" (into-array ["il2dcg.exe"])))))))

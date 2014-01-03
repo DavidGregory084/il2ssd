@@ -14,8 +14,16 @@
             [uk.org.il2ssd.state :as state])
 
   (:import (javafx.application Platform)
-           (javafx.stage Stage)
-           (uk.org.il2ssd DifficultySetting SingleView)))
+           (javafx.stage Stage FileChooser)
+           (uk.org.il2ssd DifficultySetting SingleView)
+           (javafx.collections ObservableList)
+           (javafx.scene.control TextArea Button TextField TableView Label ChoiceBox TabPane)
+           (javafx.scene.input KeyEvent)
+           (javafx.scene.layout BorderPane)
+           (javafx.beans InvalidationListener)
+           (javafx.beans.value ChangeListener)
+           (javafx.event EventHandler ActionEvent)
+           (java.io File)))
 
 (defn nothing
   "Dummy event handler function."
@@ -50,7 +58,7 @@
 (defn get-difficulties
   "Event handler function to clear the difficulty settings table and request all difficulty settings from the server."
   []
-  (jfx/event-handler [_] (let [{:keys [diff-data]} @state/controls]
+  (jfx/event-handler [_] (let [{:keys [^ObservableList diff-data]} @state/controls]
                            (.clear diff-data)
                            (server/get-difficulty))))
 
@@ -58,7 +66,7 @@
   "Set all server difficulties from the difficulty settings table."
   []
   (jfx/event-handler [_] (let [{:keys [diff-data]} @state/controls]
-                           (do (doseq [item diff-data]
+                           (do (doseq [^DifficultySetting item diff-data]
                                  (let [setting (.getSetting item)
                                        value (.getValue item)]
                                    (server/set-difficulty setting value)))))))
@@ -68,7 +76,7 @@
   (thread (while @state/connected
             (let [text (<!! print-channel)]
               (if text
-                (let [{:keys [console]} @state/controls]
+                (let [{:keys [^TextArea console]} @state/controls]
                   (jfx/run-later (.appendText console text))))))))
 
 
@@ -76,7 +84,7 @@
   []
   (thread (while @state/connected
             (let [text (<!! diff-channel)
-                  {:keys [diff-data]} @state/controls]
+                  {:keys [^ObservableList diff-data]} @state/controls]
               (if text
                 (let [parsed (parse/difficulty-parser text)
                       [[_ setting] [_ value]] parsed]
@@ -86,9 +94,9 @@
   "Multiple-arity function to set the stage title; with no arguments it resets the title to default.
   When called with the optional mission and state arguments it adds this information to the title."
   ([]
-   (.setTitle @state/stage "Il-2 Simple Server Daemon"))
+   (.setTitle ^Stage @state/stage "Il-2 Simple Server Daemon"))
   ([mission state]
-   (.setTitle @state/stage (str "Il-2 Simple Server Daemon - " mission " " (string/lower-case state)))))
+   (.setTitle ^Stage @state/stage (str "Il-2 Simple Server Daemon - " mission " " (string/lower-case state)))))
 
 (defn mission-listener
   []
@@ -121,14 +129,14 @@
 (defn set-connected
   "Sets the UI controls for connected or disconnected status accordingly."
   [_ _ _ connected]
-  (let [{:keys [connect-btn
-                disconn-btn
-                diff-data
-                load-btn
-                get-diff-btn
-                set-diff-btn
-                cmd-entry
-                console]}
+  (let [{:keys [^Button connect-btn
+                ^Button disconn-btn
+                ^ObservableList diff-data
+                ^Button load-btn
+                ^Button get-diff-btn
+                ^Button set-diff-btn
+                ^TextField cmd-entry
+                ^TextArea console]}
         @state/controls]
     (if connected
       (do
@@ -152,7 +160,9 @@
 (defn set-mission-playing
   "Sets the controls for playing status accordingly."
   [_ _ _ playing]
-  (let [{:keys [diff-table set-diff-btn start-btn]} @state/controls]
+  (let [{:keys [^TableView diff-table
+                ^Button set-diff-btn
+                ^Button start-btn]} @state/controls]
     (if playing
       (jfx/run-later (do (.setEditable diff-table false)
                          (.setDisable set-diff-btn true)
@@ -164,7 +174,8 @@
 (defn set-mission-loaded
   "Sets the UI controls for loaded status accordingly."
   [_ _ _ loaded]
-  (let [{:keys [start-btn load-btn]} @state/controls]
+  (let [{:keys [^Button start-btn
+                ^Button load-btn]} @state/controls]
     (if loaded
       (jfx/run-later (do (.setDisable start-btn false)
                          (.setDisable load-btn false)
@@ -177,39 +188,48 @@
 
 
 (defn enter-command
+  "Event handler function to write user input to the server console and optionally clear the console when 'clear' is typed."
   []
-  (jfx/event-handler [keyevent] (let [{:keys [cmd-entry console]} @state/controls]
-                                  (if (= (.. keyevent getCode getName) "Enter")
-                                    (if (= (.getText cmd-entry) "clear")
-                                      (do (.clear console)
-                                          (.clear cmd-entry))
-                                      (do (server/write-socket (.getText cmd-entry))
-                                          (.clear cmd-entry)))))))
+  (jfx/event-handler
+    [^KeyEvent keyevent]
+    (let [{:keys [^TextField cmd-entry
+                  ^TextArea console]} @state/controls]
+      (if (= (-> keyevent .getCode .getName) "Enter")
+        (if (= (.getText cmd-entry) "clear")
+          (do (.clear console)
+              (.clear cmd-entry))
+          (do (server/write-socket (.getText cmd-entry))
+              (.clear cmd-entry)))))))
 
 (defn connect-command
   []
   (jfx/event-handler
     [_]
-    (let [{:keys [ip-field port-field]} @state/controls]
-      (go (server/connect (.getText ip-field) (Integer/decode (.getText port-field)))))))
+    (let [{:keys [^TextField ip-field
+                  ^TextField port-field]} @state/controls]
+      (go (server/connect ^String (.getText ip-field) (Integer/decode ^String (.getText port-field)))))))
 
 (defn disconnect-command
   []
   (jfx/event-handler [_] (go (server/disconnect))))
 
 (defn field-exit
-  []
+  ^ChangeListener []
   (jfx/change-listener
     [property old new]
-    (let [{:keys [ip-field port-field]} @state/controls]
+    (let [{:keys [^TextField ip-field
+                  ^TextField port-field]} @state/controls]
       (if (not new)
         (settings/save-server (.getText ip-field) (.getText port-field))))))
 
 (defn changed-choice
-  [modes]
+  ^InvalidationListener [modes]
   (jfx/invalidation-listener
     [property]
-    (let [{:keys [mission-pane single-mis-pane mode-choice server-path-lbl]} @state/controls
+    (let [{:keys [^BorderPane mission-pane
+                  ^BorderPane single-mis-pane
+                  ^ChoiceBox mode-choice
+                  ^Label server-path-lbl]} @state/controls
           server-path (.getText server-path-lbl)
           mode (name ((map-invert modes) (.getValue mode-choice)))]
       (when (= mode "single")
@@ -221,7 +241,8 @@
   []
   (jfx/event-handler
     [_]
-    (let [{:keys [server-chooser server-path-lbl]} @state/controls
-          file (.showOpenDialog server-chooser (Stage.))
+    (let [{:keys [^FileChooser server-chooser
+                  ^Label server-path-lbl]} @state/controls
+          ^File file (.showOpenDialog server-chooser (Stage.))
           path (.getCanonicalPath file)]
       (.setText server-path-lbl path))))

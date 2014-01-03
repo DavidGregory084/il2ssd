@@ -3,7 +3,7 @@
 ;;;;
 (ns uk.org.il2ssd.settings
 
-  (:import [java.io FileNotFoundException])
+  (:import [java.io FileNotFoundException File])
 
   (:require [clojure.string :as string]
             [com.brainbot.iniconfig :as iniconfig]))
@@ -32,11 +32,13 @@
    (swap! server-settings assoc "IP" ip)
    (swap! server-settings assoc "Port" port))
   ([path]
-   (swap! server-settings assoc "Path" path))
+   (if (.isFile (File. ^String path))
+     (swap! server-settings assoc "Path" path)))
   ([ip port path]
    (swap! server-settings assoc "IP" ip)
    (swap! server-settings assoc "Port" port)
-   (swap! server-settings assoc "Path" path)))
+   (if (.isFile (File. ^String path))
+     (swap! server-settings assoc "Path" path))))
 
 (defn save-mission
   "Multiple-arity function for saving mission details."
