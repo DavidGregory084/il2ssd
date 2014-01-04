@@ -4,12 +4,10 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.5.1"]
                  [org.clojure/core.async "0.1.267.0-0d7780-alpha"]
-                 [com.oracle/javafx-runtime "2.2.0"]
                  [com.airhacks/afterburner.fx "1.3"]
                  [commons-lang/commons-lang "2.3"]
                  [instaparse/instaparse "1.2.13"]
-                 [com.brainbot/iniconfig "0.2.0"]
-                 [junit/junit "3.8.1"]]
+                 [com.brainbot/iniconfig "0.2.0"]]
   :plugins [[lein-marginalia "0.7.1"]]
   :main uk.org.il2ssd.core
   :aot [uk.org.il2ssd.core]
@@ -17,5 +15,4 @@
   :java-source-paths ["src/java"]
   :test-paths ["test/clojure" "test/java"]
   :resource-paths ["resources" "src/java"]
-  :global-vars {*warn-on-reflection* true}
-  :profiles {:uberjar {:aot :all}})
+  :global-vars {*warn-on-reflection* true})

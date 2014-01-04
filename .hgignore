@@ -6,3 +6,4 @@ target/
 test/
 .lein-failures
 .nrepl-port
+*.properties

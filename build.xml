@@ -1,0 +1,73 @@
+<project xmlns:fx="javafx:com.sun.javafx.tools.ant" default="default" name="il2ssd"
+         basedir=".">
+
+    <property environment="env"/>
+    <property file="build.properties"/>
+
+    <property name="project.jdk.home" value="${jdk.home.1.7}"/>
+    <property name="project.outdir" value="target/il2ssd"/>
+
+    <target name="prepare">
+
+        <copy todir="${project.outdir}/lib" flatten="true">
+            <path id="libs">
+                <pathelement path="${path.variable.maven_repository}/com/airhacks/afterburner.fx/1.3/afterburner.fx-1.3.jar"/>
+                <pathelement path="${path.variable.maven_repository}/com/brainbot/iniconfig/0.2.0/iniconfig-0.2.0.jar"/>
+                <pathelement path="${path.variable.maven_repository}/commons-lang/commons-lang/2.3/commons-lang-2.3.jar"/>
+                <pathelement path="${path.variable.maven_repository}/instaparse/instaparse/1.2.13/instaparse-1.2.13.jar"/>
+                <pathelement path="${path.variable.maven_repository}/org/clojure/clojure/1.5.1/clojure-1.5.1.jar"/>
+                <pathelement path="${path.variable.maven_repository}/org/clojure/core.async/0.1.267.0-0d7780-alpha/core.async-0.1.267.0-0d7780-alpha.jar"/>
+            </path>
+        </copy>
+
+        <copy todir="${project.outdir}" flatten="true">
+            <path id="docs">
+                <pathelement path="LICENSE"/>
+                <pathelement path="README.md"/>
+            </path>
+        </copy>
+
+        <copydir src="docs" dest="${project.outdir}/docs"/>
+
+    </target>
+
+    <target name="default" depends="prepare">
+
+        <taskdef resource="com/sun/javafx/tools/ant/antlib.xml"
+                 uri="javafx:com.sun.javafx.tools.ant"
+                 classpath=".:${project.jdk.home}/lib/ant-javafx.jar"/>
+
+        <fx:application id="il2ssd"
+                        name="Il-2 Simple Server Daemon"
+                        mainclass="uk.org.il2ssd.core"/>
+
+        <fx:resources id="resources">
+            <fx:fileset dir="${project.outdir}" includes="lib/afterburner.fx-1.3.jar"/>
+            <fx:fileset dir="${project.outdir}" includes="lib/iniconfig-0.2.0.jar"/>
+            <fx:fileset dir="${project.outdir}" includes="lib/commons-lang-2.3.jar"/>
+            <fx:fileset dir="${project.outdir}" includes="lib/instaparse-1.2.13.jar"/>
+            <fx:fileset dir="${project.outdir}" includes="lib/clojure-1.5.1.jar"/>
+            <fx:fileset dir="${project.outdir}" includes="lib/core.async-0.1.267.0-0d7780-alpha.jar"/>
+        </fx:resources>
+
+        <fx:jar destfile="${project.outdir}/il2ssd.jar">
+            <fx:application refid="il2ssd"/>
+            <fx:resources refid="resources"/>
+
+            <manifest>
+                <attribute name="Implementation-Vendor"
+                           value="Il-2 Community"/>
+                <attribute name="Implementation-Title"
+                           value="Il-2 Simple Server Daemon"/>
+                <attribute name="Implementation-Version"
+                           value="0.1"/>
+            </manifest>
+
+            <fileset dir="target/classes" includes="uk/org/il2ssd/**"/>
+            <fileset dir="resources"/>
+            <fileset dir="src/java" includes="uk/org/il2ssd/*.fxml, uk/org/il2ssd/*.css"/>
+        </fx:jar>
+
+    </target>
+
+</project>

@@ -12,8 +12,6 @@
            (com.airhacks.afterburner.injection InjectionProvider)
            (uk.org.il2ssd core)))
 
-(set! *warn-on-reflection* true)
-
 (defn -main [& args]
   (Application/launch core (into-array String [args])))
 
