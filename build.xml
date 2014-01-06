@@ -1,23 +1,26 @@
-<project xmlns:fx="javafx:com.sun.javafx.tools.ant" default="default" name="il2ssd"
+<project xmlns:fx="javafx:com.sun.javafx.tools.ant"
+         xmlns:artifact="antlib:org.apache.maven.artifact.ant"
+         default="default" name="il2ssd"
          basedir=".">
 
     <property environment="env"/>
-    <property file="build.properties"/>
 
-    <property name="project.jdk.home" value="${jdk.home.1.7}"/>
-    <property name="project.outdir" value="target/il2ssd"/>
+    <property name="jdk.home" value="${env.JAVA_HOME}"/>
+    <property name="maven.repository" value="${user.home}/.m2/repository"/>
 
     <target name="prepare">
 
+        <taskdef resource="org/apache/maven/artifact/ant/antlib.xml"
+                 uri="antlib:org.apache.maven.artifact.ant"
+                 classpath=".:${maven.repository}/org/apache/maven/maven-ant-tasks/2.1.3/maven-ant-tasks-2.1.3.jar"/>
+
+        <artifact:pom id="il2ssdpom" file="pom.xml"/>
+        <property name="project.outdir" value="target/${il2ssdpom.artifactId}-${il2ssdpom.version}"/>
+        <artifact:dependencies filesetid="jar.fileset" pomrefid="il2ssdpom" usescope="compile"/>
+
         <copy todir="${project.outdir}/lib" flatten="true">
-            <path id="libs">
-                <pathelement path="${path.variable.maven_repository}/com/airhacks/afterburner.fx/1.3/afterburner.fx-1.3.jar"/>
-                <pathelement path="${path.variable.maven_repository}/com/brainbot/iniconfig/0.2.0/iniconfig-0.2.0.jar"/>
-                <pathelement path="${path.variable.maven_repository}/commons-lang/commons-lang/2.3/commons-lang-2.3.jar"/>
-                <pathelement path="${path.variable.maven_repository}/instaparse/instaparse/1.2.13/instaparse-1.2.13.jar"/>
-                <pathelement path="${path.variable.maven_repository}/org/clojure/clojure/1.5.1/clojure-1.5.1.jar"/>
-                <pathelement path="${path.variable.maven_repository}/org/clojure/core.async/0.1.267.0-0d7780-alpha/core.async-0.1.267.0-0d7780-alpha.jar"/>
-            </path>
+            <fileset refid="jar.fileset"/>
+            <mapper type="flatten"/>
         </copy>
 
         <copy todir="${project.outdir}" flatten="true">
@@ -35,7 +38,7 @@
 
         <taskdef resource="com/sun/javafx/tools/ant/antlib.xml"
                  uri="javafx:com.sun.javafx.tools.ant"
-                 classpath=".:${project.jdk.home}/lib/ant-javafx.jar"/>
+                 classpath=".:${jdk.home}/lib/ant-javafx.jar"/>
 
         <fx:application id="il2ssd"
                         name="Il-2 Simple Server Daemon"
@@ -50,7 +53,7 @@
             <fx:fileset dir="${project.outdir}" includes="lib/core.async-0.1.267.0-0d7780-alpha.jar"/>
         </fx:resources>
 
-        <fx:jar destfile="${project.outdir}/il2ssd.jar">
+        <fx:jar destfile="${project.outdir}/${il2ssdpom.artifactId}-${il2ssdpom.version}">
             <fx:application refid="il2ssd"/>
             <fx:resources refid="resources"/>
 
@@ -67,6 +70,8 @@
             <fileset dir="resources"/>
             <fileset dir="src/java" includes="uk/org/il2ssd/*.fxml, uk/org/il2ssd/*.css"/>
         </fx:jar>
+
+        <zip basedir="${project.outdir}" destfile="target/${il2ssdpom.artifactId}-${il2ssdpom.version}.zip" update="true"/>
 
     </target>
 

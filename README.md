@@ -1,7 +1,7 @@
 Il-2 Simple Server Daemon
 -------------------------
 
-Il-2 Simple Server Daemon is a very simple server controller for the Il-2 Sturmovik 1946 dedicated server. It aims to be an easily maintained tool with IL-2 DCG integration.
+Il-2 Simple Server Daemon is a very simple server controller for the Il-2 Sturmovik 1946 dedicated server. It aims to be an easy-to-use tool with IL-2 DCG integration.
 
 ### Planned features:
 

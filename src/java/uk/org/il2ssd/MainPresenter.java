@@ -99,28 +99,33 @@ public class MainPresenter implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // Set up the table data
+
         diffSettingColumn.setCellValueFactory(
                 new PropertyValueFactory<DifficultySetting, String>("setting")
         );
+
         diffValueColumn.setCellValueFactory(
                 new PropertyValueFactory<DifficultySetting, String>("value")
         );
+
         diffValueColumn.setCellFactory(TextFieldTableCell.<DifficultySetting>forTableColumn());
+        difficultyData = FXCollections.observableArrayList();
+        difficultyTable.setItems(difficultyData);
+        difficultyTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+
         diffValueColumn.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent<DifficultySetting, String>>() {
             @Override
             public void handle(TableColumn.CellEditEvent<DifficultySetting, String> t) {
                 if (t.getNewValue().equals("0") || t.getNewValue().equals("1")) {
-                    difficultyData.get(t.getTablePosition().getRow()).setValue(t.getNewValue());
+                    t.getTableView().getItems().get(
+                            t.getTablePosition().getRow()
+                    ).setValue(t.getNewValue());
                 } else {
-                    t.consume();
-                    difficultyTable.setItems(difficultyData);
+                    t.getTableColumn().setVisible(false);
+                    t.getTableColumn().setVisible(true);
                 }
             }
         });
-        difficultyData = FXCollections.observableArrayList();
-        difficultyTable.setItems(difficultyData);
-        difficultyTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
     }
 
     public TableColumn getDiffSettingColumn() {

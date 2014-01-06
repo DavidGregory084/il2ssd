@@ -155,7 +155,8 @@
                            (.setDisable get-diff-btn true)
                            (.setDisable set-diff-btn true)
                            (.setDisable cmd-entry true)
-                           (.setText console "<disconnected>")))))))
+                           (.setText console "<disconnected>")
+                           (set-title)))))))
 
 (defn set-mission-playing
   "Sets the controls for playing status accordingly."
@@ -207,7 +208,10 @@
     [_]
     (let [{:keys [^TextField ip-field
                   ^TextField port-field]} @state/controls]
-      (go (server/connect ^String (.getText ip-field) (Integer/decode ^String (.getText port-field)))))))
+      (go (try (server/connect ^String (.getText ip-field)
+                               (Integer/decode ^String (.getText port-field)))
+               (catch NumberFormatException e nil)
+               (catch NullPointerException e nil))))))
 
 (defn disconnect-command
   []

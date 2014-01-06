@@ -7,7 +7,7 @@ import javafx.beans.property.StringProperty;
  *
  */
 public class DifficultySetting {
-    public StringProperty setting = new SimpleStringProperty();
+    public SimpleStringProperty setting = new SimpleStringProperty();
     public SimpleStringProperty value = new SimpleStringProperty();
 
     public DifficultySetting(String setting, String value) {
@@ -23,7 +23,7 @@ public class DifficultySetting {
         this.setting.set(setting);
     }
 
-    public StringProperty settingProperty() {
+    public SimpleStringProperty settingProperty() {
         return setting;
     }
 
