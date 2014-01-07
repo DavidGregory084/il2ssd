@@ -5,7 +5,7 @@ Il-2 Simple Server Daemon is a very simple server controller for the Il-2 Sturmo
 
 ### Planned features:
 
-- Cross-platform compatibility: Simple Server Daemon is based upon Java SE 7, the JavaFX 2.x framework and Clojure. It was initially written and tested on Arch Linux and latter rewritten on Windows 8. The original test server ran on CentOS 6.4 via WINE, and was play-tested from a Windows 7 client. Issues from all three major platforms will be investigated.
+- Cross-platform compatibility: Simple Server Daemon is based upon Java SE 7, the JavaFX 2.x framework and Clojure. As such, it is capable of running on most desktop operating systems as long as the JavaFX runtime is available.
 - Remote server console connection: As long as you have unblocked access to the server console port via TCP and your IP is whitelisted in confs.ini, you should be able to connect.
 - Direct access to the remote console via the interface: Simple Server Daemon features a console area for direct command entry and console monitoring.
 - Local usage for direct mission file selection and loading: Select your il2server.exe and .mis file and you're ready to go.

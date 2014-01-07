@@ -14,6 +14,10 @@
   "Atom to hold a map of the mission settings at runtime."
   (atom nil))
 
+(def mission-cycle
+  "Atom to hold a vector of mission maps."
+  (atom []))
+
 (def server-settings
   "Atom to hold a map of the server settings at runtime."
   (atom nil))
@@ -43,8 +47,12 @@
 (defn save-mission
   "Multiple-arity function for saving mission details."
   ([mode] (swap! mission-settings assoc "Mode" mode))
-  ([mode mission])
-  ([mode mission cycle]))
+  ([mode mission]
+   (swap! mission-settings assoc "Mode" mode)
+   (swap! mission-settings assoc "Mission" mission))
+  ([index mission timer]
+   (swap! mission-cycle assoc-in [index] (sorted-map :mission mission :timer timer))
+   (swap! mission-settings assoc "Cycle" @mission-cycle)))
 
 (defn build-config-file []
   "Builds an .ini config file to save each of the key-value pair settings atoms."

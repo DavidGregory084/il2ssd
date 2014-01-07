@@ -232,12 +232,15 @@
     [property]
     (let [{:keys [^BorderPane mission-pane
                   ^BorderPane single-mis-pane
+                  ^BorderPane cycle-mis-pane
                   ^ChoiceBox mode-choice
                   ^Label server-path-lbl]} @state/controls
           server-path (.getText server-path-lbl)
           mode (name ((map-invert modes) (.getValue mode-choice)))]
       (when (= mode "single")
         (.setCenter mission-pane single-mis-pane))
+      (when (= mode "cycle")
+        (.setCenter mission-pane cycle-mis-pane))
       (settings/save-mission mode)
       (settings/save-server server-path))))
 

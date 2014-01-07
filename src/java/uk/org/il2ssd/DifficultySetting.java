@@ -1,7 +1,6 @@
 package uk.org.il2ssd;
 
 import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
 
 /**
  *

@@ -16,9 +16,11 @@
   (Application/launch core (into-array String [args])))
 
 (defn -start [this primaryStage]
-  ((-> (ui/init-stage primaryStage) (ui/init-objects))
-   (ui/init-handlers)
-   (ui/init-controls)))
+  (let [main-presenter (ui/init-stage primaryStage)]
+    (ui/init-objects main-presenter)
+    (ui/init-handlers)
+    (ui/init-controls)
+    (ui/init-choosers)))
 
 (defn -stop [& args]
   (InjectionProvider/forgetAll))

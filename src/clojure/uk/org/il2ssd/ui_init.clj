@@ -14,7 +14,7 @@
            (javafx.scene.layout HBox Priority StackPane Region)
            (javafx.scene.text Font)
            (javafx.stage FileChooser FileChooser$ExtensionFilter Stage)
-           (uk.org.il2ssd MainView MainPresenter SingleView SinglePresenter)
+           (uk.org.il2ssd MainView MainPresenter SingleView SinglePresenter CycleView CyclePresenter)
            (javafx.scene.control Button TextField ChoiceBox MenuItem Label SelectionModel)
            (javafx.beans.property ReadOnlyBooleanProperty ObjectProperty StringProperty)
            (javafx.collections ObservableList)
@@ -31,7 +31,6 @@
   [^Stage primaryStage]
   (let [stage primaryStage
         main-view (MainView.)
-        single-view (SingleView.)
         scene (Scene. (.getView main-view))]
     (reset! state/stage primaryStage)
     (event/set-title)
@@ -41,10 +40,12 @@
       (.setResizable false)
       (.show)
       (.setOnCloseRequest (event/close)))
-    [(.getPresenter main-view) (.getPresenter single-view)]))
+    (.getPresenter main-view)))
 
-(defn init-objects [presenters]
-  (let [[^MainPresenter main-presenter ^SinglePresenter single-presenter] presenters]
+(defn init-objects [presenter]
+  (let [^MainPresenter main-presenter presenter
+        ^SinglePresenter single-presenter (.getPresenter (SingleView.))
+        ^CyclePresenter cycle-presenter (.getPresenter (CycleView.))]
     (reset! state/controls
             (hash-map :connect-btn (.getConnectButton main-presenter)
                       :disconn-btn (.getDisconnectButton main-presenter)
@@ -71,7 +72,8 @@
                       :server-chooser (FileChooser.)
                       :mis-chooser (FileChooser.)
                       :dcg-chooser (FileChooser.)
-                      :single-mis-pane (.getSingleMisPane single-presenter)))))
+                      :single-mis-pane (.getSingleMisPane single-presenter)
+                      :cycle-mis-pane (.getCycleMisPane cycle-presenter)))))
 
 (defn init-handlers []
   (let [{:keys [^Button connect-btn
@@ -111,26 +113,28 @@
 (defn init-controls []
   (let [{:keys [^TextField ip-field
                 ^TextField port-field
+                ^Label server-path-lbl
                 ^StackPane prog-stack
                 ^ChoiceBox mode-choice
-                ^Region mission-spring
-                ^FileChooser server-chooser
-                ^Label server-path-lbl
-                ^FileChooser mis-chooser
-                ^FileChooser dcg-chooser]} @state/controls
+                ^Region mission-spring]} @state/controls
         configuration (settings/read-config-file)]
     (-> mode-choice .getItems (.addAll ^ObservableList (map modes [:single :cycle :dcg])))
     (if configuration
       (do (-> mode-choice .getSelectionModel
               (.select
-                ((comp modes keyword get-in) configuration ["Mission" "Mode"] "single")))
+                (-> (get-in configuration ["Mission" "Mode"] "single") keyword modes)))
           (.setText ip-field (get-in configuration ["Server" "IP"] ""))
           (.setText port-field (get-in configuration ["Server" "Port"] ""))
           (.setText server-path-lbl (get-in configuration ["Server" "Path"] "..."))
           (settings/save-server (.getText ip-field) (.getText port-field) (.getText server-path-lbl)))
       (-> mode-choice .getSelectionModel .selectFirst))
     (HBox/setHgrow prog-stack Priority/ALWAYS)
-    (HBox/setHgrow mission-spring Priority/ALWAYS)
+    (HBox/setHgrow mission-spring Priority/ALWAYS)))
+
+(defn init-choosers []
+  (let [{:keys [^FileChooser server-chooser
+                ^FileChooser mis-chooser
+                ^FileChooser dcg-chooser]} @state/controls]
     (doto server-chooser
       (.setTitle "Choose Il-2 Server Executable")
       (.setInitialDirectory

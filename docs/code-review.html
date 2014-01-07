@@ -3063,9 +3063,11 @@ net.brehaut.ClojureTools = (function (SH) {
 </td><td class="codes"><pre class="brush: clojure">(defn -main [&amp; args]
   (Application/launch core (into-array String [args])))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn -start [this primaryStage]
-  ((-&gt; (ui/init-stage primaryStage) (ui/init-objects))
-   (ui/init-handlers)
-   (ui/init-controls)))</pre></td></tr><tr><td class="docs">
+  (let [main-presenter (ui/init-stage primaryStage)]
+    (ui/init-objects main-presenter)
+    (ui/init-handlers)
+    (ui/init-controls)
+    (ui/init-choosers)))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn -stop [&amp; args]
   (InjectionProvider/forgetAll))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#uk.org.il2ssd.jfx" name="uk.org.il2ssd.jfx"><h1 class="project-name">uk.org.il2ssd.jfx</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><p>JavaFX helper functions; most shamelessly ripped from Upshot</p>
 </td><td class="codes"><pre class="brush: clojure">(ns uk.org.il2ssd.jfx
@@ -3206,7 +3208,9 @@ net.brehaut.ClojureTools = (function (SH) {
             [com.brainbot.iniconfig :as iniconfig]))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(def difficulty-settings (atom {}))</pre></td></tr><tr><td class="docs"><p>Atom to hold a map of the mission settings at runtime.</p>
 </td><td class="codes"><pre class="brush: clojure">(def mission-settings
-  (atom nil))</pre></td></tr><tr><td class="docs"><p>Atom to hold a map of the server settings at runtime.</p>
+  (atom nil))</pre></td></tr><tr><td class="docs"><p>Atom to hold a vector of mission maps.</p>
+</td><td class="codes"><pre class="brush: clojure">(def mission-cycle
+  (atom []))</pre></td></tr><tr><td class="docs"><p>Atom to hold a map of the server settings at runtime.</p>
 </td><td class="codes"><pre class="brush: clojure">(def server-settings
   (atom nil))</pre></td></tr><tr><td class="docs"><p>Atom to hold a built difficulty file.</p>
 </td><td class="codes"><pre class="brush: clojure">(def difficulty-file
@@ -3227,8 +3231,12 @@ net.brehaut.ClojureTools = (function (SH) {
      (swap! server-settings assoc &quot;Path&quot; path))))</pre></td></tr><tr><td class="docs"><p>Multiple-arity function for saving mission details.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn save-mission
   ([mode] (swap! mission-settings assoc &quot;Mode&quot; mode))
-  ([mode mission])
-  ([mode mission cycle]))</pre></td></tr><tr><td class="docs">
+  ([mode mission]
+   (swap! mission-settings assoc &quot;Mode&quot; mode)
+   (swap! mission-settings assoc &quot;Mission&quot; mission))
+  ([index mission timer]
+   (swap! mission-cycle assoc-in [index] (sorted-map :mission mission :timer timer))
+   (swap! mission-settings assoc &quot;Cycle&quot; @mission-cycle)))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn build-config-file []
   &quot;Builds an .ini config file to save each of the key-value pair settings atoms.&quot;
   (let [file (atom [])
@@ -3493,12 +3501,15 @@ net.brehaut.ClojureTools = (function (SH) {
     [property]
     (let [{:keys [^BorderPane mission-pane
                   ^BorderPane single-mis-pane
+                  ^BorderPane cycle-mis-pane
                   ^ChoiceBox mode-choice
                   ^Label server-path-lbl]} @state/controls
           server-path (.getText server-path-lbl)
           mode (name ((map-invert modes) (.getValue mode-choice)))]
       (when (= mode &quot;single&quot;)
         (.setCenter mission-pane single-mis-pane))
+      (when (= mode &quot;cycle&quot;)
+        (.setCenter mission-pane cycle-mis-pane))
       (settings/save-mission mode)
       (settings/save-server server-path))))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn server-choose-command
@@ -3521,7 +3532,7 @@ net.brehaut.ClojureTools = (function (SH) {
            (javafx.scene.layout HBox Priority StackPane Region)
            (javafx.scene.text Font)
            (javafx.stage FileChooser FileChooser$ExtensionFilter Stage)
-           (uk.org.il2ssd MainView MainPresenter SingleView SinglePresenter)
+           (uk.org.il2ssd MainView MainPresenter SingleView SinglePresenter CycleView CyclePresenter)
            (javafx.scene.control Button TextField ChoiceBox MenuItem Label SelectionModel)
            (javafx.beans.property ReadOnlyBooleanProperty ObjectProperty StringProperty)
            (javafx.collections ObservableList)
@@ -3535,7 +3546,6 @@ net.brehaut.ClojureTools = (function (SH) {
   [^Stage primaryStage]
   (let [stage primaryStage
         main-view (MainView.)
-        single-view (SingleView.)
         scene (Scene. (.getView main-view))]
     (reset! state/stage primaryStage)
     (event/set-title)
@@ -3545,9 +3555,11 @@ net.brehaut.ClojureTools = (function (SH) {
       (.setResizable false)
       (.show)
       (.setOnCloseRequest (event/close)))
-    [(.getPresenter main-view) (.getPresenter single-view)]))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(defn init-objects [presenters]
-  (let [[^MainPresenter main-presenter ^SinglePresenter single-presenter] presenters]
+    (.getPresenter main-view)))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn init-objects [presenter]
+  (let [^MainPresenter main-presenter presenter
+        ^SinglePresenter single-presenter (.getPresenter (SingleView.))
+        ^CyclePresenter cycle-presenter (.getPresenter (CycleView.))]
     (reset! state/controls
             (hash-map :connect-btn (.getConnectButton main-presenter)
                       :disconn-btn (.getDisconnectButton main-presenter)
@@ -3574,7 +3586,8 @@ net.brehaut.ClojureTools = (function (SH) {
                       :server-chooser (FileChooser.)
                       :mis-chooser (FileChooser.)
                       :dcg-chooser (FileChooser.)
-                      :single-mis-pane (.getSingleMisPane single-presenter)))))</pre></td></tr><tr><td class="docs">
+                      :single-mis-pane (.getSingleMisPane single-presenter)
+                      :cycle-mis-pane (.getCycleMisPane cycle-presenter)))))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn init-handlers []
   (let [{:keys [^Button connect-btn
                 ^Button disconn-btn
@@ -3612,26 +3625,27 @@ net.brehaut.ClojureTools = (function (SH) {
 </td><td class="codes"><pre class="brush: clojure">(defn init-controls []
   (let [{:keys [^TextField ip-field
                 ^TextField port-field
+                ^Label server-path-lbl
                 ^StackPane prog-stack
                 ^ChoiceBox mode-choice
-                ^Region mission-spring
-                ^FileChooser server-chooser
-                ^Label server-path-lbl
-                ^FileChooser mis-chooser
-                ^FileChooser dcg-chooser]} @state/controls
+                ^Region mission-spring]} @state/controls
         configuration (settings/read-config-file)]
     (-&gt; mode-choice .getItems (.addAll ^ObservableList (map modes [:single :cycle :dcg])))
     (if configuration
       (do (-&gt; mode-choice .getSelectionModel
               (.select
-                ((comp modes keyword get-in) configuration [&quot;Mission&quot; &quot;Mode&quot;] &quot;single&quot;)))
+                (-&gt; (get-in configuration [&quot;Mission&quot; &quot;Mode&quot;] &quot;single&quot;) keyword modes)))
           (.setText ip-field (get-in configuration [&quot;Server&quot; &quot;IP&quot;] ))
           (.setText port-field (get-in configuration [&quot;Server&quot; &quot;Port&quot;] ))
           (.setText server-path-lbl (get-in configuration [&quot;Server&quot; &quot;Path&quot;] &quot;...&quot;))
           (settings/save-server (.getText ip-field) (.getText port-field) (.getText server-path-lbl)))
       (-&gt; mode-choice .getSelectionModel .selectFirst))
     (HBox/setHgrow prog-stack Priority/ALWAYS)
-    (HBox/setHgrow mission-spring Priority/ALWAYS)
+    (HBox/setHgrow mission-spring Priority/ALWAYS)))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn init-choosers []
+  (let [{:keys [^FileChooser server-chooser
+                ^FileChooser mis-chooser
+                ^FileChooser dcg-chooser]} @state/controls]
     (doto server-chooser
       (.setTitle &quot;Choose Il-2 Server Executable&quot;)
       (.setInitialDirectory
