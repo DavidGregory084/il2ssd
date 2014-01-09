@@ -1,23 +1,48 @@
-;;;;
-;;;; Global state
-;;;;
+;;
+;; ## Global state atoms
+;;
+;; In this namespace we define a number of atoms which will simply hold true or
+;; false values that will define the global state of the program.
+;;
+;; We can add watches to these atoms to define an on-changed function just as we
+;; might add listeners in a Java UI toolkit.
+;;
+;; Because Clojure comparison functions treat nil as logical false, it is not
+;; necessary to initialise these atoms.
 (ns uk.org.il2ssd.state)
 
 (def stage
-  "Atom to store the stage instance."
+  "### stage
+   This atom will store the JavaFX Stage instance so that we can set the stage
+   title during the execution of the program."
   (atom nil))
+
 (def controls
-  "Atom to store the map of instantiated controls from FXML."
+  "### controls
+   This atom will store a map of the control object instances which are returned
+   by the afterburner.fx presenter class for each fxml file."
   (atom nil))
+
 (def connected
-  "Atom to store connection status."
+  "### connected
+   This atom simply stores a true or false connected status for global use in the
+   program."
   (atom nil))
+
 (def loaded
-  "Atom to store mission loaded status."
+  "### loaded
+   This atom simply stores a true or false mission loaded status for global use
+   in the program."
   (atom nil))
+
 (def playing
-  "Atom to store mission playing status."
+  "### playing
+   This atom stores a true or false mission playing status for global use in the
+   program."
   (atom nil))
+
 (def mis-selected
-  "Atom to store mission selected status."
+  "### mis-selected
+   This atom stores a true or false mission selected status for global use in the
+   program."
   (atom nil))

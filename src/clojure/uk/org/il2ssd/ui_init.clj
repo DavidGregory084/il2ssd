@@ -1,6 +1,9 @@
-;;;;
-;;;; UI initialisation
-;;;;
+;;
+;; ## UI initialisation function
+;;
+;; In this namespace we define the functions which instantiate any objects that
+;; we need and initialise the objects we receive by dependency injection into data
+;; structures which we can more easily manipulate in Clojure.
 (ns uk.org.il2ssd.ui-init
 
   (:require [uk.org.il2ssd.channel :refer :all]
@@ -24,10 +27,30 @@
            (java.util ArrayList)))
 
 (def modes
-  "Map of mission loading modes."
+  "### modes
+   This is a map of the mission loading modes. This is used to populate the
+   mode-choice ChoiceBox control."
   {:single "Single Mission", :cycle "Mission Cycle", :dcg "DCG Generation"})
 
 (defn init-stage
+  "### init-stage
+   This one argument function instantiates the afterburner.fx MainView class
+   which loads the view from fxml.
+
+   It then saves the stage instance into a global state atom so that it can be altered
+   later and sets the scene for this stage to a new Scene object which contains this
+   view before showing the stage.
+
+   We also load the icon font that we will use for the UI, set an event handler
+   function to run when the user requests to close the stage and define the stage
+   as non-resizable.
+
+   Finally, we return the presenter instance for the view we loaded.
+
+   The Java presenter class simply contains getter functions for the objects
+   which are instantiated by the afterburner.fx dependency injection framework
+   and defines the ObservableLists and cell factories for the TableViews that
+   we will use."
   [^Stage primaryStage]
   (let [stage primaryStage
         main-view (MainView.)
@@ -42,7 +65,22 @@
       (.setOnCloseRequest (event/close)))
     (.getPresenter main-view)))
 
-(defn init-objects [presenter]
+(defn init-objects
+  "### init-objects
+   This one argument function accepts a main presenter instance and instantiates
+   any subsidiary presenter classes before loading all of the objects which we
+   want to use into a map which we put into a global state atom.
+
+   By doing this, we can refer to an object instance in any namespace by using the
+   following syntax:
+
+       (let [{:keys [<object we want to use>]}
+             @state/controls]
+         (<function body>))
+
+   It may be necessary to use type hinting to limit uses of the Reflection API at
+   runtime for performance reasons."
+  [presenter]
   (let [^MainPresenter main-presenter presenter
         ^SinglePresenter single-presenter (.getPresenter (SingleView.))
         ^CyclePresenter cycle-presenter (.getPresenter (CycleView.))]
@@ -75,7 +113,13 @@
                       :single-mis-pane (.getSingleMisPane single-presenter)
                       :cycle-mis-pane (.getCycleMisPane cycle-presenter)))))
 
-(defn init-handlers []
+(defn init-handlers
+  "### init-handlers
+   This zero argument function is used to add event handlers and change listeners
+   for any objects that must respond to user input. We also add watch functions to
+   the global state atoms where those state atoms' values should be reflected in
+   the UI."
+  []
   (let [{:keys [^Button connect-btn
                 ^Button disconn-btn
                 ^Button start-btn
@@ -95,7 +139,7 @@
     (.setOnAction connect-btn (event/connect-command))
     (.setOnAction disconn-btn (event/disconnect-command))
     (.setOnAction start-btn (event/start-stop-command))
-    (.setOnAction next-btn (event/nothing))
+    ;(.setOnAction next-btn ()) ;the next button doesn't do anything yet
     (.setOnAction exit-btn (event/close))
     (.setOnAction server-path-btn (event/server-choose-command))
     (.setOnAction get-diff-btn (event/get-difficulties))
@@ -110,7 +154,16 @@
     (add-watch state/loaded :load event/set-mission-loaded)
     (add-watch state/playing :play event/set-mission-playing)))
 
-(defn init-controls []
+(defn init-controls
+  "### init-controls
+   The zero argument function is used to initialise any controls with default
+   values. If a configuration file is found, the UI is initialised using the
+   values retrieved from this file.
+
+   We also set the HGrow setting for some UI elements because this cannot be set
+   within a ToolBar in the JavaFX Scene Builder (even though a ToolBar is a
+   subclass of HBox)."
+  []
   (let [{:keys [^TextField ip-field
                 ^TextField port-field
                 ^Label server-path-lbl
@@ -118,20 +171,34 @@
                 ^ChoiceBox mode-choice
                 ^Region mission-spring]} @state/controls
         configuration (settings/read-config-file)]
-    (-> mode-choice .getItems (.addAll ^ObservableList (map modes [:single :cycle :dcg])))
+    (-> mode-choice
+        .getItems
+        (.addAll ^ObservableList (map modes [:single :cycle :dcg])))
     (if configuration
       (do (-> mode-choice .getSelectionModel
               (.select
-                (-> (get-in configuration ["Mission" "Mode"] "single") keyword modes)))
+                (-> (get-in configuration ["Mission" "Mode"] "single")
+                    keyword
+                    modes)))
           (.setText ip-field (get-in configuration ["Server" "IP"] ""))
           (.setText port-field (get-in configuration ["Server" "Port"] ""))
           (.setText server-path-lbl (get-in configuration ["Server" "Path"] "..."))
-          (settings/save-server (.getText ip-field) (.getText port-field) (.getText server-path-lbl)))
+          (settings/save-server (.getText ip-field)
+                                (.getText port-field)
+                                (.getText server-path-lbl)))
       (-> mode-choice .getSelectionModel .selectFirst))
     (HBox/setHgrow prog-stack Priority/ALWAYS)
     (HBox/setHgrow mission-spring Priority/ALWAYS)))
 
-(defn init-choosers []
+(defn init-choosers
+  "### init-choosers
+   This zero argument function initialises the FileChooser objects that will be
+   opened from the UI, setting the title, initial directory and file extension
+   filter to be used.
+
+   The initial directory for the mission file chooser is not set, as this will
+   be resolved relative to the chosen Il-2 server path."
+  []
   (let [{:keys [^FileChooser server-chooser
                 ^FileChooser mis-chooser
                 ^FileChooser dcg-chooser]} @state/controls]
@@ -141,14 +208,22 @@
         (-> (Paths/get "" (into-array [""])) .toAbsolutePath .toFile))
       (-> ^ObservableList .getExtensionFilters
           (.add
-            (FileChooser$ExtensionFilter. "Il-2 Server (il2server.exe)" ^"[Ljava.lang.String;" (into-array ["il2server.exe"])))))
+            (FileChooser$ExtensionFilter.
+              "Il-2 Server (il2server.exe)"
+              ^"[Ljava.lang.String;" (into-array ["il2server.exe"])))))
     (doto mis-chooser
       (.setTitle "Choose Il-2 Mission File")
       (-> ^ObservableList .getExtensionFilters
           (.add
-            (FileChooser$ExtensionFilter. "Il-2 Mission (*.mis)" ^"[Ljava.lang.String;" (into-array ["*.mis"])))))
+            (FileChooser$ExtensionFilter.
+              "Il-2 Mission (*.mis)"
+              ^"[Ljava.lang.String;" (into-array ["*.mis"])))))
     (doto dcg-chooser
       (.setTitle "Choose DCG Executable")
+      (.setInitialDirectory
+        (-> (Paths/get "" (into-array [""])) .toAbsolutePath .toFile))
       (-> ^ObservableList .getExtensionFilters
           (.add
-            (FileChooser$ExtensionFilter. "DCG Executable (il2dcg.exe)" ^"[Ljava.lang.String;" (into-array ["il2dcg.exe"])))))))
+            (FileChooser$ExtensionFilter.
+              "DCG Executable (il2dcg.exe)"
+              ^"[Ljava.lang.String;" (into-array ["il2dcg.exe"])))))))
