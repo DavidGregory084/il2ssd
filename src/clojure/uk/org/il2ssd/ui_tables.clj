@@ -15,10 +15,6 @@
   (:require [uk.org.il2ssd.jfx :as jfx]
             [uk.org.il2ssd.state :as state]))
 
-;(defrecord DifficultySetting [setting value])
-
-;(defrecord CycleMission [mission timer])
-
 (defn init-diff-table
   "### init-diff-table
    This is a zero argument function which instantiates the cell factories and cell
@@ -47,50 +43,60 @@
     (let [{:keys [^ObservableList diff-data]} @state/controls]
       (.setItems diff-table diff-data)
       (.setOnEditCommit diff-val-col
-                        (jfx/event-handler [^TableColumn$CellEditEvent cell]
-                                (if (or (= (.getNewValue cell) "0")
-                                        (= (.getNewValue cell) "1"))
-                                  (-> cell .getTableView .getItems
-                                      (.get (-> cell .getTablePosition .getRow))
-                                      (.setValue (.getNewValue cell)))
-                                  (do (-> cell .getTableColumn (.setVisible false))
-                                      (-> cell .getTableColumn (.setVisible true))))))))
+                        (jfx/event-handler
+                          [^TableColumn$CellEditEvent cell]
+                          (let [^TableColumn col (.getTableColumn cell)
+                                index (-> cell .getTablePosition .getRow)
+                                ^ObservableList items (-> cell .getTableView .getItems)
+                                ^DifficultySetting current (.get items index)
+                                ^String setting (.setting current)
+                                ^String newval (.getNewValue cell)]
+                            (if (or (= newval "0")
+                                    (= newval "1"))
+                              (.setValue current newval)
+                              (doto col (.setVisible false)
+                                        (.setVisible true)))))))))
 
-  (defn init-cycle-table
-    "### init-diff-table
-   This is a zero argument function which instantiates the cell factories and cell
-   value factories for the mission cycle table so that the table is populated
-   correctly. The property which backs each column is defined in the constructor
-   for the PropertyValueFactory for that column.
+(defn init-cycle-table
+  "### init-diff-table
+ This is a zero argument function which instantiates the cell factories and cell
+ value factories for the mission cycle table so that the table is populated
+ correctly. The property which backs each column is defined in the constructor
+ for the PropertyValueFactory for that column.
 
-   We also define the CellFactory for the mission timer column as
-   TextFieldTableCell, which produces editable table cells.
+ We also define the CellFactory for the mission timer column as
+ TextFieldTableCell, which produces editable table cells.
 
-   The backing list for the table is instantiated and stored in the controls atom
-   before being linked to the table.
+ The backing list for the table is instantiated and stored in the controls atom
+ before being linked to the table.
 
-   Finally, we define an EventHandler for the commit action which rejects inputs
-   which cannot be converted to an Integer or which are not greater than zero."
-    []
-    (let [{:keys [^TableView cycle-table
-                  ^TableColumn cycle-mis-col
-                  ^TableColumn cycle-tim-col]} @state/controls]
-      (.setCellValueFactory cycle-mis-col (PropertyValueFactory. "mission"))
-      (.setCellValueFactory cycle-tim-col (PropertyValueFactory. "timer"))
-      (.setCellFactory cycle-tim-col (TextFieldTableCell/forTableColumn))
-      (.setColumnResizePolicy cycle-table TableView/CONSTRAINED_RESIZE_POLICY)
-      (swap! state/controls assoc :cycle-data (FXCollections/observableArrayList))
-      (let [{:keys [^ObservableList cycle-data]} @state/controls]
-        (.setItems cycle-table cycle-data)
-        (.setOnEditCommit cycle-tim-col
-                          (jfx/event-handler [^TableColumn$CellEditEvent cell]
-                                             (if
-                                                 (try
-                                                   (> (Integer/decode (.getNewValue cell)) 0)
-                                                   (catch NumberFormatException e nil)
-                                                   (catch NullPointerException e nil))
-                                               (-> cell .getTableView .getItems
-                                                   (.get (-> cell .getTablePosition .getRow))
-                                                   (.setTimer (.getNewValue cell)))
-                                               (do (-> cell .getTableColumn (.setVisible false))
-                                                   (-> cell .getTableColumn (.setVisible true))))))))))
+ Finally, we define an EventHandler for the commit action which rejects inputs
+ which cannot be converted to an Integer or which are not greater than zero."
+  []
+  (let [{:keys [^TableView cycle-table
+                ^TableColumn cycle-mis-col
+                ^TableColumn cycle-tim-col]} @state/controls]
+    (.setCellValueFactory cycle-mis-col (PropertyValueFactory. "mission"))
+    (.setCellValueFactory cycle-tim-col (PropertyValueFactory. "timer"))
+    (.setCellFactory cycle-tim-col (TextFieldTableCell/forTableColumn))
+    (.setColumnResizePolicy cycle-table TableView/CONSTRAINED_RESIZE_POLICY)
+    (swap! state/controls assoc :cycle-data (FXCollections/observableArrayList))
+    (let [{:keys [^ObservableList cycle-data]} @state/controls]
+      (.setItems cycle-table cycle-data)
+      (.setOnEditCommit cycle-tim-col
+                        (jfx/event-handler
+                          [^TableColumn$CellEditEvent cell]
+                          (let [^TableColumn col (.getTableColumn cell)
+                                index (-> cell .getTablePosition .getRow)
+                                ^ObservableList items (-> cell .getTableView .getItems)
+                                ^CycleMission current (.get items index)
+                                ^String setting (.timer current)
+                                ^String newval (.getNewValue cell)]
+                            (if
+                                (try
+                                  (> (Integer/decode newval) 0)
+                                  (catch NumberFormatException e nil)
+                                  (catch NullPointerException e nil))
+                              (.setTimer current newval)
+                              (doto col (.setVisible false)
+                                        (.setVisible true)))))))))
