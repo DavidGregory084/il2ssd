@@ -20,7 +20,8 @@
    This is possible because Clojure functions implement the Runnable and Callable
    interfaces.
 
-   This function is necessary to update the UI from a different thread."
+   This function returns immediately, and is necessary to update the UI from a
+   different thread."
   [f]
   (Platform/runLater f))
 
@@ -33,9 +34,17 @@
 
 (defn run-now*
   "### run-now*
-   This one argument function attempts to immediately deliver the result of the
-   run-later function f, and catches any exception that might result, returning
-   the result of function f."
+   This one argument function attempts to run function f on the JavaFX
+   Application Thread, catching any exception which may result and capturing
+   the result in a promise, the dereferenced value of which is returned to
+   the calling function.
+
+   Because this function attempts to evaluate the result of calling function
+   f, which Platform.runLater will execute at an arbitrary time on the JavaFX
+   Application Thread, this function will block until function f returns.
+
+   This can be used to block execution until some change has been made to the
+   user interface."
   [f]
   (let [result (promise)]
     (run-later
@@ -60,8 +69,8 @@
 
 (defmacro event-handler
   "### event-handler
-   This macro expands the contents of the argument into a single-argument function
-   which is passed into the event-handler* function above."
+   This macro expands the contents of the argument vector and function body into a new
+   anonymous function which is passed into the event-handler* function above."
   [arg & body]
   `(event-handler* (fn ~arg ~@body)))
 
@@ -81,8 +90,8 @@
 
 (defmacro invalidation-listener
   "### invalidation-listener
-   This macro expands the arguments into a single-argument function that is passed into
-   the invalidation-listener* function above."
+   This macro expands the contents of the argument vector and function body into a new
+   anonymous function which is passed into the invalidation-listener* function above."
   [arg & body]
   `(invalidation-listener* (fn ~arg ~@body)))
 
@@ -103,7 +112,7 @@
 
 (defmacro change-listener
   "### change-listener
-   This macro expands the arguments into a single-argument function that is passed into
-   the change-listener* function above."
+   This macro expands the contents of the argument vector and function body into a new
+   anonymous function which is passed into the change-listener* function above."
   [arg & body]
   `(change-listener* (fn ~arg ~@body)))

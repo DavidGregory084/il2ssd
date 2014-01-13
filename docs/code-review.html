@@ -3028,8 +3028,8 @@ net.brehaut.ClojureTools = (function (SH) {
     build_tree: build_tree
   };
 })(SyntaxHighlighter);
-</script><title>uk.org.il2ssd/il2ssd -- Marginalia</title></head><body><table><tr><td class="docs"><div class="header"><h1 class="project-name">uk.org.il2ssd/il2ssd</h1><h2 class="project-version">0.1.0-SNAPSHOT</h2><br /><p>Il-2 Simple Server Daemon is a very simple server controller for the Il-2 Sturmovik 1946 dedicated server. It aims to be an easy-to-use tool with IL-2 DCG integration.</p>
-</div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">org.clojure/clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.5.1</td></tr><tr><td class="dep-name">org.clojure/core.async</td><td class="dotted"><hr /></td><td class="dep-version">0.1.267.0-0d7780-alpha</td></tr><tr><td class="dep-name">com.airhacks/afterburner.fx</td><td class="dotted"><hr /></td><td class="dep-version">1.3</td></tr><tr><td class="dep-name">commons-lang/commons-lang</td><td class="dotted"><hr /></td><td class="dep-version">2.3</td></tr><tr><td class="dep-name">instaparse/instaparse</td><td class="dotted"><hr /></td><td class="dep-version">1.2.13</td></tr><tr><td class="dep-name">com.brainbot/iniconfig</td><td class="dotted"><hr /></td><td class="dep-version">0.2.0</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#uk.org.il2ssd.channel">uk.org.il2ssd.channel</a></li><li><a href="#uk.org.il2ssd.core">uk.org.il2ssd.core</a></li><li><a href="#uk.org.il2ssd.jfx">uk.org.il2ssd.jfx</a></li><li><a href="#uk.org.il2ssd.parse">uk.org.il2ssd.parse</a></li><li><a href="#uk.org.il2ssd.server">uk.org.il2ssd.server</a></li><li><a href="#uk.org.il2ssd.settings">uk.org.il2ssd.settings</a></li><li><a href="#uk.org.il2ssd.state">uk.org.il2ssd.state</a></li><li><a href="#uk.org.il2ssd.ui-event">uk.org.il2ssd.ui-event</a></li><li><a href="#uk.org.il2ssd.ui-init">uk.org.il2ssd.ui-init</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#uk.org.il2ssd.channel" name="uk.org.il2ssd.channel"><h1 class="project-name">uk.org.il2ssd.channel</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><h2>Channels for thread-safe concurrency</h2>
+</script><title>Il-2 Simple Server Daemon -- Marginalia</title></head><body><table><tr><td class="docs"><div class="header"><h1 class="project-name">Il-2 Simple Server Daemon</h1><h2 class="project-version">0.1.0-SNAPSHOT</h2><br /><p>Il-2 Simple Server Daemon is a very simple server controller for the Il-2 Sturmovik 1946 dedicated server. It aims to be an easy-to-use tool with IL-2 DCG integration.</p>
+</div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">org.clojure/clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.5.1</td></tr><tr><td class="dep-name">org.clojure/core.async</td><td class="dotted"><hr /></td><td class="dep-version">0.1.267.0-0d7780-alpha</td></tr><tr><td class="dep-name">com.airhacks/afterburner.fx</td><td class="dotted"><hr /></td><td class="dep-version">1.3</td></tr><tr><td class="dep-name">commons-lang/commons-lang</td><td class="dotted"><hr /></td><td class="dep-version">2.3</td></tr><tr><td class="dep-name">instaparse/instaparse</td><td class="dotted"><hr /></td><td class="dep-version">1.2.13</td></tr><tr><td class="dep-name">com.brainbot/iniconfig</td><td class="dotted"><hr /></td><td class="dep-version">0.2.0</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#uk.org.il2ssd.channel">uk.org.il2ssd.channel</a></li><li><a href="#uk.org.il2ssd.core">uk.org.il2ssd.core</a></li><li><a href="#uk.org.il2ssd.jfx">uk.org.il2ssd.jfx</a></li><li><a href="#uk.org.il2ssd.parse">uk.org.il2ssd.parse</a></li><li><a href="#uk.org.il2ssd.server">uk.org.il2ssd.server</a></li><li><a href="#uk.org.il2ssd.settings">uk.org.il2ssd.settings</a></li><li><a href="#uk.org.il2ssd.state">uk.org.il2ssd.state</a></li><li><a href="#uk.org.il2ssd.ui-event">uk.org.il2ssd.ui-event</a></li><li><a href="#uk.org.il2ssd.ui-init">uk.org.il2ssd.ui-init</a></li><li><a href="#uk.org.il2ssd.ui-tables">uk.org.il2ssd.ui-tables</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#uk.org.il2ssd.channel" name="uk.org.il2ssd.channel"><h1 class="project-name">uk.org.il2ssd.channel</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><h2>Channels for thread-safe concurrency</h2>
 
 <p>Here we define the input channels that we use to safely process the server console
 output concurrently. The initial input channel will receive one line at a time from
@@ -3103,7 +3103,8 @@ on the JavaFX Application thread.</p>
   (:gen-class :name uk.org.il2ssd.core
               :extends javafx.application.Application
               :main true)
-  (:require [uk.org.il2ssd.ui-init :as ui])
+  (:require [uk.org.il2ssd.ui-init :as ui]
+            [uk.org.il2ssd.ui-tables :as tables])
   (:import (javafx.application Application)
            (com.airhacks.afterburner.injection InjectionProvider)
            (uk.org.il2ssd core)))</pre></td></tr><tr><td class="docs"><h3>-main</h3>
@@ -3130,7 +3131,9 @@ on the JavaFX Application thread.</p>
     (ui/init-objects main-presenter)
     (ui/init-handlers)
     (ui/init-controls)
-    (ui/init-choosers)))</pre></td></tr><tr><td class="docs"><h3>-stop</h3>
+    (ui/init-choosers)
+    (tables/init-diff-table)
+    (tables/init-cycle-table)))</pre></td></tr><tr><td class="docs"><h3>-stop</h3>
 
 <p>   Every JavaFX application runs the "stop" method when a close request is made for
    the last visible stage, so that cleanup can be performed before the application
@@ -3159,7 +3162,8 @@ the creator of Seesaw, a Clojure wrapper for the Swing toolkit.</p>
 <p>   This is possible because Clojure functions implement the Runnable and Callable
    interfaces.</p>
 
-<p>   This function is necessary to update the UI from a different thread.</p>
+<p>   This function returns immediately, and is necessary to update the UI from a
+   different thread.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn run-later*
   [f]
   (Platform/runLater f))</pre></td></tr><tr><td class="docs"><h3>run-later</h3>
@@ -3170,9 +3174,17 @@ the creator of Seesaw, a Clojure wrapper for the Swing toolkit.</p>
   [&amp; body]
   `(run-later* (fn [] ~@body)))</pre></td></tr><tr><td class="docs"><h3>run-now*</h3>
 
-<p>   This one argument function attempts to immediately deliver the result of the
-   run-later function f, and catches any exception that might result, returning
-   the result of function f.</p>
+<p>   This one argument function attempts to run function f on the JavaFX
+   Application Thread, catching any exception which may result and capturing
+   the result in a promise, the dereferenced value of which is returned to
+   the calling function.</p>
+
+<p>   Because this function attempts to evaluate the result of calling function
+   f, which Platform.runLater will execute at an arbitrary time on the JavaFX
+   Application Thread, this function will block until function f returns.</p>
+
+<p>   This can be used to block execution until some change has been made to the
+   user interface.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn run-now*
   [f]
   (let [result (promise)]
@@ -3194,8 +3206,8 @@ the creator of Seesaw, a Clojure wrapper for the Swing toolkit.</p>
   (reify EventHandler
     (handle [this e] (f e))))</pre></td></tr><tr><td class="docs"><h3>event-handler</h3>
 
-<p>   This macro expands the contents of the argument into a single-argument function
-   which is passed into the event-handler* function above.</p>
+<p>   This macro expands the contents of the argument vector and function body into a new
+   anonymous function which is passed into the event-handler* function above.</p>
 </td><td class="codes"><pre class="brush: clojure">(defmacro event-handler
   [arg &amp; body]
   `(event-handler* (fn ~arg ~@body)))</pre></td></tr><tr><td class="docs"><h3>invalidation-listener*</h3>
@@ -3213,8 +3225,8 @@ the creator of Seesaw, a Clojure wrapper for the Swing toolkit.</p>
   (reify InvalidationListener
     (invalidated [this observable] (f observable))))</pre></td></tr><tr><td class="docs"><h3>invalidation-listener</h3>
 
-<p>   This macro expands the arguments into a single-argument function that is passed into
-   the invalidation-listener* function above.</p>
+<p>   This macro expands the contents of the argument vector and function body into a new
+   anonymous function which is passed into the invalidation-listener* function above.</p>
 </td><td class="codes"><pre class="brush: clojure">(defmacro invalidation-listener
   [arg &amp; body]
   `(invalidation-listener* (fn ~arg ~@body)))</pre></td></tr><tr><td class="docs"><h3>change-listener*</h3>
@@ -3233,8 +3245,8 @@ the creator of Seesaw, a Clojure wrapper for the Swing toolkit.</p>
     (changed [this observable old new]
       (f observable old new))))</pre></td></tr><tr><td class="docs"><h3>change-listener</h3>
 
-<p>   This macro expands the arguments into a single-argument function that is passed into
-   the change-listener* function above.</p>
+<p>   This macro expands the contents of the argument vector and function body into a new
+   anonymous function which is passed into the change-listener* function above.</p>
 </td><td class="codes"><pre class="brush: clojure">(defmacro change-listener
   [arg &amp; body]
   `(change-listener* (fn ~arg ~@body)))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#uk.org.il2ssd.parse" name="uk.org.il2ssd.parse"><h1 class="project-name">uk.org.il2ssd.parse</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><h2>Parser definitions</h2>
@@ -4126,12 +4138,16 @@ structures which we can more easily manipulate in Clojure.</p>
                       :get-diff-btn (.getGetDifficultyButton main-presenter)
                       :set-diff-btn (.getSetDifficultyButton main-presenter)
                       :diff-table (.getDifficultyTable main-presenter)
-                      :diff-data (.getDifficultyData main-presenter)
+                      :diff-set-col (.getDiffSettingColumn main-presenter)
+                      :diff-val-col (.getDiffValueColumn main-presenter)
                       :server-chooser (FileChooser.)
                       :mis-chooser (FileChooser.)
                       :dcg-chooser (FileChooser.)
                       :single-mis-pane (.getSingleMisPane single-presenter)
-                      :cycle-mis-pane (.getCycleMisPane cycle-presenter)))))</pre></td></tr><tr><td class="docs"><h3>init-handlers</h3>
+                      :cycle-mis-pane (.getCycleMisPane cycle-presenter)
+                      :cycle-table (.getCycleMissionTable cycle-presenter)
+                      :cycle-mis-col (.getCycleMissionColumn cycle-presenter)
+                      :cycle-tim-col (.getCycleTimerColumn cycle-presenter)))))</pre></td></tr><tr><td class="docs"><h3>init-handlers</h3>
 
 <p>   This zero argument function is used to add event handlers and change listeners
    for any objects that must respond to user input. We also add watch functions to
@@ -4243,5 +4259,93 @@ structures which we can more easily manipulate in Clojure.</p>
           (.add
             (FileChooser$ExtensionFilter.
               &quot;DCG Executable (il2dcg.exe)&quot;
-              ^&quot;[Ljava.lang.String;&quot; (into-array [&quot;il2dcg.exe&quot;])))))))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr></table><div class="footer">Generated by <a href="https://github.com/fogus/marginalia">Marginalia</a>.&nbsp;&nbsp;Syntax highlighting provided by Alex Gorbatchev's <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a></div><script type="text/javascript">SyntaxHighlighter.defaults['gutter'] = false;
+              ^&quot;[Ljava.lang.String;&quot; (into-array [&quot;il2dcg.exe&quot;])))))))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#uk.org.il2ssd.ui-tables" name="uk.org.il2ssd.ui-tables"><h1 class="project-name">uk.org.il2ssd.ui-tables</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><h2>JavaFX TableView and underlying data model functions</h2>
+
+<p>In this namespace we define the data models that we will use for the lists that
+back the TableViews and initialise the TableViews with the properties that we
+require.</p>
+
+<p>In this case we will define the tables' values to be backed by a JavaFX
+ObservableList comprised of Java beans that we define in Java.</p>
+</td><td class="codes"><pre class="brush: clojure">(ns uk.org.il2ssd.ui-tables
+  (:import (javafx.collections ObservableList FXCollections)
+           (javafx.scene.control.cell PropertyValueFactory TextFieldTableCell)
+           (javafx.scene.control TableView TableColumn TableColumn$CellEditEvent TablePosition)
+           (javafx.event EventHandler)
+           (uk.org.il2ssd CycleMission DifficultySetting))
+  (:require [uk.org.il2ssd.jfx :as jfx]
+            [uk.org.il2ssd.state :as state]))</pre></td></tr><tr><td class="docs"><p>(defrecord DifficultySetting [setting value])</p>
+</td><td class="codes"></td></tr><tr><td class="docs"><p>(defrecord CycleMission [mission timer])</p>
+</td><td class="codes"></td></tr><tr><td class="docs"><h3>init-diff-table</h3>
+
+<p>   This is a zero argument function which instantiates the cell factories and cell
+   value factories for the difficulty table so that the table is populated
+   correctly. The property which backs each column is defined in the constructor
+   for the PropertyValueFactory for that column.</p>
+
+<p>   We also define the CellFactory for the difficulty value column as
+   TextFieldTableCell, which produces editable table cells.</p>
+
+<p>   The backing list for the table is instantiated and stored in the controls
+   atom before being linked to the table.</p>
+
+<p>   Finally, we define an EventHandler for the commit action which rejects any
+   inputs which are not equal to 0 or 1 as these are the permitted values for
+   Il-2 difficulty settings.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn init-diff-table
+  []
+  (let [{:keys [^TableView diff-table
+                ^TableColumn diff-set-col
+                ^TableColumn diff-val-col]} @state/controls]
+    (.setCellValueFactory diff-set-col (PropertyValueFactory. &quot;setting&quot;))
+    (.setCellValueFactory diff-val-col (PropertyValueFactory. &quot;value&quot;))
+    (.setCellFactory diff-val-col (TextFieldTableCell/forTableColumn))
+    (.setColumnResizePolicy diff-table TableView/CONSTRAINED_RESIZE_POLICY)
+    (swap! state/controls assoc :diff-data (FXCollections/observableArrayList))
+    (let [{:keys [^ObservableList diff-data]} @state/controls]
+      (.setItems diff-table diff-data)
+      (.setOnEditCommit diff-val-col
+                        (jfx/event-handler [^TableColumn$CellEditEvent cell]
+                                (if (or (= (.getNewValue cell) &quot;0&quot;)
+                                        (= (.getNewValue cell) &quot;1&quot;))
+                                  (-&gt; cell .getTableView .getItems
+                                      (.get (-&gt; cell .getTablePosition .getRow))
+                                      (.setValue (.getNewValue cell)))
+                                  (do (-&gt; cell .getTableColumn (.setVisible false))
+                                      (-&gt; cell .getTableColumn (.setVisible true))))))))
+  (defn init-cycle-table
+    &quot;### init-diff-table
+   This is a zero argument function which instantiates the cell factories and cell
+   value factories for the mission cycle table so that the table is populated
+   correctly. The property which backs each column is defined in the constructor
+   for the PropertyValueFactory for that column.
+   We also define the CellFactory for the mission timer column as
+   TextFieldTableCell, which produces editable table cells.
+   The backing list for the table is instantiated and stored in the controls atom
+   before being linked to the table.
+   Finally, we define an EventHandler for the commit action which rejects inputs
+   which cannot be converted to an Integer or which are not greater than zero.&quot;
+    []
+    (let [{:keys [^TableView cycle-table
+                  ^TableColumn cycle-mis-col
+                  ^TableColumn cycle-tim-col]} @state/controls]
+      (.setCellValueFactory cycle-mis-col (PropertyValueFactory. &quot;mission&quot;))
+      (.setCellValueFactory cycle-tim-col (PropertyValueFactory. &quot;timer&quot;))
+      (.setCellFactory cycle-tim-col (TextFieldTableCell/forTableColumn))
+      (.setColumnResizePolicy cycle-table TableView/CONSTRAINED_RESIZE_POLICY)
+      (swap! state/controls assoc :cycle-data (FXCollections/observableArrayList))
+      (let [{:keys [^ObservableList cycle-data]} @state/controls]
+        (.setItems cycle-table cycle-data)
+        (.setOnEditCommit cycle-tim-col
+                          (jfx/event-handler [^TableColumn$CellEditEvent cell]
+                                             (if
+                                                 (try
+                                                   (&gt; (Integer/decode (.getNewValue cell)) 0)
+                                                   (catch NumberFormatException e nil)
+                                                   (catch NullPointerException e nil))
+                                               (-&gt; cell .getTableView .getItems
+                                                   (.get (-&gt; cell .getTablePosition .getRow))
+                                                   (.setTimer (.getNewValue cell)))
+                                               (do (-&gt; cell .getTableColumn (.setVisible false))
+                                                   (-&gt; cell .getTableColumn (.setVisible true))))))))))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr></table><div class="footer">Generated by <a href="https://github.com/fogus/marginalia">Marginalia</a>.&nbsp;&nbsp;Syntax highlighting provided by Alex Gorbatchev's <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a></div><script type="text/javascript">SyntaxHighlighter.defaults['gutter'] = false;
        SyntaxHighlighter.all()</script></body></html>

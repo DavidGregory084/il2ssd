@@ -19,7 +19,7 @@ import java.util.ResourceBundle;
 /**
  * Instantiation from FXML
  */
-public class CyclePresenter implements Initializable {
+public class CyclePresenter {
     @FXML
     BorderPane cycleMisPane;
     @FXML
@@ -40,7 +40,6 @@ public class CyclePresenter implements Initializable {
     Button addMissionButton;
     @FXML
     Button chooseCycleMisButton;
-    ObservableList<CycleMission> cycleData = FXCollections.observableArrayList();
 
     public TableView<CycleMission> getCycleMissionTable() {
         return cycleMissionTable;
@@ -52,38 +51,6 @@ public class CyclePresenter implements Initializable {
 
     public TableColumn<CycleMission, String> getCycleTimerColumn() {
         return cycleTimerColumn;
-    }
-
-    @Override
-    public void initialize(URL url, ResourceBundle rb) {
-
-        cycleMissionColumn.setCellValueFactory(
-                new PropertyValueFactory<CycleMission, String>("mission")
-        );
-
-        cycleTimerColumn.setCellValueFactory(
-                new PropertyValueFactory<CycleMission, String>("timer")
-        );
-
-        cycleTimerColumn.setCellFactory(TextFieldTableCell.<CycleMission>forTableColumn());
-        cycleData = FXCollections.observableArrayList();
-        cycleMissionTable.setItems(cycleData);
-        cycleMissionTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-
-        cycleTimerColumn.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent<CycleMission, String>>() {
-            @Override
-            public void handle(TableColumn.CellEditEvent<CycleMission, String> t) {
-                try {
-                    Integer test = Integer.decode(t.getNewValue());
-                    t.getTableView().getItems().get(
-                            t.getTablePosition().getRow()
-                    ).setTimer(t.getNewValue());
-                } catch (NumberFormatException e) {
-                    t.getTableColumn().setVisible(false);
-                    t.getTableColumn().setVisible(true);
-                }
-            }
-        });
     }
 
     public Button getMissionUpButton() {
@@ -108,10 +75,6 @@ public class CyclePresenter implements Initializable {
 
     public Button getChooseCycleMisButton() {
         return chooseCycleMisButton;
-    }
-
-    public ObservableList<CycleMission> getCycleData() {
-        return cycleData;
     }
 
     public BorderPane getCycleMisPane() {

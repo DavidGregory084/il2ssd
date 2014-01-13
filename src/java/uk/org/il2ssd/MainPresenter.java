@@ -18,7 +18,7 @@ import java.util.ResourceBundle;
 /**
  * UI update functions and instantiation from fxml
  */
-public class MainPresenter implements Initializable {
+public class MainPresenter {
 
     @FXML
     Button connectButton;
@@ -67,8 +67,6 @@ public class MainPresenter implements Initializable {
     @FXML
     MenuItem aboutItem;
 
-    ObservableList<DifficultySetting> difficultyData = FXCollections.observableArrayList();
-
     public BorderPane getMissionPane() {
         return missionPane;
     }
@@ -91,41 +89,6 @@ public class MainPresenter implements Initializable {
 
     public Region getMissionBarSpring() {
         return missionBarSpring;
-    }
-
-    public ObservableList<DifficultySetting> getDifficultyData() {
-        return difficultyData;
-    }
-
-    @Override
-    public void initialize(URL url, ResourceBundle rb) {
-
-        diffSettingColumn.setCellValueFactory(
-                new PropertyValueFactory<DifficultySetting, String>("setting")
-        );
-
-        diffValueColumn.setCellValueFactory(
-                new PropertyValueFactory<DifficultySetting, String>("value")
-        );
-
-        diffValueColumn.setCellFactory(TextFieldTableCell.<DifficultySetting>forTableColumn());
-        difficultyData = FXCollections.observableArrayList();
-        difficultyTable.setItems(difficultyData);
-        difficultyTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-
-        diffValueColumn.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent<DifficultySetting, String>>() {
-            @Override
-            public void handle(TableColumn.CellEditEvent<DifficultySetting, String> t) {
-                if (t.getNewValue().equals("0") || t.getNewValue().equals("1")) {
-                    t.getTableView().getItems().get(
-                            t.getTablePosition().getRow()
-                    ).setValue(t.getNewValue());
-                } else {
-                    t.getTableColumn().setVisible(false);
-                    t.getTableColumn().setVisible(true);
-                }
-            }
-        });
     }
 
     public TableColumn getDiffSettingColumn() {

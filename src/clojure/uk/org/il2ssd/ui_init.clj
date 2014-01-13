@@ -106,12 +106,16 @@
                       :get-diff-btn (.getGetDifficultyButton main-presenter)
                       :set-diff-btn (.getSetDifficultyButton main-presenter)
                       :diff-table (.getDifficultyTable main-presenter)
-                      :diff-data (.getDifficultyData main-presenter)
+                      :diff-set-col (.getDiffSettingColumn main-presenter)
+                      :diff-val-col (.getDiffValueColumn main-presenter)
                       :server-chooser (FileChooser.)
                       :mis-chooser (FileChooser.)
                       :dcg-chooser (FileChooser.)
                       :single-mis-pane (.getSingleMisPane single-presenter)
-                      :cycle-mis-pane (.getCycleMisPane cycle-presenter)))))
+                      :cycle-mis-pane (.getCycleMisPane cycle-presenter)
+                      :cycle-table (.getCycleMissionTable cycle-presenter)
+                      :cycle-mis-col (.getCycleMissionColumn cycle-presenter)
+                      :cycle-tim-col (.getCycleTimerColumn cycle-presenter)))))
 
 (defn init-handlers
   "### init-handlers

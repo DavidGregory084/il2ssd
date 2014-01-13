@@ -10,7 +10,8 @@
               :extends javafx.application.Application
               :main true)
 
-  (:require [uk.org.il2ssd.ui-init :as ui])
+  (:require [uk.org.il2ssd.ui-init :as ui]
+            [uk.org.il2ssd.ui-tables :as tables])
 
   (:import (javafx.application Application)
            (com.airhacks.afterburner.injection InjectionProvider)
@@ -40,7 +41,9 @@
     (ui/init-objects main-presenter)
     (ui/init-handlers)
     (ui/init-controls)
-    (ui/init-choosers)))
+    (ui/init-choosers)
+    (tables/init-diff-table)
+    (tables/init-cycle-table)))
 
 (defn -stop
   "### -stop
