@@ -19,15 +19,17 @@
 
   (:import (javafx.application Platform)
            (javafx.stage Stage FileChooser)
-           (uk.org.il2ssd DifficultySetting SingleView)
-           (javafx.collections ObservableList)
-           (javafx.scene.control TextArea Button TextField TableView Label ChoiceBox TabPane)
+           (uk.org.il2ssd DifficultySetting SingleView CycleMission)
+           (javafx.collections ObservableList FXCollections)
+           (javafx.scene.control TextArea Button TextField TableView Label ChoiceBox TabPane TableColumn$CellEditEvent
+                                 TableColumn TablePosition)
            (javafx.scene.input KeyEvent)
            (javafx.scene.layout BorderPane)
            (javafx.beans InvalidationListener)
            (javafx.beans.value ChangeListener)
            (javafx.event EventHandler ActionEvent)
-           (java.io File)))
+           (java.io File)
+           (javafx.scene.control.cell PropertyValueFactory TextFieldTableCell)))
 
 (defn close
   "### close
@@ -306,7 +308,7 @@
     [^KeyEvent keyevent]
     (let [{:keys [^TextField cmd-entry
                   ^TextArea console]} @state/controls]
-      (if (= (-> keyevent .getCode .getName) "Enter")
+      (when (= (-> keyevent .getCode .getName) "Enter")
         (if (= (.getText cmd-entry) "clear")
           (do (.clear console)
               (.clear cmd-entry))
@@ -405,3 +407,131 @@
           ^File file (.showOpenDialog server-chooser (Stage.))
           path (.getCanonicalPath file)]
       (.setText server-path-lbl path))))
+
+(defn difficulty-validator
+  "### difficulty-validator
+   This one argument function returns logical true if the value passed in for
+   validation is equal to either the string value \"0\" or the string value \"1\",
+   the two permissible values to which a difficulty setting can be set on the
+   server console."
+  [newval]
+  (or (= newval "0")
+      (= newval "1")))
+
+(defn cycle-validator
+  "### cycle-validator
+   This one argument function returns logical true if the value passed in for
+   validation can be coerced to an Integer value and is greater than zero, since
+   we define the mission timers in whole minutes."
+  [newval]
+  (if
+      (try (pos? (Integer/decode newval))
+           (catch Exception e nil))
+    true))
+
+(defn diff-val-commit
+  "### diff-val-commit
+   This zero argument function returns an EventHandler which triggers an update of
+   the list backing the difficulty TableView when the user commits their cell edit.
+
+   In this case we commit the edit to the backing list if the new value passes the
+   difficulty setting validator function.
+
+   Otherwise, we toggle visibility of the column off and then on again to trigger
+   a refresh of the data shown from the backing list, indicating to the user that
+   their value was not committed."
+  []
+  (jfx/event-handler
+    [^TableColumn$CellEditEvent cell]
+    (let [^TableColumn col (.getTableColumn cell)
+          index (-> cell .getTablePosition .getRow)
+          ^ObservableList items (-> cell .getTableView .getItems)
+          ^DifficultySetting current (.get items index)
+          ^String newval (.getNewValue cell)]
+      (if (difficulty-validator newval)
+        (.setValue current newval)
+        (doto col (.setVisible false)
+                  (.setVisible true))))))
+
+(defn cycle-timer-commit
+  "### cycle-timer-commit
+   This zero argument function returns an EventHandler which triggers an update of
+   the list backing the mission cycle TableView when the user commits their cell
+   edit.
+
+   We commit the edit to the backing list if the new value passes the mission cycle
+   validator function.
+
+   Otherwise, we toggle visibility of the column off and then on again to trigger
+   a refresh of the data shown from the backing list, indicating to the user that
+   their value was not committed."
+  []
+  (jfx/event-handler
+    [^TableColumn$CellEditEvent cell]
+    (let [^TableColumn col (.getTableColumn cell)
+          index (-> cell .getTablePosition .getRow)
+          ^ObservableList items (-> cell .getTableView .getItems)
+          ^CycleMission current (.get items index)
+          ^String newval (.getNewValue cell)]
+      (if (cycle-validator newval)
+        (.setTimer current newval)
+        (doto col (.setVisible false)
+                  (.setVisible true))))))
+
+(defn init-diff-table
+  "### init-diff-table
+   This is a zero argument function which instantiates the cell factories and cell
+   value factories for the difficulty table so that the table is populated
+   correctly. The property which backs each column is defined in the constructor
+   for the PropertyValueFactory for that column.
+
+   We also define the CellFactory for the difficulty value column as
+   TextFieldTableCell, which produces editable table cells.
+
+   The backing list for the table is instantiated and stored in the controls
+   atom before being linked to the table.
+
+   Finally, we attach an EventHandler to the cell edit commit action which rejects
+   any inputs which are not equal to 0 or 1, as these are the permitted values for
+   Il-2 difficulty settings."
+  []
+  (let [{:keys [^TableView diff-table
+                ^TableColumn diff-set-col
+                ^TableColumn diff-val-col]} @state/controls]
+    (.setCellValueFactory diff-set-col (PropertyValueFactory. "setting"))
+    (.setCellValueFactory diff-val-col (PropertyValueFactory. "value"))
+    (.setCellFactory diff-val-col (TextFieldTableCell/forTableColumn))
+    (.setColumnResizePolicy diff-table TableView/CONSTRAINED_RESIZE_POLICY)
+    (swap! state/controls assoc :diff-data (FXCollections/observableArrayList))
+    (let [{:keys [^ObservableList diff-data]} @state/controls]
+      (.setItems diff-table diff-data)
+      (.setOnEditCommit diff-val-col (diff-val-commit)))))
+
+(defn init-cycle-table
+  "### init-cycle-table
+ This is a zero argument function which instantiates the cell factories and cell
+ value factories for the mission cycle table so that the table is populated
+ correctly. The property which backs each column is defined in the constructor
+ for the PropertyValueFactory for that column.
+
+ We also define the CellFactory for the mission timer column as
+ TextFieldTableCell, which produces editable table cells.
+
+ The backing list for the table is instantiated and stored in the controls atom
+ before being linked to the table.
+
+ Finally, we attach an EventHandler to the cell edit commit action which rejects
+ inputs which cannot be converted to an Integer or which are not greater than
+ zero."
+  []
+  (let [{:keys [^TableView cycle-table
+                ^TableColumn cycle-mis-col
+                ^TableColumn cycle-tim-col]} @state/controls]
+    (.setCellValueFactory cycle-mis-col (PropertyValueFactory. "mission"))
+    (.setCellValueFactory cycle-tim-col (PropertyValueFactory. "timer"))
+    (.setCellFactory cycle-tim-col (TextFieldTableCell/forTableColumn))
+    (.setColumnResizePolicy cycle-table TableView/CONSTRAINED_RESIZE_POLICY)
+    (swap! state/controls assoc :cycle-data (FXCollections/observableArrayList))
+    (let [{:keys [^ObservableList cycle-data]} @state/controls]
+      (.setItems cycle-table cycle-data)
+      (.setOnEditCommit cycle-tim-col (cycle-timer-commit)))))
