@@ -1,16 +1,18 @@
 ;;
-;; ## UI initialisation function
+;; ## UI initialisation functions
 ;;
 ;; In this namespace we define the functions which instantiate any objects that
 ;; we need and initialise the objects we receive by dependency injection into data
 ;; structures which we can more easily manipulate in Clojure.
-(ns uk.org.il2ssd.ui-init
+(ns uk.org.il2ssd.jfx.init
 
   (:require [uk.org.il2ssd.channel :refer :all]
             [uk.org.il2ssd.settings :as settings]
             [uk.org.il2ssd.server :as server]
             [uk.org.il2ssd.state :as state]
-            [uk.org.il2ssd.ui-event :as event])
+            [uk.org.il2ssd.jfx.event :as event]
+            [uk.org.il2ssd.jfx.ui :as ui]
+            [uk.org.il2ssd.jfx.util :as util])
 
   (:import (java.nio.file Paths Path)
            (javafx.scene Scene)
@@ -18,13 +20,12 @@
            (javafx.scene.text Font)
            (javafx.stage FileChooser FileChooser$ExtensionFilter Stage)
            (uk.org.il2ssd MainView MainPresenter SingleView SinglePresenter CycleView CyclePresenter)
-           (javafx.scene.control Button TextField ChoiceBox MenuItem Label SelectionModel)
-           (javafx.beans.property ReadOnlyBooleanProperty ObjectProperty StringProperty)
-           (javafx.collections ObservableList)
+           (javafx.scene.control Button TextField ChoiceBox MenuItem Label SelectionModel TableView TableColumn)
+           (javafx.beans Observable)
+           (javafx.collections FXCollections)
            (java.io File)
-           (javafx.beans.value ChangeListener)
-           (javafx.beans InvalidationListener)
-           (java.util ArrayList)))
+           (java.util List)
+           (javafx.scene.control.cell PropertyValueFactory TextFieldTableCell)))
 
 (def modes
   "### modes
@@ -140,20 +141,20 @@
                 ^TextField ip-field
                 ^TextField port-field]}
         @state/controls]
-    (.setOnAction connect-btn (event/connect-command))
-    (.setOnAction disconn-btn (event/disconnect-command))
-    (.setOnAction start-btn (event/start-stop-command))
+    (.setOnAction connect-btn (util/event-handler [_] (event/connect-command)))
+    (.setOnAction disconn-btn (util/event-handler [_] (event/disconnect-command)))
+    (.setOnAction start-btn (util/event-handler [_] (event/start-stop-command)))
     ;(.setOnAction next-btn ()) ;the next button doesn't do anything yet
-    (.setOnAction exit-btn (event/close))
-    (.setOnAction server-path-btn (event/server-choose-command))
-    (.setOnAction get-diff-btn (event/get-difficulties))
-    (.setOnAction set-diff-btn (event/set-difficulties))
-    (.setOnKeyPressed cmd-entry (event/enter-command))
-    (.setOnAction load-btn (event/load-unload-command))
-    (-> ip-field .focusedProperty (.addListener (event/field-exit)))
-    (-> port-field .focusedProperty (.addListener (event/field-exit)))
-    (-> mode-choice .valueProperty (.addListener (event/changed-choice modes)))
-    (-> server-path-lbl .textProperty (.addListener (event/changed-choice modes)))
+    (.setOnAction exit-btn (util/event-handler [_] (event/close)))
+    (.setOnAction server-path-btn (util/event-handler [_] (event/server-choose-command)))
+    (.setOnAction get-diff-btn (util/event-handler [_] (event/get-difficulties)))
+    (.setOnAction set-diff-btn (util/event-handler [_] (event/set-difficulties)))
+    (.setOnKeyPressed cmd-entry (util/event-handler [keyevent] (event/enter-command)))
+    (.setOnAction load-btn (util/event-handler [_] (event/load-unload-command)))
+    (-> ip-field .focusedProperty (.addListener (util/change-listener [_ old new] (event/field-exit))))
+    (-> port-field .focusedProperty (.addListener (util/change-listener [_ old new] (event/field-exit))))
+    (-> mode-choice .valueProperty (.addListener (util/invalidation-listener [_] (event/changed-choice modes))))
+    (-> server-path-lbl .textProperty (.addListener (util/invalidation-listener [_] (event/changed-choice modes))))
     (add-watch state/connected :connect event/set-connected)
     (add-watch state/loaded :load event/set-mission-loaded)
     (add-watch state/playing :play event/set-mission-playing)))
@@ -177,7 +178,7 @@
         configuration (settings/read-config-file)]
     (-> mode-choice
         .getItems
-        (.addAll ^ObservableList (map modes [:single :cycle :dcg])))
+        (.addAll ^List (map modes [:single :cycle :dcg])))
     (if configuration
       (do (-> mode-choice .getSelectionModel
               (.select
@@ -210,14 +211,14 @@
       (.setTitle "Choose Il-2 Server Executable")
       (.setInitialDirectory
         (-> (Paths/get "" (into-array [""])) .toAbsolutePath .toFile))
-      (-> ^ObservableList .getExtensionFilters
+      (-> ^List .getExtensionFilters
           (.add
             (FileChooser$ExtensionFilter.
               "Il-2 Server (il2server.exe)"
               ^"[Ljava.lang.String;" (into-array ["il2server.exe"])))))
     (doto mis-chooser
       (.setTitle "Choose Il-2 Mission File")
-      (-> ^ObservableList .getExtensionFilters
+      (-> ^List .getExtensionFilters
           (.add
             (FileChooser$ExtensionFilter.
               "Il-2 Mission (*.mis)"
@@ -226,8 +227,66 @@
       (.setTitle "Choose DCG Executable")
       (.setInitialDirectory
         (-> (Paths/get "" (into-array [""])) .toAbsolutePath .toFile))
-      (-> ^ObservableList .getExtensionFilters
+      (-> ^List .getExtensionFilters
           (.add
             (FileChooser$ExtensionFilter.
               "DCG Executable (il2dcg.exe)"
               ^"[Ljava.lang.String;" (into-array ["il2dcg.exe"])))))))
+
+(defn init-diff-table
+  "### init-diff-table
+   This is a zero argument function which instantiates the cell factories and cell
+   value factories for the difficulty table so that the table is populated
+   correctly. The property which backs each column is defined in the constructor
+   for the PropertyValueFactory for that column.
+
+   We also define the CellFactory for the difficulty value column as
+   TextFieldTableCell, which produces editable table cells.
+
+   The backing list for the table is instantiated and stored in the controls
+   atom before being linked to the table.
+
+   Finally, we attach an EventHandler to the cell edit commit action which rejects
+   any inputs which are not equal to 0 or 1, as these are the permitted values for
+   Il-2 difficulty settings."
+  []
+  (let [{:keys [^TableView diff-table
+                ^TableColumn diff-set-col
+                ^TableColumn diff-val-col]} @state/controls]
+    (.setCellValueFactory diff-set-col (PropertyValueFactory. "setting"))
+    (.setCellValueFactory diff-val-col (PropertyValueFactory. "value"))
+    (.setCellFactory diff-val-col (TextFieldTableCell/forTableColumn))
+    (.setColumnResizePolicy diff-table TableView/CONSTRAINED_RESIZE_POLICY)
+    (swap! state/controls assoc :diff-data (FXCollections/observableArrayList))
+    (let [{:keys [^List diff-data]} @state/controls]
+      (.setItems diff-table diff-data)
+      (.setOnEditCommit diff-val-col (ui/diff-val-commit)))))
+
+(defn init-cycle-table
+  "### init-cycle-table
+ This is a zero argument function which instantiates the cell factories and cell
+ value factories for the mission cycle table so that the table is populated
+ correctly. The property which backs each column is defined in the constructor
+ for the PropertyValueFactory for that column.
+
+ We also define the CellFactory for the mission timer column as
+ TextFieldTableCell, which produces editable table cells.
+
+ The backing list for the table is instantiated and stored in the controls atom
+ before being linked to the table.
+
+ Finally, we attach an EventHandler to the cell edit commit action which rejects
+ inputs which cannot be converted to an Integer or which are not greater than
+ zero."
+  []
+  (let [{:keys [^TableView cycle-table
+                ^TableColumn cycle-mis-col
+                ^TableColumn cycle-tim-col]} @state/controls]
+    (.setCellValueFactory cycle-mis-col (PropertyValueFactory. "mission"))
+    (.setCellValueFactory cycle-tim-col (PropertyValueFactory. "timer"))
+    (.setCellFactory cycle-tim-col (TextFieldTableCell/forTableColumn))
+    (.setColumnResizePolicy cycle-table TableView/CONSTRAINED_RESIZE_POLICY)
+    (swap! state/controls assoc :cycle-data (FXCollections/observableArrayList))
+    (let [{:keys [^List cycle-data]} @state/controls]
+      (.setItems cycle-table cycle-data)
+      (.setOnEditCommit cycle-tim-col (ui/cycle-timer-commit)))))

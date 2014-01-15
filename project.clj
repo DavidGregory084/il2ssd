@@ -15,4 +15,7 @@
   :java-source-paths ["src/java"]
   :test-paths ["test/clojure" "test/java"]
   :resource-paths ["resources" "src/java"]
-  :global-vars {*warn-on-reflection* true})
+  :global-vars {*warn-on-reflection* true}
+  :scm {:name "hg"
+        :developerConnection "scm:hg:ssh://hg@bitbucket.org/dgregory084/il-2-simple-server-daemon"
+        :url "https://bitbucket.org/dgregory084/il-2-simple-server-daemon"})

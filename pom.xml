@@ -12,6 +12,10 @@
       <url>http://www.eclipse.org/legal/epl-v10.html</url>
     </license>
   </licenses>
+  <scm>
+    <developerConnection>scm:hg:ssh://hg@bitbucket.org/dgregory084/il-2-simple-server-daemon</developerConnection>
+    <url>https://bitbucket.org/dgregory084/il-2-simple-server-daemon</url>
+  </scm>
   <build>
     <sourceDirectory>src\clojure</sourceDirectory>
     <testSourceDirectory>test\clojure</testSourceDirectory>

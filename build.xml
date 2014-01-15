@@ -50,7 +50,7 @@
             <fx:fileset dir="${project.outdir}" includes="lib/*.jar"/>
         </fx:resources>
 
-        <fx:jar destfile="${project.outdir}/${il2ssdpom.artifactId}-${il2ssdpom.version}">
+        <fx:jar destfile="${project.outdir}/${il2ssdpom.artifactId}-${il2ssdpom.version}.jar">
             <fx:application refid="il2ssd"/>
             <fx:resources refid="resources"/>
 

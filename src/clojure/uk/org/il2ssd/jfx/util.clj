@@ -4,8 +4,8 @@
 ;; These functions wrap common JavaFX methods or return instances of anonymous classes
 ;; which override their methods.
 ;; Most are shamelessly stolen from the now-abandoned Upshot library which was begun by
-;; the creator of Seesaw, a Clojure wrapper for the Swing toolkit.
-(ns uk.org.il2ssd.jfx
+;; Dave Ray, originator of the excellent Seesaw, a Clojure wrapper for the Swing toolkit.
+(ns uk.org.il2ssd.jfx.util
   (:import (javafx.application Platform)
            (javafx.event EventHandler)
            (javafx.beans InvalidationListener)

@@ -10,8 +10,7 @@
               :extends javafx.application.Application
               :main true)
 
-  (:require [uk.org.il2ssd.ui-init :as ui]
-            [uk.org.il2ssd.ui-tables :as tables])
+  (:require [uk.org.il2ssd.jfx.init :as jfx])
 
   (:import (javafx.application Application)
            (com.airhacks.afterburner.injection InjectionProvider)
@@ -19,12 +18,16 @@
 
 (defn -main
   "### -main
-   This is the main application method. It launches the main method of the class we
-   defined above with gen-class using the JavaFX Application.launch static method.
+   This is the main application method. The argument passed into the program defines the
+   interface to launch. When no arguments are passed it launches the default JavaFX UI.
+   If the JavaFX UI is selected, it calls the main method of the class we defined above
+   with gen-class using the JavaFX Application.launch static method.
 
    This class will be generated when this namespace is AOT compiled."
-  [& args]
-  (Application/launch core (into-array String [args])))
+  [ui & opts]
+  (when (or (nil? ui) (= ui "jfx"))
+    (println (str ui opts))
+    (Application/launch core (into-array String [opts]))))
 
 (defn -start
   "### -start
@@ -37,13 +40,13 @@
 
    After initialising the objects, we initialise event handlers, watches and controls."
   [this primaryStage]
-  (let [main-presenter (ui/init-stage primaryStage)]
-    (ui/init-objects main-presenter)
-    (ui/init-handlers)
-    (ui/init-controls)
-    (ui/init-choosers)
-    (tables/init-diff-table)
-    (tables/init-cycle-table)))
+  (let [main-presenter (jfx/init-stage primaryStage)]
+    (jfx/init-objects main-presenter)
+    (jfx/init-handlers)
+    (jfx/init-controls)
+    (jfx/init-choosers)
+    (jfx/init-diff-table)
+    (jfx/init-cycle-table)))
 
 (defn -stop
   "### -stop
@@ -53,6 +56,6 @@
 
    At present we only call the forgetAll method for the afterburner.fx dependency
    injection framework's InjectionProvider."
-  [& args]
+  [this]
   (InjectionProvider/forgetAll))
 
