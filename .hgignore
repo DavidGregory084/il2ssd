@@ -7,3 +7,4 @@ test/
 .lein-failures
 .nrepl-port
 *.properties
+.lein-repl-history

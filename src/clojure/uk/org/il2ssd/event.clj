@@ -5,13 +5,12 @@
 ;;
 ;; We also define channel listeners which parse the server console output and
 ;; update the UI accordingly.
-(ns uk.org.il2ssd.jfx.event
+(ns uk.org.il2ssd.event
 
   (:require [clojure.core.async :refer [go thread <!!]]
             [clojure.set :refer [map-invert]]
             [clojure.string :as string]
             [uk.org.il2ssd.channel :refer :all]
-            [uk.org.il2ssd.jfx.util :as util]
             [uk.org.il2ssd.parse :as parse]
             [uk.org.il2ssd.server :as server]
             [uk.org.il2ssd.settings :as settings]
@@ -81,8 +80,8 @@
   []
   (let [{:keys [diff-data]} @state/controls]
     (doseq [^DifficultySetting item diff-data]
-      (let [setting (.setting item)
-            value (.value item)]
+      (let [setting (.getSetting item)
+            value (.getValue item)]
         (server/set-difficulty setting value)))))
 
 (defn console-listener
@@ -140,7 +139,7 @@
    (ui/set-title @state/stage "Il-2 Simple Server Daemon"))
   ([mission state]
    (ui/set-title @state/stage
-     (str "Il-2 Simple Server Daemon - " mission " " (string/lower-case state)))))
+                 (str "Il-2 Simple Server Daemon - " mission " " (string/lower-case state)))))
 
 (defn mission-listener
   "### mission-listener
@@ -212,10 +211,12 @@
    Because these listeners spawn on a separate thread, their functions return
    immediately and the UI does not block."
   [_ _ _ connected]
-  (ui/set-ui-connected connected)
-  (if connected
-    (start-listeners)
-    (ui/clear-diff-data)))
+  (let [{:keys [diff-data]} @state/controls]
+    (ui/set-ui-connected connected)
+    (if connected
+      (start-listeners)
+      (do (set-title)
+          (ui/clear-diff-data diff-data)))))
 
 (defn set-mission-playing
   "### set-mission-playing
@@ -251,15 +252,14 @@
    If the text in the TextField control is \"clear\", we clear the server console
    TextArea control. For all other text values, we send the entered text as a
    command to the server."
-  [event]
+  []
   (let [{:keys [cmd-entry
                 console]} @state/controls]
-    (when (= (ui/get-key event) "Enter")
-      (if (= (ui/get-text cmd-entry) "clear")
-        (do (ui/clear-input console)
-            (ui/clear-input cmd-entry))
-        (do (server/write-socket (ui/get-text cmd-entry))
-            (ui/clear-input cmd-entry))))))
+    (if (= (ui/get-text cmd-entry) "clear")
+      (do (ui/clear-input console)
+          (ui/clear-input cmd-entry))
+      (do (server/write-socket (ui/get-text cmd-entry))
+          (ui/clear-input cmd-entry)))))
 
 (defn connect-command
   "### connect-command
@@ -299,7 +299,7 @@
 
    For brevity we save the content of all text fields whenever this function
    is triggered."
-  [_ old new]
+  [new]
   (let [{:keys [ip-field
                 port-field]} @state/controls]
     (if (not new)
@@ -345,4 +345,5 @@
                 server-path-lbl]} @state/controls
         file (ui/show-chooser server-chooser)
         path (.getCanonicalPath file)]
-    (ui/set-label server-path-lbl path)))
+    (when file
+      (ui/set-label server-path-lbl path))))

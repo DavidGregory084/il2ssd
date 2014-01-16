@@ -10,7 +10,7 @@
             [uk.org.il2ssd.settings :as settings]
             [uk.org.il2ssd.server :as server]
             [uk.org.il2ssd.state :as state]
-            [uk.org.il2ssd.jfx.event :as event]
+            [uk.org.il2ssd.event :as event]
             [uk.org.il2ssd.jfx.ui :as ui]
             [uk.org.il2ssd.jfx.util :as util])
 
@@ -31,7 +31,7 @@
   "### modes
    This is a map of the mission loading modes. This is used to populate the
    mode-choice ChoiceBox control."
-  {:single "Single Mission", :cycle "Mission Cycle", :dcg "DCG Generation"})
+  {:single "Single Mission", :cycle "Mission Cycle"})
 
 (defn init-stage
   "### init-stage
@@ -63,7 +63,7 @@
       (.setScene scene)
       (.setResizable false)
       (.show)
-      (.setOnCloseRequest (event/close)))
+      (.setOnCloseRequest (util/event-handler [_] (event/close))))
     (.getPresenter main-view)))
 
 (defn init-objects
@@ -141,23 +141,22 @@
                 ^TextField ip-field
                 ^TextField port-field]}
         @state/controls]
-    (.setOnAction connect-btn (util/event-handler [_] (event/connect-command)))
-    (.setOnAction disconn-btn (util/event-handler [_] (event/disconnect-command)))
-    (.setOnAction start-btn (util/event-handler [_] (event/start-stop-command)))
-    ;(.setOnAction next-btn ()) ;the next button doesn't do anything yet
-    (.setOnAction exit-btn (util/event-handler [_] (event/close)))
-    (.setOnAction server-path-btn (util/event-handler [_] (event/server-choose-command)))
-    (.setOnAction get-diff-btn (util/event-handler [_] (event/get-difficulties)))
-    (.setOnAction set-diff-btn (util/event-handler [_] (event/set-difficulties)))
-    (.setOnKeyPressed cmd-entry (util/event-handler [keyevent] (event/enter-command)))
-    (.setOnAction load-btn (util/event-handler [_] (event/load-unload-command)))
-    (-> ip-field .focusedProperty (.addListener (util/change-listener [_ old new] (event/field-exit))))
-    (-> port-field .focusedProperty (.addListener (util/change-listener [_ old new] (event/field-exit))))
-    (-> mode-choice .valueProperty (.addListener (util/invalidation-listener [_] (event/changed-choice modes))))
-    (-> server-path-lbl .textProperty (.addListener (util/invalidation-listener [_] (event/changed-choice modes))))
     (add-watch state/connected :connect event/set-connected)
     (add-watch state/loaded :load event/set-mission-loaded)
-    (add-watch state/playing :play event/set-mission-playing)))
+    (add-watch state/playing :play event/set-mission-playing)
+    (util/button-handler connect-btn event/connect-command)
+    (util/button-handler disconn-btn event/disconnect-command)
+    (util/button-handler start-btn event/start-stop-command)
+    (util/button-handler server-path-btn event/server-choose-command)
+    (util/button-handler get-diff-btn event/get-difficulties)
+    (util/button-handler set-diff-btn event/set-difficulties)
+    (util/button-handler load-btn event/load-unload-command)
+    (util/button-handler exit-btn event/close)
+    (util/keypress-handler cmd-entry "Enter" event/enter-command)
+    (util/focus-listener ip-field event/field-exit)
+    (util/focus-listener port-field event/field-exit)
+    (util/value-listener mode-choice event/changed-choice modes)
+    (util/text-listener server-path-lbl event/changed-choice modes)))
 
 (defn init-controls
   "### init-controls
@@ -178,7 +177,7 @@
         configuration (settings/read-config-file)]
     (-> mode-choice
         .getItems
-        (.addAll ^List (map modes [:single :cycle :dcg])))
+        (.addAll ^List (map modes [:single :cycle])))
     (if configuration
       (do (-> mode-choice .getSelectionModel
               (.select

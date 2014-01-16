@@ -19,10 +19,10 @@
 (defn exit [] (Platform/exit))
 
 (defn clear-diff-data [^List diff-data]
-  (.clear diff-data))
+  (util/run-later (.clear diff-data)))
 
 (defn add-diff-data [^List diff-data item]
-  (.add diff-data item))
+  (util/run-later (.add diff-data item)))
 
 (defn print-console [^TextArea console text]
   (util/run-later (.appendText console text)))
@@ -56,8 +56,7 @@
                           (.setDisable get-diff-btn true)
                           (.setDisable set-diff-btn true)
                           (.setDisable cmd-entry true)
-                          (.setText console "<disconnected>")
-                          (set-title))))))
+                          (.setText console "<disconnected>"))))))
 
 (defn set-ui-playing [playing]
   (let [{:keys [^TableView diff-table
@@ -92,9 +91,6 @@
 
 (defn get-choice ^String [^ChoiceBox choicebox]
   (str (.getValue choicebox)))
-
-(defn get-key ^String [^KeyEvent event]
-  (-> event .getCode .getName))
 
 (defn set-label [^Label label text]
   (.setText label text))

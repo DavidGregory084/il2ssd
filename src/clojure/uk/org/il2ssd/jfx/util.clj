@@ -9,7 +9,9 @@
   (:import (javafx.application Platform)
            (javafx.event EventHandler)
            (javafx.beans InvalidationListener)
-           (javafx.beans.value ChangeListener)))
+           (javafx.beans.value ChangeListener ObservableValue)
+           (javafx.scene.control ButtonBase ChoiceBox)
+           (javafx.scene.input KeyEvent)))
 
 (defn run-later*
   "### run-later*
@@ -92,7 +94,7 @@
   "### invalidation-listener
    This macro expands the contents of the argument vector and function body into a new
    anonymous function which is passed into the invalidation-listener* function above."
-  [arg & body]
+  ^InvalidationListener [arg & body]
   `(invalidation-listener* (fn ~arg ~@body)))
 
 (defn change-listener*
@@ -114,5 +116,39 @@
   "### change-listener
    This macro expands the contents of the argument vector and function body into a new
    anonymous function which is passed into the change-listener* function above."
-  [arg & body]
+  ^ChangeListener [arg & body]
   `(change-listener* (fn ~arg ~@body)))
+
+(defn key-pressed? [^KeyEvent event argkey]
+  (let [actualkey (-> event .getCode .getName)]
+    (if (= actualkey argkey)
+      true)))
+
+(defn button-handler
+  [control f]
+  (.setOnAction control (event-handler [_] (f))))
+
+(defn keypress-handler
+  [control keyname f]
+  (.setOnKeyPressed control (event-handler [keyevent]
+                                           (when
+                                               (key-pressed? keyevent keyname)
+                                             (f)))))
+
+(defn value-listener
+  [control f arg]
+  (-> control
+      ^ObservableValue .valueProperty
+      (.addListener (invalidation-listener [_] (f arg)))))
+
+(defn text-listener
+  [control f arg]
+  (-> control
+      ^ObservableValue .textProperty
+      (.addListener (invalidation-listener [_] (f arg)))))
+
+(defn focus-listener
+  [control f]
+  (-> control
+      ^ObservableValue .focusedProperty
+      (.addListener (change-listener [_ _ newval] (f newval)))))

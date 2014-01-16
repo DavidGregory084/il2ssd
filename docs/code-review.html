@@ -3029,7 +3029,7 @@ net.brehaut.ClojureTools = (function (SH) {
   };
 })(SyntaxHighlighter);
 </script><title>Il-2 Simple Server Daemon -- Marginalia</title></head><body><table><tr><td class="docs"><div class="header"><h1 class="project-name">Il-2 Simple Server Daemon</h1><h2 class="project-version">0.1.0-SNAPSHOT</h2><br /><p>Il-2 Simple Server Daemon is a very simple server controller for the Il-2 Sturmovik 1946 dedicated server. It aims to be an easy-to-use tool with IL-2 DCG integration.</p>
-</div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">org.clojure/clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.5.1</td></tr><tr><td class="dep-name">org.clojure/core.async</td><td class="dotted"><hr /></td><td class="dep-version">0.1.267.0-0d7780-alpha</td></tr><tr><td class="dep-name">com.airhacks/afterburner.fx</td><td class="dotted"><hr /></td><td class="dep-version">1.3</td></tr><tr><td class="dep-name">commons-lang/commons-lang</td><td class="dotted"><hr /></td><td class="dep-version">2.3</td></tr><tr><td class="dep-name">instaparse/instaparse</td><td class="dotted"><hr /></td><td class="dep-version">1.2.13</td></tr><tr><td class="dep-name">com.brainbot/iniconfig</td><td class="dotted"><hr /></td><td class="dep-version">0.2.0</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#uk.org.il2ssd.channel">uk.org.il2ssd.channel</a></li><li><a href="#uk.org.il2ssd.core">uk.org.il2ssd.core</a></li><li><a href="#uk.org.il2ssd.jfx.event">uk.org.il2ssd.jfx.event</a></li><li><a href="#uk.org.il2ssd.jfx.init">uk.org.il2ssd.jfx.init</a></li><li><a href="#uk.org.il2ssd.jfx.ui">uk.org.il2ssd.jfx.ui</a></li><li><a href="#uk.org.il2ssd.jfx.util">uk.org.il2ssd.jfx.util</a></li><li><a href="#uk.org.il2ssd.parse">uk.org.il2ssd.parse</a></li><li><a href="#uk.org.il2ssd.server">uk.org.il2ssd.server</a></li><li><a href="#uk.org.il2ssd.settings">uk.org.il2ssd.settings</a></li><li><a href="#uk.org.il2ssd.state">uk.org.il2ssd.state</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#uk.org.il2ssd.channel" name="uk.org.il2ssd.channel"><h1 class="project-name">uk.org.il2ssd.channel</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><h2>Channels for thread-safe concurrency</h2>
+</div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">org.clojure/clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.5.1</td></tr><tr><td class="dep-name">org.clojure/core.async</td><td class="dotted"><hr /></td><td class="dep-version">0.1.267.0-0d7780-alpha</td></tr><tr><td class="dep-name">com.airhacks/afterburner.fx</td><td class="dotted"><hr /></td><td class="dep-version">1.3</td></tr><tr><td class="dep-name">commons-lang/commons-lang</td><td class="dotted"><hr /></td><td class="dep-version">2.3</td></tr><tr><td class="dep-name">instaparse/instaparse</td><td class="dotted"><hr /></td><td class="dep-version">1.2.13</td></tr><tr><td class="dep-name">com.brainbot/iniconfig</td><td class="dotted"><hr /></td><td class="dep-version">0.2.0</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#uk.org.il2ssd.channel">uk.org.il2ssd.channel</a></li><li><a href="#uk.org.il2ssd.core">uk.org.il2ssd.core</a></li><li><a href="#uk.org.il2ssd.event">uk.org.il2ssd.event</a></li><li><a href="#uk.org.il2ssd.jfx.init">uk.org.il2ssd.jfx.init</a></li><li><a href="#uk.org.il2ssd.jfx.ui">uk.org.il2ssd.jfx.ui</a></li><li><a href="#uk.org.il2ssd.jfx.util">uk.org.il2ssd.jfx.util</a></li><li><a href="#uk.org.il2ssd.parse">uk.org.il2ssd.parse</a></li><li><a href="#uk.org.il2ssd.server">uk.org.il2ssd.server</a></li><li><a href="#uk.org.il2ssd.settings">uk.org.il2ssd.settings</a></li><li><a href="#uk.org.il2ssd.state">uk.org.il2ssd.state</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#uk.org.il2ssd.channel" name="uk.org.il2ssd.channel"><h1 class="project-name">uk.org.il2ssd.channel</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><h2>Channels for thread-safe concurrency</h2>
 
 <p>Here we define the input channels that we use to safely process the server console
 output concurrently. The initial input channel will receive one line at a time from
@@ -3115,10 +3115,8 @@ on the JavaFX Application thread.</p>
 
 <p>   This class will be generated when this namespace is AOT compiled.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn -main
-  [ui &amp; opts]
-  (when (or (nil? ui) (= ui &quot;jfx&quot;))
-    (println (str ui opts))
-    (Application/launch core (into-array String [opts]))))</pre></td></tr><tr><td class="docs"><h3>-start</h3>
+  [&amp; args]
+  (Application/launch core (into-array String [args])))</pre></td></tr><tr><td class="docs"><h3>-start</h3>
 
 <p>   Every JavaFX application runs the "start" method immediately after launching on
    the JavaFX Application Thread.</p>
@@ -3146,19 +3144,18 @@ on the JavaFX Application thread.</p>
    injection framework's InjectionProvider.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn -stop
   [this]
-  (InjectionProvider/forgetAll))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#uk.org.il2ssd.jfx.event" name="uk.org.il2ssd.jfx.event"><h1 class="project-name">uk.org.il2ssd.jfx.event</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><h2>UI input event handling and channel listeners</h2>
+  (InjectionProvider/forgetAll))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#uk.org.il2ssd.event" name="uk.org.il2ssd.event"><h1 class="project-name">uk.org.il2ssd.event</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><h2>UI input event handling and channel listeners</h2>
 
 <p>These functions define listeners and event handlers that will be applied to
 the UI controls used in the program and update the state of these controls.</p>
 
 <p>We also define channel listeners which parse the server console output and
 update the UI accordingly.</p>
-</td><td class="codes"><pre class="brush: clojure">(ns uk.org.il2ssd.jfx.event
+</td><td class="codes"><pre class="brush: clojure">(ns uk.org.il2ssd.event
   (:require [clojure.core.async :refer [go thread &lt;!!]]
             [clojure.set :refer [map-invert]]
             [clojure.string :as string]
             [uk.org.il2ssd.channel :refer :all]
-            [uk.org.il2ssd.jfx.util :as util]
             [uk.org.il2ssd.parse :as parse]
             [uk.org.il2ssd.server :as server]
             [uk.org.il2ssd.settings :as settings]
@@ -3222,8 +3219,8 @@ update the UI accordingly.</p>
   []
   (let [{:keys [diff-data]} @state/controls]
     (doseq [^DifficultySetting item diff-data]
-      (let [setting (.setting item)
-            value (.value item)]
+      (let [setting (.getSetting item)
+            value (.getValue item)]
         (server/set-difficulty setting value)))))</pre></td></tr><tr><td class="docs"><h3>console-listener</h3>
 
 <p>   This is a zero argument function which spawns another thread. The process on
@@ -3277,7 +3274,7 @@ update the UI accordingly.</p>
    (ui/set-title @state/stage &quot;Il-2 Simple Server Daemon&quot;))
   ([mission state]
    (ui/set-title @state/stage
-     (str &quot;Il-2 Simple Server Daemon - &quot; mission &quot; &quot; (string/lower-case state)))))</pre></td></tr><tr><td class="docs"><h3>mission-listener</h3>
+                 (str &quot;Il-2 Simple Server Daemon - &quot; mission &quot; &quot; (string/lower-case state)))))</pre></td></tr><tr><td class="docs"><h3>mission-listener</h3>
 
 <p>   This is a zero argument function which spawns another thread. The process on
    this thread listens for non-nil output on the mis-channel for as long as the
@@ -3346,10 +3343,12 @@ update the UI accordingly.</p>
    immediately and the UI does not block.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn set-connected
   [_ _ _ connected]
-  (ui/set-ui-connected connected)
-  (if connected
-    (start-listeners)
-    (ui/clear-diff-data)))</pre></td></tr><tr><td class="docs"><h3>set-mission-playing</h3>
+  (let [{:keys [diff-data]} @state/controls]
+    (ui/set-ui-connected connected)
+    (if connected
+      (start-listeners)
+      (do (set-title)
+          (ui/clear-diff-data diff-data)))))</pre></td></tr><tr><td class="docs"><h3>set-mission-playing</h3>
 
 <p>   This is a watch function which sets the UI controls to the correct state for
    the mission playing status defined by the playing argument.</p>
@@ -3381,15 +3380,14 @@ update the UI accordingly.</p>
    TextArea control. For all other text values, we send the entered text as a
    command to the server.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn enter-command
-  [event]
+  []
   (let [{:keys [cmd-entry
                 console]} @state/controls]
-    (when (= (ui/get-key event) &quot;Enter&quot;)
-      (if (= (ui/get-text cmd-entry) &quot;clear&quot;)
-        (do (ui/clear-input console)
-            (ui/clear-input cmd-entry))
-        (do (server/write-socket (ui/get-text cmd-entry))
-            (ui/clear-input cmd-entry))))))</pre></td></tr><tr><td class="docs"><h3>connect-command</h3>
+    (if (= (ui/get-text cmd-entry) &quot;clear&quot;)
+      (do (ui/clear-input console)
+          (ui/clear-input cmd-entry))
+      (do (server/write-socket (ui/get-text cmd-entry))
+          (ui/clear-input cmd-entry)))))</pre></td></tr><tr><td class="docs"><h3>connect-command</h3>
 
 <p>   This is a zero argument function which calls the server connect function with
    the host from the ip-field TextField control and the port from the port-field
@@ -3426,7 +3424,7 @@ update the UI accordingly.</p>
 <p>   For brevity we save the content of all text fields whenever this function
    is triggered.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn field-exit
-  [_ old new]
+  [new]
   (let [{:keys [ip-field
                 port-field]} @state/controls]
     (if (not new)
@@ -3470,7 +3468,8 @@ update the UI accordingly.</p>
                 server-path-lbl]} @state/controls
         file (ui/show-chooser server-chooser)
         path (.getCanonicalPath file)]
-    (ui/set-label server-path-lbl path)))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#uk.org.il2ssd.jfx.init" name="uk.org.il2ssd.jfx.init"><h1 class="project-name">uk.org.il2ssd.jfx.init</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><h2>UI initialisation functions</h2>
+    (when file
+      (ui/set-label server-path-lbl path))))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#uk.org.il2ssd.jfx.init" name="uk.org.il2ssd.jfx.init"><h1 class="project-name">uk.org.il2ssd.jfx.init</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><h2>UI initialisation functions</h2>
 
 <p>In this namespace we define the functions which instantiate any objects that
 we need and initialise the objects we receive by dependency injection into data
@@ -3480,7 +3479,7 @@ structures which we can more easily manipulate in Clojure.</p>
             [uk.org.il2ssd.settings :as settings]
             [uk.org.il2ssd.server :as server]
             [uk.org.il2ssd.state :as state]
-            [uk.org.il2ssd.jfx.event :as event]
+            [uk.org.il2ssd.event :as event]
             [uk.org.il2ssd.jfx.ui :as ui]
             [uk.org.il2ssd.jfx.util :as util])
   (:import (java.nio.file Paths Path)
@@ -3499,7 +3498,7 @@ structures which we can more easily manipulate in Clojure.</p>
 <p>   This is a map of the mission loading modes. This is used to populate the
    mode-choice ChoiceBox control.</p>
 </td><td class="codes"><pre class="brush: clojure">(def modes
-  {:single &quot;Single Mission&quot;, :cycle &quot;Mission Cycle&quot;, :dcg &quot;DCG Generation&quot;})</pre></td></tr><tr><td class="docs"><h3>init-stage</h3>
+  {:single &quot;Single Mission&quot;, :cycle &quot;Mission Cycle&quot;})</pre></td></tr><tr><td class="docs"><h3>init-stage</h3>
 
 <p>   This one argument function instantiates the afterburner.fx MainView class
    which loads the view from fxml.</p>
@@ -3530,7 +3529,7 @@ structures which we can more easily manipulate in Clojure.</p>
       (.setScene scene)
       (.setResizable false)
       (.show)
-      (.setOnCloseRequest (event/close)))
+      (.setOnCloseRequest (util/event-handler [_] (event/close))))
     (.getPresenter main-view)))</pre></td></tr><tr><td class="docs"><h3>init-objects</h3>
 
 <p>   This one argument function accepts a main presenter instance and instantiates
@@ -3607,23 +3606,22 @@ structures which we can more easily manipulate in Clojure.</p>
                 ^TextField ip-field
                 ^TextField port-field]}
         @state/controls]
-    (.setOnAction connect-btn (util/event-handler [_] (event/connect-command)))
-    (.setOnAction disconn-btn (util/event-handler [_] (event/disconnect-command)))
-    (.setOnAction start-btn (util/event-handler [_] (event/start-stop-command)))
-    ;(.setOnAction next-btn ()) ;the next button doesn't do anything yet
-    (.setOnAction exit-btn (util/event-handler [_] (event/close)))
-    (.setOnAction server-path-btn (util/event-handler [_] (event/server-choose-command)))
-    (.setOnAction get-diff-btn (util/event-handler [_] (event/get-difficulties)))
-    (.setOnAction set-diff-btn (util/event-handler [_] (event/set-difficulties)))
-    (.setOnKeyPressed cmd-entry (util/event-handler [keyevent] (event/enter-command)))
-    (.setOnAction load-btn (util/event-handler [_] (event/load-unload-command)))
-    (-&gt; ip-field .focusedProperty (.addListener (util/change-listener [_ old new] (event/field-exit))))
-    (-&gt; port-field .focusedProperty (.addListener (util/change-listener [_ old new] (event/field-exit))))
-    (-&gt; mode-choice .valueProperty (.addListener (util/invalidation-listener [_ modes] (event/changed-choice modes))))
-    (-&gt; server-path-lbl .textProperty (.addListener (util/invalidation-listener [_ modes] (event/changed-choice modes))))
     (add-watch state/connected :connect event/set-connected)
     (add-watch state/loaded :load event/set-mission-loaded)
-    (add-watch state/playing :play event/set-mission-playing)))</pre></td></tr><tr><td class="docs"><h3>init-controls</h3>
+    (add-watch state/playing :play event/set-mission-playing)
+    (util/button-handler connect-btn event/connect-command)
+    (util/button-handler disconn-btn event/disconnect-command)
+    (util/button-handler start-btn event/start-stop-command)
+    (util/button-handler server-path-btn event/server-choose-command)
+    (util/button-handler get-diff-btn event/get-difficulties)
+    (util/button-handler set-diff-btn event/set-difficulties)
+    (util/button-handler load-btn event/load-unload-command)
+    (util/button-handler exit-btn event/close)
+    (util/keypress-handler cmd-entry &quot;Enter&quot; event/enter-command)
+    (util/focus-listener ip-field event/field-exit)
+    (util/focus-listener port-field event/field-exit)
+    (util/value-listener mode-choice event/changed-choice modes)
+    (util/text-listener server-path-lbl event/changed-choice modes)))</pre></td></tr><tr><td class="docs"><h3>init-controls</h3>
 
 <p>   The zero argument function is used to initialise any controls with default
    values. If a configuration file is found, the UI is initialised using the
@@ -3643,7 +3641,7 @@ structures which we can more easily manipulate in Clojure.</p>
         configuration (settings/read-config-file)]
     (-&gt; mode-choice
         .getItems
-        (.addAll ^List (map modes [:single :cycle :dcg])))
+        (.addAll ^List (map modes [:single :cycle])))
     (if configuration
       (do (-&gt; mode-choice .getSelectionModel
               (.select
@@ -3767,9 +3765,9 @@ structures which we can more easily manipulate in Clojure.</p>
             [uk.org.il2ssd.jfx.util :as util]))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn exit [] (Platform/exit))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn clear-diff-data [^List diff-data]
-  (.clear diff-data))</pre></td></tr><tr><td class="docs">
+  (util/run-later (.clear diff-data)))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn add-diff-data [^List diff-data item]
-  (.add diff-data item))</pre></td></tr><tr><td class="docs">
+  (util/run-later (.add diff-data item)))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn print-console [^TextArea console text]
   (util/run-later (.appendText console text)))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn clear-input [^TextInputControl control]
@@ -3799,8 +3797,7 @@ structures which we can more easily manipulate in Clojure.</p>
                           (.setDisable get-diff-btn true)
                           (.setDisable set-diff-btn true)
                           (.setDisable cmd-entry true)
-                          (.setText console &quot;&lt;disconnected&gt;&quot;)
-                          (set-title))))))</pre></td></tr><tr><td class="docs">
+                          (.setText console &quot;&lt;disconnected&gt;&quot;))))))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn set-ui-playing [playing]
   (let [{:keys [^TableView diff-table
                 ^Button set-diff-btn
@@ -3830,8 +3827,6 @@ structures which we can more easily manipulate in Clojure.</p>
   (.setCenter mis-pane content))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn get-choice ^String [^ChoiceBox choicebox]
   (str (.getValue choicebox)))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(defn get-key ^String [^KeyEvent event]
-  (-&gt; event .getCode .getName))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn set-label [^Label label text]
   (.setText label text))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn show-chooser ^File [^FileChooser chooser]
@@ -3911,7 +3906,9 @@ Dave Ray, originator of the excellent Seesaw, a Clojure wrapper for the Swing to
   (:import (javafx.application Platform)
            (javafx.event EventHandler)
            (javafx.beans InvalidationListener)
-           (javafx.beans.value ChangeListener)))</pre></td></tr><tr><td class="docs"><h3>run-later*</h3>
+           (javafx.beans.value ChangeListener ObservableValue)
+           (javafx.scene.control ButtonBase ChoiceBox)
+           (javafx.scene.input KeyEvent)))</pre></td></tr><tr><td class="docs"><h3>run-later*</h3>
 
 <p>   This function accepts a function f, and passes this function to  the static JavaFX
    Platform.runLater method, which runs the specified task on the JavaFX Application
@@ -3986,7 +3983,7 @@ Dave Ray, originator of the excellent Seesaw, a Clojure wrapper for the Swing to
 <p>   This macro expands the contents of the argument vector and function body into a new
    anonymous function which is passed into the invalidation-listener* function above.</p>
 </td><td class="codes"><pre class="brush: clojure">(defmacro invalidation-listener
-  [arg &amp; body]
+  ^InvalidationListener [arg &amp; body]
   `(invalidation-listener* (fn ~arg ~@body)))</pre></td></tr><tr><td class="docs"><h3>change-listener*</h3>
 
 <p>   This function accepts a function f, and returns an instance of an anonymous class
@@ -4006,8 +4003,36 @@ Dave Ray, originator of the excellent Seesaw, a Clojure wrapper for the Swing to
 <p>   This macro expands the contents of the argument vector and function body into a new
    anonymous function which is passed into the change-listener* function above.</p>
 </td><td class="codes"><pre class="brush: clojure">(defmacro change-listener
-  [arg &amp; body]
-  `(change-listener* (fn ~arg ~@body)))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#uk.org.il2ssd.parse" name="uk.org.il2ssd.parse"><h1 class="project-name">uk.org.il2ssd.parse</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><h2>Parser definitions</h2>
+  ^ChangeListener [arg &amp; body]
+  `(change-listener* (fn ~arg ~@body)))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn key-pressed? [^KeyEvent event argkey]
+  (let [actualkey (-&gt; event .getCode .getName)]
+    (if (= actualkey argkey)
+      true)))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn button-handler
+  [control f]
+  (.setOnAction control (event-handler [_] (f))))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn keypress-handler
+  [control keyname f]
+  (.setOnKeyPressed control (event-handler [keyevent]
+                                           (when
+                                               (key-pressed? keyevent keyname)
+                                             (f)))))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn value-listener
+  [control f arg]
+  (-&gt; control
+      ^ObservableValue .valueProperty
+      (.addListener (invalidation-listener [_] (f arg)))))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn text-listener
+  [control f arg]
+  (-&gt; control
+      ^ObservableValue .textProperty
+      (.addListener (invalidation-listener [_] (f arg)))))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn focus-listener
+  [control f]
+  (-&gt; control
+      ^ObservableValue .focusedProperty
+      (.addListener (change-listener [_ _ newval] (f newval)))))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#uk.org.il2ssd.parse" name="uk.org.il2ssd.parse"><h1 class="project-name">uk.org.il2ssd.parse</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><h2>Parser definitions</h2>
 
 <p>This namespace defines the parsers that we use to parse the server console output
 on our tapped channels.</p>

@@ -24,10 +24,8 @@
    with gen-class using the JavaFX Application.launch static method.
 
    This class will be generated when this namespace is AOT compiled."
-  [ui & opts]
-  (when (or (nil? ui) (= ui "jfx"))
-    (println (str ui opts))
-    (Application/launch core (into-array String [opts]))))
+  [& args]
+  (Application/launch core (into-array String [args])))
 
 (defn -start
   "### -start
