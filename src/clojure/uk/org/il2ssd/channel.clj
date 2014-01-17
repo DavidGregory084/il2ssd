@@ -53,7 +53,7 @@
 
    This channel is used to parse difficulty settings from the server console output."
   (filter<
-    #(re-find #"\w+\s+[0-1]\s+" %)
+    #(re-find #"[A-Z[a-z]]+\s*[0-1]\s+" %)
     (tap mult-channel (chan))))
 
 (def mis-channel

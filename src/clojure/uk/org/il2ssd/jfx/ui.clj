@@ -33,7 +33,7 @@
 (defn set-title [^Stage stage title]
   (util/run-later (.setTitle stage title)))
 
-(defn set-ui-connected [connected]
+(defn set-ui-connected [connected controls]
   (let [{:keys [^Button connect-btn
                 ^Button disconn-btn
                 ^List diff-data
@@ -41,8 +41,7 @@
                 ^Button get-diff-btn
                 ^Button set-diff-btn
                 ^TextField cmd-entry
-                ^TextArea console]}
-        @state/controls]
+                ^TextArea console]} controls]
     (if connected
       (util/run-later (do (.setDisable connect-btn true)
                           (.setDisable disconn-btn false)
@@ -58,10 +57,10 @@
                           (.setDisable cmd-entry true)
                           (.setText console "<disconnected>"))))))
 
-(defn set-ui-playing [playing]
+(defn set-ui-playing [playing controls]
   (let [{:keys [^TableView diff-table
                 ^Button set-diff-btn
-                ^Button start-btn]} @state/controls]
+                ^Button start-btn]} controls]
     (if playing
       (util/run-later (do (.setEditable diff-table false)
                           (.setDisable set-diff-btn true)
@@ -70,9 +69,9 @@
                           (.setDisable set-diff-btn false)
                           (.setText start-btn "\uf04b Start"))))))
 
-(defn set-ui-loaded [loaded]
+(defn set-ui-loaded [loaded controls]
   (let [{:keys [^Button start-btn
-                ^Button load-btn]} @state/controls]
+                ^Button load-btn]} controls]
     (if loaded
       (util/run-later (do (.setDisable start-btn false)
                           (.setDisable load-btn false)

@@ -14,11 +14,12 @@
    for each line passed into the parser. This is used to extract the difficulty settings from
    the server console output."
   (insta/parser
-    "<difficulty-rec> = <sp>* setting <sp> number <nl>?
+    "difficulty-rec = !<filter> <sp>* setting <sp>* value <nl>?
+    <filter> = #'\\d+ is \\w+' | 'Chat:'
     <sp> = #'\\s+'
     <nl> = #'[\\s*\n]+'
-    setting = #'\\w+'
-    number = #'[0-1]'"))
+    setting = #'[A-Z[a-z]]+'
+    value = #'[0-1]'"))
 
 (def mission-parser
   "### mission-parser
@@ -29,7 +30,7 @@
    for each line passed into the parser. This is used to extract the mission state from
    the server console output."
   (insta/parser
-    "<line> = <'Mission'> (<':'> <sp> path mission <sp> <'is'>)? <sp> state <nl>?
+    "line = !'Chat:' <'Mission'> (<':'> <sp> path mission <sp> <'is'>)? <sp> state <nl>?
      <sp> = <#'\\s+'>
      <nl> = #'[\\s*\n]+'
      path = #'.+/+'

@@ -3080,7 +3080,7 @@ until every tap is empty.</p>
 <p>   This channel is used to parse difficulty settings from the server console output.</p>
 </td><td class="codes"><pre class="brush: clojure">(def diff-channel
   (filter&lt;
-    #(re-find #&quot;\w+\s+[0-1]\s+&quot; %)
+    #(re-find #&quot;[A-Z[a-z]]+\s*[0-1]\s+&quot; %)
     (tap mult-channel (chan))))</pre></td></tr><tr><td class="docs"><h3>mis-channel</h3>
 
 <p>   This channel taps mult-channel, and filters for lines which contain the string
@@ -3258,7 +3258,8 @@ update the UI accordingly.</p>
             (if-let [text (&lt;!! diff-channel)]
               (let [parsed (parse/difficulty-parser text)
                     {:keys [diff-data]} @state/controls
-                    [[_ setting] [_ value]] parsed]
+                    setting ((parsed 1) 1)
+                    value ((parsed 2) 1)]
                 (ui/add-diff-data diff-data (DifficultySetting. setting value)))))))</pre></td></tr><tr><td class="docs"><h3>set-title</h3>
 
 <p>   This is a multiple-arity function which changes the title of the JavaFX Stage
@@ -3306,14 +3307,16 @@ update the UI accordingly.</p>
   (thread (while @state/connected
             (if-let [text (&lt;!! mis-channel)]
               (let [parsed (parse/mission-parser text)]
-                (when (= 1 (count parsed))
-                  (let [[[_ state]] parsed]
+                (when (nil? (get parsed 2))
+                  (let [state (get-in parsed [1 1])]
                     (when (= state &quot;NOT loaded&quot;)
                       (reset! state/loaded false)
                       (reset! state/playing false)
                       (set-title))))
-                (when (= 3 (count parsed))
-                  (let [[[_ path] [_ mission] [_ state]] parsed]
+                (when (seq (get parsed 2))
+                  (let [path (get-in parsed [1 1])
+                        mission (get-in parsed [2 1])
+                        state (get-in parsed [3 1])]
                     (when (= state &quot;Playing&quot;)
                       (do (reset! state/loaded true)
                           (reset! state/playing true)))
@@ -3344,7 +3347,7 @@ update the UI accordingly.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn set-connected
   [_ _ _ connected]
   (let [{:keys [diff-data]} @state/controls]
-    (ui/set-ui-connected connected)
+    (ui/set-ui-connected connected @state/controls)
     (if connected
       (start-listeners)
       (do (set-title)
@@ -3358,7 +3361,7 @@ update the UI accordingly.</p>
    update the UI from the JavaFX Application Thread.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn set-mission-playing
   [_ _ _ playing]
-  (ui/set-ui-playing playing))</pre></td></tr><tr><td class="docs"><h3>set-mission-loaded</h3>
+  (ui/set-ui-playing playing @state/controls))</pre></td></tr><tr><td class="docs"><h3>set-mission-loaded</h3>
 
 <p>   This is a watch function which sets the UI controls to the correct state for
    the mission loaded status defined by the loaded argument.</p>
@@ -3368,7 +3371,7 @@ update the UI accordingly.</p>
    update the UI from the JavaFX Application Thread.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn set-mission-loaded
   [_ _ _ loaded]
-  (ui/set-ui-loaded loaded))</pre></td></tr><tr><td class="docs"><h3>enter-command</h3>
+  (ui/set-ui-loaded loaded @state/controls))</pre></td></tr><tr><td class="docs"><h3>enter-command</h3>
 
 <p>   This is zero argument function which checks the provided KeyEvent for the
    "Enter" button keycode.</p>
@@ -3466,10 +3469,9 @@ update the UI accordingly.</p>
   []
   (let [{:keys [server-chooser
                 server-path-lbl]} @state/controls
-        file (ui/show-chooser server-chooser)
-        path (.getCanonicalPath file)]
+        file (ui/show-chooser server-chooser)]
     (when file
-      (ui/set-label server-path-lbl path))))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#uk.org.il2ssd.jfx.init" name="uk.org.il2ssd.jfx.init"><h1 class="project-name">uk.org.il2ssd.jfx.init</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><h2>UI initialisation functions</h2>
+      (ui/set-label server-path-lbl (.getCanonicalPath file)))))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#uk.org.il2ssd.jfx.init" name="uk.org.il2ssd.jfx.init"><h1 class="project-name">uk.org.il2ssd.jfx.init</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><h2>UI initialisation functions</h2>
 
 <p>In this namespace we define the functions which instantiate any objects that
 we need and initialise the objects we receive by dependency injection into data
@@ -3774,7 +3776,7 @@ structures which we can more easily manipulate in Clojure.</p>
   (.clear control))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn set-title [^Stage stage title]
   (util/run-later (.setTitle stage title)))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(defn set-ui-connected [connected]
+</td><td class="codes"><pre class="brush: clojure">(defn set-ui-connected [connected controls]
   (let [{:keys [^Button connect-btn
                 ^Button disconn-btn
                 ^List diff-data
@@ -3782,8 +3784,7 @@ structures which we can more easily manipulate in Clojure.</p>
                 ^Button get-diff-btn
                 ^Button set-diff-btn
                 ^TextField cmd-entry
-                ^TextArea console]}
-        @state/controls]
+                ^TextArea console]} controls]
     (if connected
       (util/run-later (do (.setDisable connect-btn true)
                           (.setDisable disconn-btn false)
@@ -3798,10 +3799,10 @@ structures which we can more easily manipulate in Clojure.</p>
                           (.setDisable set-diff-btn true)
                           (.setDisable cmd-entry true)
                           (.setText console &quot;&lt;disconnected&gt;&quot;))))))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(defn set-ui-playing [playing]
+</td><td class="codes"><pre class="brush: clojure">(defn set-ui-playing [playing controls]
   (let [{:keys [^TableView diff-table
                 ^Button set-diff-btn
-                ^Button start-btn]} @state/controls]
+                ^Button start-btn]} controls]
     (if playing
       (util/run-later (do (.setEditable diff-table false)
                           (.setDisable set-diff-btn true)
@@ -3809,9 +3810,9 @@ structures which we can more easily manipulate in Clojure.</p>
       (util/run-later (do (.setEditable diff-table true)
                           (.setDisable set-diff-btn false)
                           (.setText start-btn &quot;\uf04b Start&quot;))))))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(defn set-ui-loaded [loaded]
+</td><td class="codes"><pre class="brush: clojure">(defn set-ui-loaded [loaded controls]
   (let [{:keys [^Button start-btn
-                ^Button load-btn]} @state/controls]
+                ^Button load-btn]} controls]
     (if loaded
       (util/run-later (do (.setDisable start-btn false)
                           (.setDisable load-btn false)
@@ -4048,11 +4049,12 @@ on our tapped channels.</p>
    the server console output.</p>
 </td><td class="codes"><pre class="brush: clojure">(def difficulty-parser
   (insta/parser
-    &quot;&lt;difficulty-rec&gt; = &lt;sp&gt;* setting &lt;sp&gt; number &lt;nl&gt;?
+    &quot;difficulty-rec = !&lt;filter&gt; &lt;sp&gt;* setting &lt;sp&gt;* value &lt;nl&gt;?
+    &lt;filter&gt; = #'\\d+ is \\w+' | 'Chat:'
     &lt;sp&gt; = #'\\s+'
     &lt;nl&gt; = #'[\\s*\n]+'
-    setting = #'\\w+'
-    number = #'[0-1]'&quot;))</pre></td></tr><tr><td class="docs"><h3>mission-parser</h3>
+    setting = #'[A-Z[a-z]]+'
+    value = #'[0-1]'&quot;))</pre></td></tr><tr><td class="docs"><h3>mission-parser</h3>
 
 <p>   This parser returns a vector in the format</p>
 
@@ -4063,7 +4065,7 @@ on our tapped channels.</p>
    the server console output.</p>
 </td><td class="codes"><pre class="brush: clojure">(def mission-parser
   (insta/parser
-    &quot;&lt;line&gt; = &lt;'Mission'&gt; (&lt;':'&gt; &lt;sp&gt; path mission &lt;sp&gt; &lt;'is'&gt;)? &lt;sp&gt; state &lt;nl&gt;?
+    &quot;line = !'Chat:' &lt;'Mission'&gt; (&lt;':'&gt; &lt;sp&gt; path mission &lt;sp&gt; &lt;'is'&gt;)? &lt;sp&gt; state &lt;nl&gt;?
      &lt;sp&gt; = &lt;#'\\s+'&gt;
      &lt;nl&gt; = #'[\\s*\n]+'
      path = #'.+/+'
@@ -4103,11 +4105,10 @@ of the initial connection function.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn socket-listener
   []
   (thread (while @state/connected
-            (let [text (.readLine ^BufferedReader @socket-in)]
-              (if (not= text nil)
-                (-&gt;&gt; text
-                     (StringEscapeUtils/unescapeJava)
-                     (&gt;!! in-channel)))))))</pre></td></tr><tr><td class="docs"><h3>write-socket</h3>
+            (when-let [text (.readLine ^BufferedReader @socket-in)]
+              (-&gt;&gt; text
+                   (StringEscapeUtils/unescapeJava)
+                   (&gt;!! in-channel))))))</pre></td></tr><tr><td class="docs"><h3>write-socket</h3>
 
 <p>   This is a single argument function that simply calls the println method of the
    object that is stored in the socket-out atom using the argument that we

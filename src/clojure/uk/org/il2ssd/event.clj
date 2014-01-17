@@ -122,7 +122,8 @@
             (if-let [text (<!! diff-channel)]
               (let [parsed (parse/difficulty-parser text)
                     {:keys [diff-data]} @state/controls
-                    [[_ setting] [_ value]] parsed]
+                    setting ((parsed 1) 1)
+                    value ((parsed 2) 1)]
                 (ui/add-diff-data diff-data (DifficultySetting. setting value)))))))
 
 (defn set-title
@@ -172,14 +173,16 @@
   (thread (while @state/connected
             (if-let [text (<!! mis-channel)]
               (let [parsed (parse/mission-parser text)]
-                (when (= 1 (count parsed))
-                  (let [[[_ state]] parsed]
+                (when (nil? (get parsed 2))
+                  (let [state (get-in parsed [1 1])]
                     (when (= state "NOT loaded")
                       (reset! state/loaded false)
                       (reset! state/playing false)
                       (set-title))))
-                (when (= 3 (count parsed))
-                  (let [[[_ path] [_ mission] [_ state]] parsed]
+                (when (seq (get parsed 2))
+                  (let [path (get-in parsed [1 1])
+                        mission (get-in parsed [2 1])
+                        state (get-in parsed [3 1])]
                     (when (= state "Playing")
                       (do (reset! state/loaded true)
                           (reset! state/playing true)))
@@ -212,7 +215,7 @@
    immediately and the UI does not block."
   [_ _ _ connected]
   (let [{:keys [diff-data]} @state/controls]
-    (ui/set-ui-connected connected)
+    (ui/set-ui-connected connected @state/controls)
     (if connected
       (start-listeners)
       (do (set-title)
@@ -227,7 +230,7 @@
    own threads, we have to use the util/run-later helper function to request to
    update the UI from the JavaFX Application Thread."
   [_ _ _ playing]
-  (ui/set-ui-playing playing))
+  (ui/set-ui-playing playing @state/controls))
 
 (defn set-mission-loaded
   "### set-mission-loaded
@@ -238,7 +241,7 @@
    own threads, we have to use the util/run-later helper function to request to
    update the UI from the JavaFX Application Thread."
   [_ _ _ loaded]
-  (ui/set-ui-loaded loaded))
+  (ui/set-ui-loaded loaded @state/controls))
 
 
 (defn enter-command
@@ -343,7 +346,6 @@
   []
   (let [{:keys [server-chooser
                 server-path-lbl]} @state/controls
-        file (ui/show-chooser server-chooser)
-        path (.getCanonicalPath file)]
+        file (ui/show-chooser server-chooser)]
     (when file
-      (ui/set-label server-path-lbl path))))
+      (ui/set-label server-path-lbl (.getCanonicalPath file)))))
