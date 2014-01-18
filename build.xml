@@ -68,7 +68,7 @@
             <fileset dir="src/java" includes="uk/org/il2ssd/*.fxml, uk/org/il2ssd/*.css"/>
         </fx:jar>
 
-        <zip basedir="${project.outdir}" destfile="target/${il2ssdpom.artifactId}-${il2ssdpom.version}.zip" update="true"/>
+        <zip basedir="${project.outdir}" destfile="target/${il2ssdpom.artifactId}-${il2ssdpom.version}.zip" update="false" excludes="*.ini"/>
 
     </target>
 

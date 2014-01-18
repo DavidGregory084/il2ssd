@@ -12,9 +12,11 @@
             [uk.org.il2ssd.state :as state]
             [uk.org.il2ssd.event :as event]
             [uk.org.il2ssd.jfx.ui :as ui]
-            [uk.org.il2ssd.jfx.util :as util])
+            [uk.org.il2ssd.jfx.util :as util]
+            [clojure.java.io :refer [resource]])
 
-  (:import (java.nio.file Paths Path)
+  (:import (java.net URL)
+           (java.nio.file Paths Path)
            (javafx.scene Scene)
            (javafx.scene.layout HBox Priority StackPane Region)
            (javafx.scene.text Font)
@@ -58,7 +60,7 @@
         scene (Scene. (.getView main-view))]
     (reset! state/stage primaryStage)
     (event/set-title)
-    (Font/loadFont "fontawesome-webfont.ttf" 12.0)
+    (Font/loadFont (.toExternalForm ^URL (resource "fontawesome-webfont.ttf")) 12.0)
     (doto stage
       (.setScene scene)
       (.setResizable false)

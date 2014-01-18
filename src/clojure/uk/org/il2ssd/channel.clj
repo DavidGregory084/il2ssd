@@ -36,15 +36,14 @@
    text, so that only genuine output from the console is used in later processing."
   (mult
     (filter<
-      #(not (re-find #"<consoleN><\d+>" %))
+      #(not (re-matches #"<consoleN><\d++>" %))
       in-channel)))
 
 (def print-channel
   "### print-channel
    This channel taps mult-channel, and is used to print directly to the server console
    text area control."
-  (let [c (chan)]
-    (tap mult-channel c)))
+  (tap mult-channel (chan)))
 
 (def diff-channel
   "### diff-channel
@@ -53,18 +52,14 @@
 
    This channel is used to parse difficulty settings from the server console output."
   (filter<
-    #(re-find #"[A-Z[a-z]]+\s*[0-1]\s+" %)
+    #(re-matches #"\s{2}[A-Z[a-z[_]]]++\s*+[0-1]\n" %)
     (tap mult-channel (chan))))
 
 (def mis-channel
   "### mis-channel
    This channel taps mult-channel, and filters for lines which contain the string
    \"Mission\". This channel is used to parse mission load, begin, end and unload
-   events from the server console output.
-
-   The filtering used will need to be revised before chat parsing is enabled so
-   that server chat which contains this common word does not end up on the channel."
-  (let [c (chan)]
-    (filter<
-      #(re-find #"Mission" %)
-      (tap mult-channel c))))
+   events from the server console output."
+  (filter<
+    #(re-matches #"Mission{1}:?+\s.+\w++\n" %)
+    (tap mult-channel (chan))))

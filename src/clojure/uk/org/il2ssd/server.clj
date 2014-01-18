@@ -38,10 +38,11 @@
    all server state parsing."
   []
   (thread (while @state/connected
-            (when-let [text (.readLine ^BufferedReader @socket-in)]
-              (->> text
-                   (StringEscapeUtils/unescapeJava)
-                   (>!! in-channel))))))
+            (let [text (.readLine ^BufferedReader @socket-in)]
+              (when text
+                (->> text
+                     (StringEscapeUtils/unescapeJava)
+                     (>!! in-channel)))))))
 
 (defn write-socket
   "### write-socket

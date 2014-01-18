@@ -100,9 +100,10 @@
    the current thread."
   []
   (thread (while @state/connected
-            (if-let [text (<!! print-channel)]
-              (let [{:keys [console]} @state/controls]
-                (ui/print-console console text))))))
+            (let [text (<!! print-channel)]
+              (when text
+                (let [{:keys [console]} @state/controls]
+                  (ui/print-console console text)))))))
 
 
 (defn difficulty-listener
@@ -119,12 +120,13 @@
    execution will continue on another thread without blocking this one."
   []
   (thread (while @state/connected
-            (if-let [text (<!! diff-channel)]
-              (let [parsed (parse/difficulty-parser text)
-                    {:keys [diff-data]} @state/controls
-                    setting ((parsed 1) 1)
-                    value ((parsed 2) 1)]
-                (ui/add-diff-data diff-data (DifficultySetting. setting value)))))))
+            (let [text (<!! diff-channel)]
+              (when text
+                (let [parsed (parse/difficulty-parser text)
+                      {:keys [diff-data]} @state/controls
+                      setting ((parsed 1) 1)
+                      value ((parsed 2) 1)]
+                  (ui/add-diff-data diff-data (DifficultySetting. setting value))))))))
 
 (defn set-title
   "### set-title
@@ -171,25 +173,26 @@
    the current thread."
   []
   (thread (while @state/connected
-            (if-let [text (<!! mis-channel)]
-              (let [parsed (parse/mission-parser text)]
-                (when (nil? (get parsed 2))
-                  (let [state (get-in parsed [1 1])]
-                    (when (= state "NOT loaded")
-                      (reset! state/loaded false)
-                      (reset! state/playing false)
-                      (set-title))))
-                (when (seq (get parsed 2))
-                  (let [path (get-in parsed [1 1])
-                        mission (get-in parsed [2 1])
-                        state (get-in parsed [3 1])]
-                    (when (= state "Playing")
-                      (do (reset! state/loaded true)
-                          (reset! state/playing true)))
-                    (when (= state "Loaded")
-                      (do (reset! state/loaded true)
-                          (reset! state/playing false)))
-                    (set-title mission state))))))))
+            (let [text (<!! mis-channel)]
+              (when text
+                (let [parsed (parse/mission-parser text)]
+                  (when (nil? (get parsed 2))
+                    (let [state (get-in parsed [1 1])]
+                      (when (= state "NOT loaded")
+                        (reset! state/loaded false)
+                        (reset! state/playing false)
+                        (set-title))))
+                  (when (seq (get parsed 3))
+                    (let [path (get-in parsed [1 1])
+                          mission (get-in parsed [2 1])
+                          state (get-in parsed [3 1])]
+                      (when (= state "Loaded")
+                        (reset! state/loaded true)
+                        (reset! state/playing false))
+                      (when (= state "Playing")
+                        (reset! state/loaded true)
+                        (reset! state/playing true))
+                      (set-title mission state)))))))))
 
 (defn start-listeners
   "### start-listeners
