@@ -130,13 +130,15 @@
       true)))
 
 (defn button-handler
-  "This two argument function attaches an EventHandler instance to the supplied
+  "### button-handler
+   This two argument function attaches an EventHandler instance to the supplied
    control which calls the supplied function when the OnAction event is triggered."
   [control f]
   (.setOnAction control (event-handler [_] (f))))
 
 (defn keypress-handler
-  "This three argument function attaches an EventHandler instance to the supplied
+  "### keypress-handler
+   This three argument function attaches an EventHandler instance to the supplied
    control which calls the supplied function if the named keyboard key is pressed
    in the control's context."
   [^Node control keyname f]
@@ -146,7 +148,8 @@
                                              (f)))))
 
 (defn value-listener
-  "This three argument function attaches an InvalidationListener instance to the
+  "### value-listener
+   This three argument function attaches an InvalidationListener instance to the
    supplied control's valueProperty, which calls the supplied function with the
    supplied arguments when the value is changed."
   [^ChoiceBox control f arg]
@@ -155,7 +158,8 @@
       (.addListener (invalidation-listener [_] (f arg)))))
 
 (defn text-listener
-  "This three argument function attaches an InvalidationListener instance to the
+  "### text-listener
+   This three argument function attaches an InvalidationListener instance to the
    supplied control's textProperty, which calls the supplied function with the
    supplied arguments when the text is changed."
   [^Labeled control f arg]
@@ -164,7 +168,8 @@
       (.addListener (invalidation-listener [_] (f arg)))))
 
 (defn focus-listener
-  "This two argument function attaches a ChangeListener instance to the supplied
+  "### focus-listener
+   This two argument function attaches a ChangeListener instance to the supplied
    control's focusedProperty, which calls the supplied function with the new value
    of the focusedProperty as an argument."
   [^Node control f]

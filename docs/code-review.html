@@ -3028,7 +3028,7 @@ net.brehaut.ClojureTools = (function (SH) {
     build_tree: build_tree
   };
 })(SyntaxHighlighter);
-</script><title>Il-2 Simple Server Daemon -- Marginalia</title></head><body><table><tr><td class="docs"><div class="header"><h1 class="project-name">Il-2 Simple Server Daemon</h1><h2 class="project-version">0.1.0-SNAPSHOT</h2><br /><p>Il-2 Simple Server Daemon is a very simple server controller for the Il-2 Sturmovik 1946 dedicated server. It aims to be an easy-to-use tool with IL-2 DCG integration.</p>
+</script><title>uk.org.il2ssd/il2ssd -- Marginalia</title></head><body><table><tr><td class="docs"><div class="header"><h1 class="project-name">uk.org.il2ssd/il2ssd</h1><h2 class="project-version">0.1.0-SNAPSHOT</h2><br /><p>Il-2 Simple Server Daemon is a very simple server controller for the Il-2 Sturmovik 1946 dedicated server. It aims to be an easy-to-use tool with IL-2 DCG integration.</p>
 </div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">org.clojure/clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.5.1</td></tr><tr><td class="dep-name">org.clojure/core.async</td><td class="dotted"><hr /></td><td class="dep-version">0.1.267.0-0d7780-alpha</td></tr><tr><td class="dep-name">com.airhacks/afterburner.fx</td><td class="dotted"><hr /></td><td class="dep-version">1.3</td></tr><tr><td class="dep-name">commons-lang/commons-lang</td><td class="dotted"><hr /></td><td class="dep-version">2.3</td></tr><tr><td class="dep-name">instaparse/instaparse</td><td class="dotted"><hr /></td><td class="dep-version">1.2.13</td></tr><tr><td class="dep-name">com.brainbot/iniconfig</td><td class="dotted"><hr /></td><td class="dep-version">0.2.0</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#uk.org.il2ssd.channel">uk.org.il2ssd.channel</a></li><li><a href="#uk.org.il2ssd.core">uk.org.il2ssd.core</a></li><li><a href="#uk.org.il2ssd.event">uk.org.il2ssd.event</a></li><li><a href="#uk.org.il2ssd.jfx.init">uk.org.il2ssd.jfx.init</a></li><li><a href="#uk.org.il2ssd.jfx.ui">uk.org.il2ssd.jfx.ui</a></li><li><a href="#uk.org.il2ssd.jfx.util">uk.org.il2ssd.jfx.util</a></li><li><a href="#uk.org.il2ssd.parse">uk.org.il2ssd.parse</a></li><li><a href="#uk.org.il2ssd.server">uk.org.il2ssd.server</a></li><li><a href="#uk.org.il2ssd.settings">uk.org.il2ssd.settings</a></li><li><a href="#uk.org.il2ssd.state">uk.org.il2ssd.state</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#uk.org.il2ssd.channel" name="uk.org.il2ssd.channel"><h1 class="project-name">uk.org.il2ssd.channel</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><h2>Channels for thread-safe concurrency</h2>
 
 <p>Here we define the input channels that we use to safely process the server console
@@ -4026,11 +4026,15 @@ Dave Ray, originator of the excellent Seesaw, a Clojure wrapper for the Swing to
   [^KeyEvent event argkey]
   (let [actualkey (-&gt; event .getCode .getName)]
     (if (= actualkey argkey)
-      true)))</pre></td></tr><tr><td class="docs"><p>This two argument function attaches an EventHandler instance to the supplied
+      true)))</pre></td></tr><tr><td class="docs"><h3>button-handler</h3>
+
+<p>   This two argument function attaches an EventHandler instance to the supplied
    control which calls the supplied function when the OnAction event is triggered.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn button-handler
   [control f]
-  (.setOnAction control (event-handler [_] (f))))</pre></td></tr><tr><td class="docs"><p>This three argument function attaches an EventHandler instance to the supplied
+  (.setOnAction control (event-handler [_] (f))))</pre></td></tr><tr><td class="docs"><h3>keypress-handler</h3>
+
+<p>   This three argument function attaches an EventHandler instance to the supplied
    control which calls the supplied function if the named keyboard key is pressed
    in the control's context.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn keypress-handler
@@ -4038,21 +4042,27 @@ Dave Ray, originator of the excellent Seesaw, a Clojure wrapper for the Swing to
   (.setOnKeyPressed control (event-handler [keyevent]
                                            (when
                                                (key-pressed? keyevent keyname)
-                                             (f)))))</pre></td></tr><tr><td class="docs"><p>This three argument function attaches an InvalidationListener instance to the
+                                             (f)))))</pre></td></tr><tr><td class="docs"><h3>value-listener</h3>
+
+<p>   This three argument function attaches an InvalidationListener instance to the
    supplied control's valueProperty, which calls the supplied function with the
    supplied arguments when the value is changed.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn value-listener
   [^ChoiceBox control f arg]
   (-&gt; control
       ^ObservableValue .valueProperty
-      (.addListener (invalidation-listener [_] (f arg)))))</pre></td></tr><tr><td class="docs"><p>This three argument function attaches an InvalidationListener instance to the
+      (.addListener (invalidation-listener [_] (f arg)))))</pre></td></tr><tr><td class="docs"><h3>text-listener</h3>
+
+<p>   This three argument function attaches an InvalidationListener instance to the
    supplied control's textProperty, which calls the supplied function with the
    supplied arguments when the text is changed.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn text-listener
   [^Labeled control f arg]
   (-&gt; control
       .textProperty
-      (.addListener (invalidation-listener [_] (f arg)))))</pre></td></tr><tr><td class="docs"><p>This two argument function attaches a ChangeListener instance to the supplied
+      (.addListener (invalidation-listener [_] (f arg)))))</pre></td></tr><tr><td class="docs"><h3>focus-listener</h3>
+
+<p>   This two argument function attaches a ChangeListener instance to the supplied
    control's focusedProperty, which calls the supplied function with the new value
    of the focusedProperty as an argument.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn focus-listener
