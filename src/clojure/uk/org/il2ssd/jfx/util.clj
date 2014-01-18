@@ -10,8 +10,9 @@
            (javafx.event EventHandler)
            (javafx.beans InvalidationListener)
            (javafx.beans.value ChangeListener ObservableValue)
-           (javafx.scene.control ButtonBase ChoiceBox)
-           (javafx.scene.input KeyEvent)))
+           (javafx.scene.control ButtonBase ChoiceBox Labeled)
+           (javafx.scene.input KeyEvent)
+           (javafx.scene Node)))
 
 (defn run-later*
   "### run-later*
@@ -73,7 +74,7 @@
   "### event-handler
    This macro expands the contents of the argument vector and function body into a new
    anonymous function which is passed into the event-handler* function above."
-  [arg & body]
+  ^EventHandler [arg & body]
   `(event-handler* (fn ~arg ~@body)))
 
 (defn invalidation-listener*
@@ -119,36 +120,54 @@
   ^ChangeListener [arg & body]
   `(change-listener* (fn ~arg ~@body)))
 
-(defn key-pressed? [^KeyEvent event argkey]
+(defn key-pressed?
+  "### key-pressed?
+   This two argument function returns true if the supplied KeyEvent keycode name
+   matches the key defined in the supplied string."
+  [^KeyEvent event argkey]
   (let [actualkey (-> event .getCode .getName)]
     (if (= actualkey argkey)
       true)))
 
 (defn button-handler
+  "This two argument function attaches an EventHandler instance to the supplied
+   control which calls the supplied function when the OnAction event is triggered."
   [control f]
   (.setOnAction control (event-handler [_] (f))))
 
 (defn keypress-handler
-  [control keyname f]
+  "This three argument function attaches an EventHandler instance to the supplied
+   control which calls the supplied function if the named keyboard key is pressed
+   in the control's context."
+  [^Node control keyname f]
   (.setOnKeyPressed control (event-handler [keyevent]
                                            (when
                                                (key-pressed? keyevent keyname)
                                              (f)))))
 
 (defn value-listener
-  [control f arg]
+  "This three argument function attaches an InvalidationListener instance to the
+   supplied control's valueProperty, which calls the supplied function with the
+   supplied arguments when the value is changed."
+  [^ChoiceBox control f arg]
   (-> control
       ^ObservableValue .valueProperty
       (.addListener (invalidation-listener [_] (f arg)))))
 
 (defn text-listener
-  [control f arg]
+  "This three argument function attaches an InvalidationListener instance to the
+   supplied control's textProperty, which calls the supplied function with the
+   supplied arguments when the text is changed."
+  [^Labeled control f arg]
   (-> control
-      ^ObservableValue .textProperty
+      .textProperty
       (.addListener (invalidation-listener [_] (f arg)))))
 
 (defn focus-listener
-  [control f]
+  "This two argument function attaches a ChangeListener instance to the supplied
+   control's focusedProperty, which calls the supplied function with the new value
+   of the focusedProperty as an argument."
+  [^Node control f]
   (-> control
-      ^ObservableValue .focusedProperty
+      .focusedProperty
       (.addListener (change-listener [_ _ newval] (f newval)))))

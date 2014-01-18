@@ -3065,35 +3065,32 @@ until every tap is empty.</p>
 </td><td class="codes"><pre class="brush: clojure">(def mult-channel
   (mult
     (filter&lt;
-      #(not (re-find #&quot;&lt;consoleN&gt;&lt;\d+&gt;&quot; %))
+      #(not (re-matches #&quot;&lt;consoleN&gt;&lt;\d++&gt;&quot; %))
       in-channel)))</pre></td></tr><tr><td class="docs"><h3>print-channel</h3>
 
 <p>   This channel taps mult-channel, and is used to print directly to the server console
    text area control.</p>
 </td><td class="codes"><pre class="brush: clojure">(def print-channel
-  (let [c (chan)]
-    (tap mult-channel c)))</pre></td></tr><tr><td class="docs"><h3>diff-channel</h3>
+  (tap mult-channel (chan)))</pre></td></tr><tr><td class="docs"><h3>diff-channel</h3>
 
-<p>   This channel taps mult-channel, and filters for lines which consist of a single
-   word, followed by a single number which is either 0 or 1.</p>
+<p>   This channel taps mult-channel, and filters for lines which consist of two
+   spaces, followed by a single word, followed by a single number which is either
+   0 or 1, followed by a newline character. This is the exact format used to print
+   difficulty settings by the server console.</p>
 
 <p>   This channel is used to parse difficulty settings from the server console output.</p>
 </td><td class="codes"><pre class="brush: clojure">(def diff-channel
   (filter&lt;
-    #(re-find #&quot;[A-Z[a-z]]+\s*[0-1]\s+&quot; %)
+    #(re-matches #&quot;\s{2}[A-Z[a-z[_]]]++\s*+[0-1]\n&quot; %)
     (tap mult-channel (chan))))</pre></td></tr><tr><td class="docs"><h3>mis-channel</h3>
 
-<p>   This channel taps mult-channel, and filters for lines which contain the string
-   "Mission". This channel is used to parse mission load, begin, end and unload
-   events from the server console output.</p>
-
-<p>   The filtering used will need to be revised before chat parsing is enabled so
-   that server chat which contains this common word does not end up on the channel.</p>
+<p>   This channel taps mult-channel, and filters for lines which contain the three
+   mission status lines. This channel is used to parse mission load, begin, end
+   and unload events from the server console output.</p>
 </td><td class="codes"><pre class="brush: clojure">(def mis-channel
-  (let [c (chan)]
-    (filter&lt;
-      #(re-find #&quot;Mission&quot; %)
-      (tap mult-channel c))))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#uk.org.il2ssd.core" name="uk.org.il2ssd.core"><h1 class="project-name">uk.org.il2ssd.core</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><h2>Main application class and main method</h2>
+  (filter&lt;
+    #(re-matches #&quot;Mission{1}:?+\s.+\w++\n&quot; %)
+    (tap mult-channel (chan))))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#uk.org.il2ssd.core" name="uk.org.il2ssd.core"><h1 class="project-name">uk.org.il2ssd.core</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><h2>Main application class and main method</h2>
 
 <p>This namespace must be AOT compiled for the main application class to be generated!</p>
 
@@ -3108,12 +3105,11 @@ on the JavaFX Application thread.</p>
            (com.airhacks.afterburner.injection InjectionProvider)
            (uk.org.il2ssd core)))</pre></td></tr><tr><td class="docs"><h3>-main</h3>
 
-<p>   This is the main application method. The argument passed into the program defines the
-   interface to launch. When no arguments are passed it launches the default JavaFX UI.
-   If the JavaFX UI is selected, it calls the main method of the class we defined above
-   with gen-class using the JavaFX Application.launch static method.</p>
+<p>   This is the main application method, which calls the main method of the class
+   we defined above with gen-class, using the JavaFX Application.launch
+   static method.</p>
 
-<p>   This class will be generated when this namespace is AOT compiled.</p>
+<p>   The class will be generated when this namespace is AOT compiled.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn -main
   [&amp; args]
   (Application/launch core (into-array String [args])))</pre></td></tr><tr><td class="docs"><h3>-start</h3>
@@ -3125,7 +3121,8 @@ on the JavaFX Application thread.</p>
    the stage and then passing the instance of our MainPresenter class into our object
    initialisation method.</p>
 
-<p>   After initialising the objects, we initialise event handlers, watches and controls.</p>
+<p>   After initialising the objects, we initialise event handlers, watches and  various
+   controls.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn -start
   [this primaryStage]
   (let [main-presenter (jfx/init-stage primaryStage)]
@@ -3177,7 +3174,7 @@ update the UI accordingly.</p>
 
 <p>   This is a zero argument function which disconnects from the server if the
    program is connected, saves the current settings to the config file and
-   requests to close the program using the static Platform.exit method.</p>
+   requests to close the program.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn close
   []
   (do (if @state/connected (server/disconnect))
@@ -3199,10 +3196,9 @@ update the UI accordingly.</p>
   (if @state/loaded
     (server/unload-mission)))</pre></td></tr><tr><td class="docs"><h3>get-difficulties</h3>
 
-<p>   This is a zero argument function which clears the difficulty data list which
-   populates the JavaFX difficultyTable TableView control, and requests the
-   currently loaded difficulty settings from the server so that it can be parsed
-   by the listener function and repopulate the TableView.</p>
+<p>   This is a zero argument function which clears the difficulty data list and
+   requests the currently loaded difficulty settings from the server so that they
+   can be parsed back into the program by the listener function.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn get-difficulties
   []
   (let [{:keys [diff-data]} @state/controls]
@@ -3214,7 +3210,7 @@ update the UI accordingly.</p>
    setting each provided setting to the provided value on the server.</p>
 
 <p>   This will update the server with any changes that the user has made to the
-   difficulty settings list while editing the difficultyTable TableView.</p>
+   difficulty settings list</p>
 </td><td class="codes"><pre class="brush: clojure">(defn set-difficulties
   []
   (let [{:keys [diff-data]} @state/controls]
@@ -3225,12 +3221,8 @@ update the UI accordingly.</p>
 
 <p>   This is a zero argument function which spawns another thread. The process on
    this thread listens for non-nil output on the print-channel for as long as the
-   global connection state atom says that we are connected.</p>
-
-<p>   Any text which is read is appended to the console TextArea control in the user
-   interface. Because we are running on a separate thread, we have to use the
-   util/run-later helper function to request to update the UI on the JavaFX
-   Application Thread.</p>
+   global connection state atom says that we are connected. Any text which is read
+   is printed to the application console.</p>
 
 <p>   Functions which spawn a thread return immediately so that execution can
    proceed in the other thread. This prevents these functions from blocking
@@ -3238,32 +3230,33 @@ update the UI accordingly.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn console-listener
   []
   (thread (while @state/connected
-            (if-let [text (&lt;!! print-channel)]
-              (let [{:keys [console]} @state/controls]
-                (ui/print-console console text))))))</pre></td></tr><tr><td class="docs"><h3>difficulty-listener</h3>
+            (let [text (&lt;!! print-channel)]
+              (when text
+                (let [{:keys [console]} @state/controls]
+                  (ui/print-console console text)))))))</pre></td></tr><tr><td class="docs"><h3>difficulty-listener</h3>
 
 <p>   This is a zero argument function which spawns another thread. The process on
    this thread listens for non-nil output on the diff-channel for as long as the
    global connection state atom says that we are connected.</p>
 
 <p>   Any text which is read is parsed into a setting-value pair which is used to
-   instantiate a DifficultySetting object in the list which populates the JavaFX
-   difficultyTable TableView.</p>
+   instantiate a DifficultySetting object in the difficulty settings list.</p>
 
 <p>   As above, we should note that this function will return immediately and
    execution will continue on another thread without blocking this one.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn difficulty-listener
   []
   (thread (while @state/connected
-            (if-let [text (&lt;!! diff-channel)]
-              (let [parsed (parse/difficulty-parser text)
-                    {:keys [diff-data]} @state/controls
-                    setting ((parsed 1) 1)
-                    value ((parsed 2) 1)]
-                (ui/add-diff-data diff-data (DifficultySetting. setting value)))))))</pre></td></tr><tr><td class="docs"><h3>set-title</h3>
+            (let [text (&lt;!! diff-channel)]
+              (when text
+                (let [parsed (parse/difficulty-parser text)
+                      {:keys [diff-data]} @state/controls
+                      setting ((parsed 1) 1)
+                      value ((parsed 2) 1)]
+                  (ui/add-diff-data diff-data (DifficultySetting. setting value))))))))</pre></td></tr><tr><td class="docs"><h3>set-title</h3>
 
-<p>   This is a multiple-arity function which changes the title of the JavaFX Stage
-   instance in which the program UI is displayed.</p>
+<p>   This is a multiple-arity function which changes the title of the program
+   window.</p>
 
 <p>   When the function is called with no arguments it resets the title to the
    default.</p>
@@ -3292,10 +3285,6 @@ update the UI accordingly.</p>
    state atoms depending upon the state returned and add the mission and state
    to the stage title.</p>
 
-<p>   Because we are running this function on its own thread, we have to use the
-   util/run-later helper function to request to update the UI from the JavaFX
-   Application Thread.</p>
-
 <p>   Any text which doesn't match the parser rules does not trigger any further
    processing.</p>
 
@@ -3305,25 +3294,26 @@ update the UI accordingly.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn mission-listener
   []
   (thread (while @state/connected
-            (if-let [text (&lt;!! mis-channel)]
-              (let [parsed (parse/mission-parser text)]
-                (when (nil? (get parsed 2))
-                  (let [state (get-in parsed [1 1])]
-                    (when (= state &quot;NOT loaded&quot;)
-                      (reset! state/loaded false)
-                      (reset! state/playing false)
-                      (set-title))))
-                (when (seq (get parsed 2))
-                  (let [path (get-in parsed [1 1])
-                        mission (get-in parsed [2 1])
-                        state (get-in parsed [3 1])]
-                    (when (= state &quot;Playing&quot;)
-                      (do (reset! state/loaded true)
-                          (reset! state/playing true)))
-                    (when (= state &quot;Loaded&quot;)
-                      (do (reset! state/loaded true)
-                          (reset! state/playing false)))
-                    (set-title mission state))))))))</pre></td></tr><tr><td class="docs"><h3>start-listeners</h3>
+            (let [text (&lt;!! mis-channel)]
+              (when text
+                (let [parsed (parse/mission-parser text)]
+                  (when (nil? (get parsed 2))
+                    (let [state (get-in parsed [1 1])]
+                      (when (= state &quot;NOT loaded&quot;)
+                        (reset! state/loaded false)
+                        (reset! state/playing false)
+                        (set-title))))
+                  (when (seq (get parsed 3))
+                    (let [path (get-in parsed [1 1])
+                          mission (get-in parsed [2 1])
+                          state (get-in parsed [3 1])]
+                      (when (= state &quot;Loaded&quot;)
+                        (reset! state/loaded true)
+                        (reset! state/playing false))
+                      (when (= state &quot;Playing&quot;)
+                        (reset! state/loaded true)
+                        (reset! state/playing true))
+                      (set-title mission state)))))))))</pre></td></tr><tr><td class="docs"><h3>start-listeners</h3>
 
 <p>   This is a zero argument convenience function which starts all of the listeners
    which parse the server console output.</p>
@@ -3336,14 +3326,10 @@ update the UI accordingly.</p>
 <p>   This is a watch function which sets the UI controls to the correct state
    for the connection status defined by the connected argument.</p>
 
-<p>   Because the functions which reset the global state atoms are running in their
-   own threads, we have to use the util/run-later helper function to request to
-   update the UI from the JavaFX Application Thread.</p>
-
 <p>   It also starts all of the listeners which parse output from the server console.</p>
 
 <p>   Because these listeners spawn on a separate thread, their functions return
-   immediately and the UI does not block.</p>
+   immediately and the current thread does not block.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn set-connected
   [_ _ _ connected]
   (let [{:keys [diff-data]} @state/controls]
@@ -3355,33 +3341,20 @@ update the UI accordingly.</p>
 
 <p>   This is a watch function which sets the UI controls to the correct state for
    the mission playing status defined by the playing argument.</p>
-
-<p>   Because the functions which reset the global state atoms are running in their
-   own threads, we have to use the util/run-later helper function to request to
-   update the UI from the JavaFX Application Thread.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn set-mission-playing
   [_ _ _ playing]
   (ui/set-ui-playing playing @state/controls))</pre></td></tr><tr><td class="docs"><h3>set-mission-loaded</h3>
 
 <p>   This is a watch function which sets the UI controls to the correct state for
    the mission loaded status defined by the loaded argument.</p>
-
-<p>   Because the functions which reset the global state atoms are running in their
-   own threads, we have to use the util/run-later helper function to request to
-   update the UI from the JavaFX Application Thread.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn set-mission-loaded
   [_ _ _ loaded]
   (ui/set-ui-loaded loaded @state/controls))</pre></td></tr><tr><td class="docs"><h3>enter-command</h3>
 
-<p>   This is zero argument function which checks the provided KeyEvent for the
-   "Enter" button keycode.</p>
-
-<p>   If this comparison returns true we know that the
-   "Enter" button was pressed and that we should clear the TextField control.</p>
-
-<p>   If the text in the TextField control is "clear", we clear the server console
-   TextArea control. For all other text values, we send the entered text as a
-   command to the server.</p>
+<p>   This is zero argument function which checks whether the text in the TextField
+   control is "clear". In that case we clear the application's server console
+   text. For all other text values, we send the entered text as a command to the
+   server.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn enter-command
   []
   (let [{:keys [cmd-entry
@@ -3393,11 +3366,10 @@ update the UI accordingly.</p>
           (ui/clear-input cmd-entry)))))</pre></td></tr><tr><td class="docs"><h3>connect-command</h3>
 
 <p>   This is a zero argument function which calls the server connect function with
-   the host from the ip-field TextField control and the port from the port-field
-   TextField control.</p>
+   the host from the IP field and the port from the port field.</p>
 
 <p>   We wrap this connection attempt in a go block so that it returns immediately,
-   preventing the UI from blocking.</p>
+   preventing the current thread from blocking.</p>
 
 <p>   We also wrap the connection attempt in a try/catch block to catch any
    exceptions which arise from converting the port-field text to an integer.</p>
@@ -3412,30 +3384,22 @@ update the UI accordingly.</p>
              (catch NullPointerException e nil)))))</pre></td></tr><tr><td class="docs"><h3>disconnect-command</h3>
 
 <p>   This is a zero argument function which calls the server disconnect function
-   in a go block so that it doesn't block the UI.</p>
+   in a go block so that it doesn't block the calling thread.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn disconnect-command
   []
   (go (server/disconnect)))</pre></td></tr><tr><td class="docs"><h3>field-exit</h3>
 
-<p>   This is a zero argument function which returns a ChangeListener which saves
-   the content of the ip-field and port-field when the property which is bound
-   changes to a value of logical false.</p>
-
-<p>   It is intended that we bind this function to a TextField's FocusedProperty so
-   that user input into the field is saved when they exit the field.</p>
-
-<p>   For brevity we save the content of all text fields whenever this function
-   is triggered.</p>
+<p>   This is a zero argument function which saves the content of the IP field
+   and port field if the argument is logical false.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn field-exit
-  [new]
+  [focused]
   (let [{:keys [ip-field
                 port-field]} @state/controls]
-    (if (not new)
+    (if (not focused)
       (settings/save-server (ui/get-text ip-field) (ui/get-text port-field)))))</pre></td></tr><tr><td class="docs"><h3>changed-choice</h3>
 
-<p>   This is a one argument function that returns an InvalidationListener which
-   uses the content of the modes argument to retrieve the key of the mode text
-   selected in the mode-choice ChoiceBox.</p>
+<p>   This is a one argument function which uses the content of the modes argument to
+   retrieve the key of the mode text selected.</p>
 
 <p>   This key is used to load the correct UI pane for the mission mode the user has
    selected.</p>
@@ -3458,13 +3422,8 @@ update the UI accordingly.</p>
     (settings/save-mission mode)
     (settings/save-server server-path)))</pre></td></tr><tr><td class="docs"><h3>server-choose-command</h3>
 
-<p>   This zero argument function displays a FileChooser dialogue in a new Stage
-   instance, and sets the server path label text to the canonical path of the
-   chosen file.</p>
-
-<p>   The chooser only displays files for selection that are called il2server.exe,
-   as defined by the ExtensionFilter which was used to instantiate the
-   FileChooser.</p>
+<p>   This zero argument function displays the server chooser dialog and uses
+   the provided file to set the server path in the UI.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn server-choose-command
   []
   (let [{:keys [server-chooser
@@ -3483,8 +3442,10 @@ structures which we can more easily manipulate in Clojure.</p>
             [uk.org.il2ssd.state :as state]
             [uk.org.il2ssd.event :as event]
             [uk.org.il2ssd.jfx.ui :as ui]
-            [uk.org.il2ssd.jfx.util :as util])
-  (:import (java.nio.file Paths Path)
+            [uk.org.il2ssd.jfx.util :as util]
+            [clojure.java.io :refer [resource]])
+  (:import (java.net URL)
+           (java.nio.file Paths Path)
            (javafx.scene Scene)
            (javafx.scene.layout HBox Priority StackPane Region)
            (javafx.scene.text Font)
@@ -3516,9 +3477,7 @@ structures which we can more easily manipulate in Clojure.</p>
 <p>   Finally, we return the presenter instance for the view we loaded.</p>
 
 <p>   The Java presenter class simply contains getter functions for the objects
-   which are instantiated by the afterburner.fx dependency injection framework
-   and defines the ObservableLists and cell factories for the TableViews that
-   we will use.</p>
+   which are instantiated by the afterburner.fx dependency injection framework</p>
 </td><td class="codes"><pre class="brush: clojure">(defn init-stage
   [^Stage primaryStage]
   (let [stage primaryStage
@@ -3526,7 +3485,7 @@ structures which we can more easily manipulate in Clojure.</p>
         scene (Scene. (.getView main-view))]
     (reset! state/stage primaryStage)
     (event/set-title)
-    (Font/loadFont &quot;fontawesome-webfont.ttf&quot; 12.0)
+    (Font/loadFont (.toExternalForm ^URL (resource &quot;fontawesome-webfont.ttf&quot;)) 12.0)
     (doto stage
       (.setScene scene)
       (.setResizable false)
@@ -3587,7 +3546,7 @@ structures which we can more easily manipulate in Clojure.</p>
                       :cycle-tim-col (.getCycleTimerColumn cycle-presenter)))))</pre></td></tr><tr><td class="docs"><h3>init-handlers</h3>
 
 <p>   This zero argument function is used to add event handlers and change listeners
-   for any objects that must respond to user input. We also add watch functions to
+   to any objects that must respond to user input. We also add watch functions to
    the global state atoms where those state atoms' values should be reflected in
    the UI.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn init-handlers
@@ -3764,19 +3723,45 @@ structures which we can more easily manipulate in Clojure.</p>
            (java.io File)
            (javafx.event EventHandler))
   (:require [uk.org.il2ssd.state :as state]
-            [uk.org.il2ssd.jfx.util :as util]))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(defn exit [] (Platform/exit))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(defn clear-diff-data [^List diff-data]
-  (util/run-later (.clear diff-data)))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(defn add-diff-data [^List diff-data item]
-  (util/run-later (.add diff-data item)))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(defn print-console [^TextArea console text]
-  (util/run-later (.appendText console text)))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(defn clear-input [^TextInputControl control]
-  (.clear control))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(defn set-title [^Stage stage title]
-  (util/run-later (.setTitle stage title)))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(defn set-ui-connected [connected controls]
+            [uk.org.il2ssd.jfx.util :as util]))</pre></td></tr><tr><td class="docs"><h3>exit</h3>
+
+<p>   This zero argument function calls the static JavaFX Platform.exit method to
+   close the application.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn exit
+  [] (Platform/exit))</pre></td></tr><tr><td class="docs"><h3>clear-diff-data</h3>
+
+<p>   This one argument function clears the list which it receives as an argument.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn clear-diff-data
+  [^List diff-data]
+  (util/run-later (.clear diff-data)))</pre></td></tr><tr><td class="docs"><h3>add-diff-data</h3>
+
+<p>   This two argument function adds the supplied element to the supplied list
+   object.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn add-diff-data
+  [^List diff-data item]
+  (util/run-later (.add diff-data item)))</pre></td></tr><tr><td class="docs"><h3>print-console</h3>
+
+<p>   This two argument function appends the supplied text to the supplied text area
+   control.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn print-console
+  [^TextArea console text]
+  (util/run-later (.appendText console text)))</pre></td></tr><tr><td class="docs"><h3>clear-input</h3>
+
+<p>   This one argument function clears the content of the supplied text control.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn clear-input
+  [^TextInputControl control]
+  (.clear control))</pre></td></tr><tr><td class="docs"><h3>set-title</h3>
+
+<p>   This one argument function sets the stage title for the supplied stage to the
+   supplied text value.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn set-title
+  [^Stage stage title]
+  (util/run-later (.setTitle stage title)))</pre></td></tr><tr><td class="docs"><h3>set-ui-connected</h3>
+
+<p>   This two argument function sets the controls in the supplied map of controls
+   to the relevant state for the connection state provided.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn set-ui-connected
+  [connected controls]
   (let [{:keys [^Button connect-btn
                 ^Button disconn-btn
                 ^List diff-data
@@ -3798,8 +3783,12 @@ structures which we can more easily manipulate in Clojure.</p>
                           (.setDisable get-diff-btn true)
                           (.setDisable set-diff-btn true)
                           (.setDisable cmd-entry true)
-                          (.setText console &quot;&lt;disconnected&gt;&quot;))))))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(defn set-ui-playing [playing controls]
+                          (.setText console &quot;&lt;disconnected&gt;&quot;))))))</pre></td></tr><tr><td class="docs"><h3>set-ui-playing</h3>
+
+<p>   This two argument function sets the controls in the supplied map of controls to
+   the correct state for the supplied mission running state.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn set-ui-playing
+  [playing controls]
   (let [{:keys [^TableView diff-table
                 ^Button set-diff-btn
                 ^Button start-btn]} controls]
@@ -3809,8 +3798,12 @@ structures which we can more easily manipulate in Clojure.</p>
                           (.setText start-btn &quot;\uf04d Stop&quot;)))
       (util/run-later (do (.setEditable diff-table true)
                           (.setDisable set-diff-btn false)
-                          (.setText start-btn &quot;\uf04b Start&quot;))))))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(defn set-ui-loaded [loaded controls]
+                          (.setText start-btn &quot;\uf04b Start&quot;))))))</pre></td></tr><tr><td class="docs"><h3>set-ui-loaded</h3>
+
+<p>   This two argument function sets the controls in the supplied map of controls to
+   the correct state for the supplied mission running state.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn set-ui-loaded
+  [loaded controls]
   (let [{:keys [^Button start-btn
                 ^Button load-btn]} controls]
     (if loaded
@@ -3821,16 +3814,35 @@ structures which we can more easily manipulate in Clojure.</p>
                           (.setText load-btn &quot;\uf093 Load&quot;)
                           (if @state/mis-selected
                             (.setDisable load-btn false)
-                            (.setDisable load-btn true)))))))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(defn get-text ^String [control]
-  (.getText control))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(defn set-mis-pane [^BorderPane mis-pane content]
-  (.setCenter mis-pane content))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(defn get-choice ^String [^ChoiceBox choicebox]
-  (str (.getValue choicebox)))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(defn set-label [^Label label text]
-  (.setText label text))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(defn show-chooser ^File [^FileChooser chooser]
+                            (.setDisable load-btn true)))))))</pre></td></tr><tr><td class="docs"><h3>get-text</h3>
+
+<p>   This one argument function returns the text from the supplied control.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn get-text
+  ^String [control]
+  (.getText control))</pre></td></tr><tr><td class="docs"><h3>set-mis-pane</h3>
+
+<p>   This two argument function sets the centre content of the supplied BorderPane
+   instance to the supplied object.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn set-mis-pane
+  [^BorderPane mis-pane content]
+  (.setCenter mis-pane content))</pre></td></tr><tr><td class="docs"><h3>get-choice</h3>
+
+<p>   This one argument function gets the string value of the selected item in the
+   supplied ChoiceBox instance.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn get-choice
+  ^String [^ChoiceBox choicebox]
+  (str (.getValue choicebox)))</pre></td></tr><tr><td class="docs"><h3>set-label</h3>
+
+<p>   This two argument function sets the text content of the supplied control to the
+   value of the supplied text argument.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn set-label
+  [^Label label text]
+  (.setText label text))</pre></td></tr><tr><td class="docs"><h3>show-chooser</h3>
+
+<p>   This one argument function shows the supplied file chooser dialog to the user
+   and returns the selected file to the calling function.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn show-chooser
+  ^File [^FileChooser chooser]
   (.showOpenDialog chooser (Stage.)))</pre></td></tr><tr><td class="docs"><h3>difficulty-validator</h3>
 
 <p>   This one argument function returns logical true if the value passed in for
@@ -3908,8 +3920,9 @@ Dave Ray, originator of the excellent Seesaw, a Clojure wrapper for the Swing to
            (javafx.event EventHandler)
            (javafx.beans InvalidationListener)
            (javafx.beans.value ChangeListener ObservableValue)
-           (javafx.scene.control ButtonBase ChoiceBox)
-           (javafx.scene.input KeyEvent)))</pre></td></tr><tr><td class="docs"><h3>run-later*</h3>
+           (javafx.scene.control ButtonBase ChoiceBox Labeled)
+           (javafx.scene.input KeyEvent)
+           (javafx.scene Node)))</pre></td></tr><tr><td class="docs"><h3>run-later*</h3>
 
 <p>   This function accepts a function f, and passes this function to  the static JavaFX
    Platform.runLater method, which runs the specified task on the JavaFX Application
@@ -3965,7 +3978,7 @@ Dave Ray, originator of the excellent Seesaw, a Clojure wrapper for the Swing to
 <p>   This macro expands the contents of the argument vector and function body into a new
    anonymous function which is passed into the event-handler* function above.</p>
 </td><td class="codes"><pre class="brush: clojure">(defmacro event-handler
-  [arg &amp; body]
+  ^EventHandler [arg &amp; body]
   `(event-handler* (fn ~arg ~@body)))</pre></td></tr><tr><td class="docs"><h3>invalidation-listener*</h3>
 
 <p>   This function accepts a function f, and returns an instance of an anonymous class
@@ -4005,34 +4018,47 @@ Dave Ray, originator of the excellent Seesaw, a Clojure wrapper for the Swing to
    anonymous function which is passed into the change-listener* function above.</p>
 </td><td class="codes"><pre class="brush: clojure">(defmacro change-listener
   ^ChangeListener [arg &amp; body]
-  `(change-listener* (fn ~arg ~@body)))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(defn key-pressed? [^KeyEvent event argkey]
+  `(change-listener* (fn ~arg ~@body)))</pre></td></tr><tr><td class="docs"><h3>key-pressed?</h3>
+
+<p>   This two argument function returns true if the supplied KeyEvent keycode name
+   matches the key defined in the supplied string.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn key-pressed?
+  [^KeyEvent event argkey]
   (let [actualkey (-&gt; event .getCode .getName)]
     (if (= actualkey argkey)
-      true)))</pre></td></tr><tr><td class="docs">
+      true)))</pre></td></tr><tr><td class="docs"><p>This two argument function attaches an EventHandler instance to the supplied
+   control which calls the supplied function when the OnAction event is triggered.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn button-handler
   [control f]
-  (.setOnAction control (event-handler [_] (f))))</pre></td></tr><tr><td class="docs">
+  (.setOnAction control (event-handler [_] (f))))</pre></td></tr><tr><td class="docs"><p>This three argument function attaches an EventHandler instance to the supplied
+   control which calls the supplied function if the named keyboard key is pressed
+   in the control's context.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn keypress-handler
-  [control keyname f]
+  [^Node control keyname f]
   (.setOnKeyPressed control (event-handler [keyevent]
                                            (when
                                                (key-pressed? keyevent keyname)
-                                             (f)))))</pre></td></tr><tr><td class="docs">
+                                             (f)))))</pre></td></tr><tr><td class="docs"><p>This three argument function attaches an InvalidationListener instance to the
+   supplied control's valueProperty, which calls the supplied function with the
+   supplied arguments when the value is changed.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn value-listener
-  [control f arg]
+  [^ChoiceBox control f arg]
   (-&gt; control
       ^ObservableValue .valueProperty
-      (.addListener (invalidation-listener [_] (f arg)))))</pre></td></tr><tr><td class="docs">
+      (.addListener (invalidation-listener [_] (f arg)))))</pre></td></tr><tr><td class="docs"><p>This three argument function attaches an InvalidationListener instance to the
+   supplied control's textProperty, which calls the supplied function with the
+   supplied arguments when the text is changed.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn text-listener
-  [control f arg]
+  [^Labeled control f arg]
   (-&gt; control
-      ^ObservableValue .textProperty
-      (.addListener (invalidation-listener [_] (f arg)))))</pre></td></tr><tr><td class="docs">
+      .textProperty
+      (.addListener (invalidation-listener [_] (f arg)))))</pre></td></tr><tr><td class="docs"><p>This two argument function attaches a ChangeListener instance to the supplied
+   control's focusedProperty, which calls the supplied function with the new value
+   of the focusedProperty as an argument.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn focus-listener
-  [control f]
+  [^Node control f]
   (-&gt; control
-      ^ObservableValue .focusedProperty
+      .focusedProperty
       (.addListener (change-listener [_ _ newval] (f newval)))))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#uk.org.il2ssd.parse" name="uk.org.il2ssd.parse"><h1 class="project-name">uk.org.il2ssd.parse</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><h2>Parser definitions</h2>
 
 <p>This namespace defines the parsers that we use to parse the server console output
@@ -4040,36 +4066,42 @@ on our tapped channels.</p>
 </td><td class="codes"><pre class="brush: clojure">(ns uk.org.il2ssd.parse
   (:require [instaparse.core :as insta]))</pre></td></tr><tr><td class="docs"><h3>difficulty-parser</h3>
 
-<p>   This parser returns a vector in the format</p>
+<p>   This parser returns a vector in the format:</p>
 
-<pre><code>   [:setting setting :value value]
+<pre><code>   [:difficulty-rec [:setting setting :value value]]
 </code></pre>
 
 <p>   for each line passed into the parser. This is used to extract the difficulty settings from
    the server console output.</p>
 </td><td class="codes"><pre class="brush: clojure">(def difficulty-parser
   (insta/parser
-    &quot;difficulty-rec = !&lt;filter&gt; &lt;sp&gt;* setting &lt;sp&gt;* value &lt;nl&gt;?
-    &lt;filter&gt; = #'\\d+ is \\w+' | 'Chat:'
-    &lt;sp&gt; = #'\\s+'
-    &lt;nl&gt; = #'[\\s*\n]+'
-    setting = #'[A-Z[a-z]]+'
+    &quot;difficulty-rec = !&lt;filter&gt; &lt;2sp&gt; setting &lt;sp&gt; value &lt;nl&gt;
+    &lt;filter&gt; = #'\\d++ is \\w++' | 'Chat:'
+    &lt;sp&gt; = #'\\s*+'
+    &lt;2sp&gt; = #'\\s{2}'
+    &lt;nl&gt; = '\n'
+    setting = #'[A-Z[a-z[_]]]+'
     value = #'[0-1]'&quot;))</pre></td></tr><tr><td class="docs"><h3>mission-parser</h3>
 
-<p>   This parser returns a vector in the format</p>
+<p>   This parser returns a vector in the format:</p>
 
-<pre><code>   [:path path :mission mission :state state]
+<pre><code>   [:line [:state state]]
+</code></pre>
+
+<p>   or:</p>
+
+<pre><code>   [:line [:path path :mission mission :state state]]
 </code></pre>
 
 <p>   for each line passed into the parser. This is used to extract the mission state from
-   the server console output.</p>
+   the server console output, and the mission and path if these are available.</p>
 </td><td class="codes"><pre class="brush: clojure">(def mission-parser
   (insta/parser
-    &quot;line = !'Chat:' &lt;'Mission'&gt; (&lt;':'&gt; &lt;sp&gt; path mission &lt;sp&gt; &lt;'is'&gt;)? &lt;sp&gt; state &lt;nl&gt;?
-     &lt;sp&gt; = &lt;#'\\s+'&gt;
-     &lt;nl&gt; = #'[\\s*\n]+'
-     path = #'.+/+'
-     mission = #'.+\\.mis\\b'
+    &quot;line = !'Chat:' &lt;'Mission'&gt; (&lt;':'&gt; &lt;sp&gt; path+ mission &lt;sp&gt; &lt;'is'&gt;)? &lt;sp&gt; state &lt;nl&gt;
+     &lt;sp&gt; = #'\\s'
+     &lt;nl&gt; = '\n'
+     path = #'.+/'
+     mission = #'.+\\.mis'
      state = 'Playing' | 'Loaded' | 'NOT loaded'&quot;))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#uk.org.il2ssd.server" name="uk.org.il2ssd.server"><h1 class="project-name">uk.org.il2ssd.server</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><h2>Server connection and I/O functions</h2>
 
 <p>Here we define functions to interact with the Il-2 server console socket. This
@@ -4105,10 +4137,11 @@ of the initial connection function.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn socket-listener
   []
   (thread (while @state/connected
-            (when-let [text (.readLine ^BufferedReader @socket-in)]
-              (-&gt;&gt; text
-                   (StringEscapeUtils/unescapeJava)
-                   (&gt;!! in-channel))))))</pre></td></tr><tr><td class="docs"><h3>write-socket</h3>
+            (let [text (.readLine ^BufferedReader @socket-in)]
+              (when text
+                (-&gt;&gt; text
+                     (StringEscapeUtils/unescapeJava)
+                     (&gt;!! in-channel)))))))</pre></td></tr><tr><td class="docs"><h3>write-socket</h3>
 
 <p>   This is a single argument function that simply calls the println method of the
    object that is stored in the socket-out atom using the argument that we

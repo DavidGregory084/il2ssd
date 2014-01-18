@@ -51,9 +51,7 @@
    Finally, we return the presenter instance for the view we loaded.
 
    The Java presenter class simply contains getter functions for the objects
-   which are instantiated by the afterburner.fx dependency injection framework
-   and defines the ObservableLists and cell factories for the TableViews that
-   we will use."
+   which are instantiated by the afterburner.fx dependency injection framework"
   [^Stage primaryStage]
   (let [stage primaryStage
         main-view (MainView.)
@@ -123,7 +121,7 @@
 (defn init-handlers
   "### init-handlers
    This zero argument function is used to add event handlers and change listeners
-   for any objects that must respond to user input. We also add watch functions to
+   to any objects that must respond to user input. We also add watch functions to
    the global state atoms where those state atoms' values should be reflected in
    the UI."
   []

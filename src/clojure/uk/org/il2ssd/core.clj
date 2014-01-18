@@ -18,12 +18,11 @@
 
 (defn -main
   "### -main
-   This is the main application method. The argument passed into the program defines the
-   interface to launch. When no arguments are passed it launches the default JavaFX UI.
-   If the JavaFX UI is selected, it calls the main method of the class we defined above
-   with gen-class using the JavaFX Application.launch static method.
+   This is the main application method, which calls the main method of the class
+   we defined above with gen-class, using the JavaFX Application.launch
+   static method.
 
-   This class will be generated when this namespace is AOT compiled."
+   The class will be generated when this namespace is AOT compiled."
   [& args]
   (Application/launch core (into-array String [args])))
 
@@ -36,7 +35,8 @@
    the stage and then passing the instance of our MainPresenter class into our object
    initialisation method.
 
-   After initialising the objects, we initialise event handlers, watches and controls."
+   After initialising the objects, we initialise event handlers, watches and  various
+   controls."
   [this primaryStage]
   (let [main-presenter (jfx/init-stage primaryStage)]
     (jfx/init-objects main-presenter)

@@ -16,24 +16,50 @@
   (:require [uk.org.il2ssd.state :as state]
             [uk.org.il2ssd.jfx.util :as util]))
 
-(defn exit [] (Platform/exit))
+(defn exit
+  "### exit
+   This zero argument function calls the static JavaFX Platform.exit method to
+   close the application."
+  [] (Platform/exit))
 
-(defn clear-diff-data [^List diff-data]
+(defn clear-diff-data
+  "### clear-diff-data
+   This one argument function clears the list which it receives as an argument."
+  [^List diff-data]
   (util/run-later (.clear diff-data)))
 
-(defn add-diff-data [^List diff-data item]
+(defn add-diff-data
+  "### add-diff-data
+   This two argument function adds the supplied element to the supplied list
+   object."
+  [^List diff-data item]
   (util/run-later (.add diff-data item)))
 
-(defn print-console [^TextArea console text]
+(defn print-console
+  "### print-console
+   This two argument function appends the supplied text to the supplied text area
+   control."
+  [^TextArea console text]
   (util/run-later (.appendText console text)))
 
-(defn clear-input [^TextInputControl control]
+(defn clear-input
+  "### clear-input
+   This one argument function clears the content of the supplied text control."
+  [^TextInputControl control]
   (.clear control))
 
-(defn set-title [^Stage stage title]
+(defn set-title
+  "### set-title
+   This one argument function sets the stage title for the supplied stage to the
+   supplied text value."
+  [^Stage stage title]
   (util/run-later (.setTitle stage title)))
 
-(defn set-ui-connected [connected controls]
+(defn set-ui-connected
+  "### set-ui-connected
+   This two argument function sets the controls in the supplied map of controls
+   to the relevant state for the connection state provided."
+  [connected controls]
   (let [{:keys [^Button connect-btn
                 ^Button disconn-btn
                 ^List diff-data
@@ -57,7 +83,11 @@
                           (.setDisable cmd-entry true)
                           (.setText console "<disconnected>"))))))
 
-(defn set-ui-playing [playing controls]
+(defn set-ui-playing
+  "### set-ui-playing
+   This two argument function sets the controls in the supplied map of controls to
+   the correct state for the supplied mission running state."
+  [playing controls]
   (let [{:keys [^TableView diff-table
                 ^Button set-diff-btn
                 ^Button start-btn]} controls]
@@ -69,7 +99,11 @@
                           (.setDisable set-diff-btn false)
                           (.setText start-btn "\uf04b Start"))))))
 
-(defn set-ui-loaded [loaded controls]
+(defn set-ui-loaded
+  "### set-ui-loaded
+   This two argument function sets the controls in the supplied map of controls to
+   the correct state for the supplied mission running state."
+  [loaded controls]
   (let [{:keys [^Button start-btn
                 ^Button load-btn]} controls]
     (if loaded
@@ -82,19 +116,38 @@
                             (.setDisable load-btn false)
                             (.setDisable load-btn true)))))))
 
-(defn get-text ^String [control]
+(defn get-text
+  "### get-text
+   This one argument function returns the text from the supplied control."
+  ^String [control]
   (.getText control))
 
-(defn set-mis-pane [^BorderPane mis-pane content]
+(defn set-mis-pane
+  "### set-mis-pane
+   This two argument function sets the centre content of the supplied BorderPane
+   instance to the supplied object."
+  [^BorderPane mis-pane content]
   (.setCenter mis-pane content))
 
-(defn get-choice ^String [^ChoiceBox choicebox]
+(defn get-choice
+  "### get-choice
+   This one argument function gets the string value of the selected item in the
+   supplied ChoiceBox instance."
+  ^String [^ChoiceBox choicebox]
   (str (.getValue choicebox)))
 
-(defn set-label [^Label label text]
+(defn set-label
+  "### set-label
+   This two argument function sets the text content of the supplied control to the
+   value of the supplied text argument."
+  [^Label label text]
   (.setText label text))
 
-(defn show-chooser ^File [^FileChooser chooser]
+(defn show-chooser
+  "### show-chooser
+   This one argument function shows the supplied file chooser dialog to the user
+   and returns the selected file to the calling function."
+  ^File [^FileChooser chooser]
   (.showOpenDialog chooser (Stage.)))
 
 (defn difficulty-validator

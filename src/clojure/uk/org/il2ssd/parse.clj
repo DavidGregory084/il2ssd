@@ -7,9 +7,9 @@
 
 (def difficulty-parser
   "### difficulty-parser
-   This parser returns a vector in the format
+   This parser returns a vector in the format:
 
-       [:setting setting :value value]
+       [:difficulty-rec [:setting setting :value value]]
 
    for each line passed into the parser. This is used to extract the difficulty settings from
    the server console output."
@@ -24,12 +24,16 @@
 
 (def mission-parser
   "### mission-parser
-   This parser returns a vector in the format
+   This parser returns a vector in the format:
 
-       [:path path :mission mission :state state]
+       [:line [:state state]]
+
+   or:
+
+       [:line [:path path :mission mission :state state]]
 
    for each line passed into the parser. This is used to extract the mission state from
-   the server console output."
+   the server console output, and the mission and path if these are available."
   (insta/parser
     "line = !'Chat:' <'Mission'> (<':'> <sp> path+ mission <sp> <'is'>)? <sp> state <nl>
      <sp> = #'\\s'

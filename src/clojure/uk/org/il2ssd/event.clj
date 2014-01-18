@@ -35,7 +35,7 @@
   "### close
    This is a zero argument function which disconnects from the server if the
    program is connected, saves the current settings to the config file and
-   requests to close the program using the static Platform.exit method."
+   requests to close the program."
   []
   (do (if @state/connected (server/disconnect))
       (settings/save-config-file)
@@ -60,10 +60,9 @@
 
 (defn get-difficulties
   "### get-difficulties
-   This is a zero argument function which clears the difficulty data list which
-   populates the JavaFX difficultyTable TableView control, and requests the
-   currently loaded difficulty settings from the server so that it can be parsed
-   by the listener function and repopulate the TableView."
+   This is a zero argument function which clears the difficulty data list and
+   requests the currently loaded difficulty settings from the server so that they
+   can be parsed back into the program by the listener function."
   []
   (let [{:keys [diff-data]} @state/controls]
     (ui/clear-diff-data diff-data)
@@ -76,7 +75,7 @@
    setting each provided setting to the provided value on the server.
 
    This will update the server with any changes that the user has made to the
-   difficulty settings list while editing the difficultyTable TableView."
+   difficulty settings list"
   []
   (let [{:keys [diff-data]} @state/controls]
     (doseq [^DifficultySetting item diff-data]
@@ -88,12 +87,8 @@
   "### console-listener
    This is a zero argument function which spawns another thread. The process on
    this thread listens for non-nil output on the print-channel for as long as the
-   global connection state atom says that we are connected.
-
-   Any text which is read is appended to the console TextArea control in the user
-   interface. Because we are running on a separate thread, we have to use the
-   util/run-later helper function to request to update the UI on the JavaFX
-   Application Thread.
+   global connection state atom says that we are connected. Any text which is read
+   is printed to the application console.
 
    Functions which spawn a thread return immediately so that execution can
    proceed in the other thread. This prevents these functions from blocking
@@ -113,8 +108,7 @@
    global connection state atom says that we are connected.
 
    Any text which is read is parsed into a setting-value pair which is used to
-   instantiate a DifficultySetting object in the list which populates the JavaFX
-   difficultyTable TableView.
+   instantiate a DifficultySetting object in the difficulty settings list.
 
    As above, we should note that this function will return immediately and
    execution will continue on another thread without blocking this one."
@@ -130,8 +124,8 @@
 
 (defn set-title
   "### set-title
-   This is a multiple-arity function which changes the title of the JavaFX Stage
-   instance in which the program UI is displayed.
+   This is a multiple-arity function which changes the title of the program
+   window.
 
    When the function is called with no arguments it resets the title to the
    default.
@@ -160,10 +154,6 @@
    we can use the state returned for further processing. We reset the global
    state atoms depending upon the state returned and add the mission and state
    to the stage title.
-
-   Because we are running this function on its own thread, we have to use the
-   util/run-later helper function to request to update the UI from the JavaFX
-   Application Thread.
 
    Any text which doesn't match the parser rules does not trigger any further
    processing.
@@ -208,14 +198,10 @@
    This is a watch function which sets the UI controls to the correct state
    for the connection status defined by the connected argument.
 
-   Because the functions which reset the global state atoms are running in their
-   own threads, we have to use the util/run-later helper function to request to
-   update the UI from the JavaFX Application Thread.
-
    It also starts all of the listeners which parse output from the server console.
 
    Because these listeners spawn on a separate thread, their functions return
-   immediately and the UI does not block."
+   immediately and the current thread does not block."
   [_ _ _ connected]
   (let [{:keys [diff-data]} @state/controls]
     (ui/set-ui-connected connected @state/controls)
@@ -227,37 +213,24 @@
 (defn set-mission-playing
   "### set-mission-playing
    This is a watch function which sets the UI controls to the correct state for
-   the mission playing status defined by the playing argument.
-
-   Because the functions which reset the global state atoms are running in their
-   own threads, we have to use the util/run-later helper function to request to
-   update the UI from the JavaFX Application Thread."
+   the mission playing status defined by the playing argument."
   [_ _ _ playing]
   (ui/set-ui-playing playing @state/controls))
 
 (defn set-mission-loaded
   "### set-mission-loaded
    This is a watch function which sets the UI controls to the correct state for
-   the mission loaded status defined by the loaded argument.
-
-   Because the functions which reset the global state atoms are running in their
-   own threads, we have to use the util/run-later helper function to request to
-   update the UI from the JavaFX Application Thread."
+   the mission loaded status defined by the loaded argument."
   [_ _ _ loaded]
   (ui/set-ui-loaded loaded @state/controls))
 
 
 (defn enter-command
   "### enter-command
-   This is zero argument function which checks the provided KeyEvent for the
-   \"Enter\" button keycode.
-
-   If this comparison returns true we know that the
-   \"Enter\" button was pressed and that we should clear the TextField control.
-
-   If the text in the TextField control is \"clear\", we clear the server console
-   TextArea control. For all other text values, we send the entered text as a
-   command to the server."
+   This is zero argument function which checks whether the text in the TextField
+   control is \"clear\". In that case we clear the application's server console
+   text. For all other text values, we send the entered text as a command to the
+   server."
   []
   (let [{:keys [cmd-entry
                 console]} @state/controls]
@@ -270,11 +243,10 @@
 (defn connect-command
   "### connect-command
    This is a zero argument function which calls the server connect function with
-   the host from the ip-field TextField control and the port from the port-field
-   TextField control.
+   the host from the IP field and the port from the port field.
 
    We wrap this connection attempt in a go block so that it returns immediately,
-   preventing the UI from blocking.
+   preventing the current thread from blocking.
 
    We also wrap the connection attempt in a try/catch block to catch any
    exceptions which arise from converting the port-field text to an integer."
@@ -290,32 +262,24 @@
 (defn disconnect-command
   "### disconnect-command
    This is a zero argument function which calls the server disconnect function
-   in a go block so that it doesn't block the UI."
+   in a go block so that it doesn't block the calling thread."
   []
   (go (server/disconnect)))
 
 (defn field-exit
   "### field-exit
-   This is a zero argument function which returns a ChangeListener which saves
-   the content of the ip-field and port-field when the property which is bound
-   changes to a value of logical false.
-
-   It is intended that we bind this function to a TextField's FocusedProperty so
-   that user input into the field is saved when they exit the field.
-
-   For brevity we save the content of all text fields whenever this function
-   is triggered."
-  [new]
+   This is a zero argument function which saves the content of the IP field
+   and port field if the argument is logical false."
+  [focused]
   (let [{:keys [ip-field
                 port-field]} @state/controls]
-    (if (not new)
+    (if (not focused)
       (settings/save-server (ui/get-text ip-field) (ui/get-text port-field)))))
 
 (defn changed-choice
   "### changed-choice
-   This is a one argument function that returns an InvalidationListener which
-   uses the content of the modes argument to retrieve the key of the mode text
-   selected in the mode-choice ChoiceBox.
+   This is a one argument function which uses the content of the modes argument to
+   retrieve the key of the mode text selected.
 
    This key is used to load the correct UI pane for the mission mode the user has
    selected.
@@ -339,13 +303,8 @@
 
 (defn server-choose-command
   "### server-choose-command
-   This zero argument function displays a FileChooser dialogue in a new Stage
-   instance, and sets the server path label text to the canonical path of the
-   chosen file.
-
-   The chooser only displays files for selection that are called il2server.exe,
-   as defined by the ExtensionFilter which was used to instantiate the
-   FileChooser."
+   This zero argument function displays the server chooser dialog and uses
+   the provided file to set the server path in the UI."
   []
   (let [{:keys [server-chooser
                 server-path-lbl]} @state/controls

@@ -47,8 +47,10 @@
 
 (def diff-channel
   "### diff-channel
-   This channel taps mult-channel, and filters for lines which consist of a single
-   word, followed by a single number which is either 0 or 1.
+   This channel taps mult-channel, and filters for lines which consist of two
+   spaces, followed by a single word, followed by a single number which is either
+   0 or 1, followed by a newline character. This is the exact format used to print
+   difficulty settings by the server console.
 
    This channel is used to parse difficulty settings from the server console output."
   (filter<
@@ -57,9 +59,9 @@
 
 (def mis-channel
   "### mis-channel
-   This channel taps mult-channel, and filters for lines which contain the string
-   \"Mission\". This channel is used to parse mission load, begin, end and unload
-   events from the server console output."
+   This channel taps mult-channel, and filters for lines which contain the three
+   mission status lines. This channel is used to parse mission load, begin, end
+   and unload events from the server console output."
   (filter<
     #(re-matches #"Mission{1}:?+\s.+\w++\n" %)
     (tap mult-channel (chan))))
