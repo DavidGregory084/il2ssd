@@ -219,3 +219,12 @@
         (.setTimer current newval)
         (doto col (.setVisible false)
                   (.setVisible true))))))
+
+(defn set-ui-server
+  [path controls]
+  (let [{:keys [single-path-btn cycle-path-btn]} controls]
+    (if path
+      (do (.setDisable single-path-btn false)
+          (.setDisable cycle-path-btn false))
+      (do (.setDisable single-path-btn true)
+          (.setDisable cycle-path-btn true)))))

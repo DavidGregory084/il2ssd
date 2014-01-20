@@ -152,20 +152,28 @@
    This three argument function attaches an InvalidationListener instance to the
    supplied control's valueProperty, which calls the supplied function with the
    supplied arguments when the value is changed."
-  [^ChoiceBox control f arg]
-  (-> control
-      ^ObservableValue .valueProperty
-      (.addListener (invalidation-listener [_] (f arg)))))
+  ([^ChoiceBox control f]
+   (-> control
+       ^ObservableValue .valueProperty
+       (.addListener (invalidation-listener [_] (f)))))
+  ([^ChoiceBox control f arg]
+   (-> control
+       ^ObservableValue .valueProperty
+       (.addListener (invalidation-listener [_] (f arg))))))
 
 (defn text-listener
   "### text-listener
    This three argument function attaches an InvalidationListener instance to the
    supplied control's textProperty, which calls the supplied function with the
    supplied arguments when the text is changed."
-  [^Labeled control f arg]
-  (-> control
-      .textProperty
-      (.addListener (invalidation-listener [_] (f arg)))))
+  ([^Labeled control f]
+   (-> control
+       .textProperty
+       (.addListener (invalidation-listener [_] (f)))))
+  ([^Labeled control f arg]
+   (-> control
+       .textProperty
+       (.addListener (invalidation-listener [_] (f arg))))))
 
 (defn focus-listener
   "### focus-listener

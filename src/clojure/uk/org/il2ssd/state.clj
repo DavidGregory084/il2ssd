@@ -46,3 +46,14 @@
    This atom stores a true or false mission selected status for global use in the
    program."
   (atom nil))
+
+(def cycle-running
+  "### cycle-running
+   This atom stores a true or false cycle running state for global use in the
+   program."
+  (atom nil))
+
+(def server-path
+  "### server-path
+   This atom stores the server path for global use in the program."
+  (atom nil))

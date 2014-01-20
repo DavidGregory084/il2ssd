@@ -21,13 +21,13 @@
 ;; Because we are using unbuffered channels, further puts onto the mult will block
 ;; until every tap is empty.
 (ns uk.org.il2ssd.channel
-  (:require [clojure.core.async :refer [chan filter< mult tap]]))
+  (:require [clojure.core.async :refer [chan filter< mult tap remove<]]))
 
 (def in-channel
   "### in-channel
    This is the input channel from the Il-2 dedicated server console. It receives values
    one line at a time from the server socket."
-  (chan))
+  (chan 10))
 
 (def mult-channel
   "### mult-channel
@@ -35,15 +35,15 @@
    channel to accept only lines which don't begin with the server console prompt
    text, so that only genuine output from the console is used in later processing."
   (mult
-    (filter<
-      #(not (re-matches #"<consoleN><\d++>" %))
+    (remove<
+      #(re-matches #"<consoleN><\d++>" %)
       in-channel)))
 
 (def print-channel
   "### print-channel
    This channel taps mult-channel, and is used to print directly to the server console
    text area control."
-  (tap mult-channel (chan)))
+  (tap mult-channel (chan 10)))
 
 (def diff-channel
   "### diff-channel
@@ -55,7 +55,7 @@
    This channel is used to parse difficulty settings from the server console output."
   (filter<
     #(re-matches #"\s{2}[A-Z[a-z[_]]]++\s*+[0-1]\n" %)
-    (tap mult-channel (chan))))
+    (tap mult-channel (chan 10))))
 
 (def mis-channel
   "### mis-channel
@@ -64,4 +64,13 @@
    and unload events from the server console output."
   (filter<
     #(re-matches #"Mission{1}:?+\s.+\w++\n" %)
-    (tap mult-channel (chan))))
+    (tap mult-channel (chan 10))))
+
+(def err-channel
+  "### err-channel
+   This channel taps mult-channel, and filters for lines which contain the
+   mission load error text. This channel is used to set the mission status
+   to unloaded when the user tries to load an invalid mission path."
+  (filter<
+    #(re-find #"ERROR mission:.+NOT loaded" %)
+    (tap mult-channel (chan 10))))

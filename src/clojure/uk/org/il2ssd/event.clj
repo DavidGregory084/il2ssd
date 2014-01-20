@@ -184,14 +184,30 @@
                         (reset! state/playing true))
                       (set-title mission state)))))))))
 
+(defn err-listener
+  "### err-listener
+   This is a zero argument function which listens for text on the error channel.
+   This channel filters for mission loading errors, so when we receive a value
+   from this channel we know that the requested mission failed to load, and we
+   can set the mission state to unloaded."
+  []
+  (thread (while @state/connected
+            (let [text (<!! err-channel)]
+              (when text
+                (reset! state/loaded false)
+                (reset! state/playing false)
+                (set-title))))))
+
 (defn start-listeners
   "### start-listeners
    This is a zero argument convenience function which starts all of the listeners
-   which parse the server console output."
+   which parse the server console output. They all need to be running and removing
+   puts from the channels or the program will stall."
   []
   (console-listener)
   (difficulty-listener)
-  (mission-listener))
+  (mission-listener)
+  (err-listener))
 
 (defn set-connected
   "### set-connected
@@ -276,8 +292,8 @@
     (if (not focused)
       (settings/save-server (ui/get-text ip-field) (ui/get-text port-field)))))
 
-(defn changed-choice
-  "### changed-choice
+(defn mode-choice
+  "### mode-choice
    This is a one argument function which uses the content of the modes argument to
    retrieve the key of the mode text selected.
 
@@ -285,21 +301,27 @@
    selected.
 
    After the UI pane has been loaded the field contents specific to this pane are
-   saved and finally the mode setting and any settings stored in labels are saved."
+   saved and finally the mode setting is saved."
   [modes]
   (let [{:keys [mission-pane
                 single-mis-pane
                 cycle-mis-pane
-                mode-choice
-                server-path-lbl]} @state/controls
-        server-path (ui/get-text server-path-lbl)
+                mode-choice]} @state/controls
         mode (name ((map-invert modes) (ui/get-choice mode-choice)))]
     (when (= mode "single")
       (ui/set-mis-pane mission-pane single-mis-pane))
     (when (= mode "cycle")
       (ui/set-mis-pane mission-pane cycle-mis-pane))
-    (settings/save-mission mode)
-    (settings/save-server server-path)))
+    (settings/save-mission mode)))
+
+(defn server-path-select
+  []
+  (let [{:keys [server-path-lbl]} @state/controls
+        server-path (ui/get-text server-path-lbl)]
+    (settings/save-server server-path)
+    (if (= server-path "...")
+      (reset! state/server-path nil)
+      (reset! state/server-path server-path))))
 
 (defn server-choose-command
   "### server-choose-command
@@ -311,3 +333,15 @@
         file (ui/show-chooser server-chooser)]
     (when file
       (ui/set-label server-path-lbl (.getCanonicalPath file)))))
+
+(defn set-single-remote
+  []
+  (let [{:keys [single-path-fld single-path-lbl]} @state/controls
+        mission-path (ui/get-text single-path-fld)]
+    (when (not= mission-path "")
+      (ui/set-label single-path-lbl mission-path)
+      (settings/save-mission "single" mission-path))))
+
+(defn set-server-selected
+  [_ _ _ path]
+  (ui/set-ui-server path @state/controls))

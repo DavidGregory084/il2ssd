@@ -86,37 +86,51 @@
         ^SinglePresenter single-presenter (.getPresenter (SingleView.))
         ^CyclePresenter cycle-presenter (.getPresenter (CycleView.))]
     (reset! state/controls
-            (hash-map :connect-btn (.getConnectButton main-presenter)
-                      :disconn-btn (.getDisconnectButton main-presenter)
-                      :prog-stack (.getProgressStack main-presenter)
-                      :prog-ind (.getProgressIndicator main-presenter)
-                      :start-btn (.getStartStopButton main-presenter)
-                      :next-btn (.getNextButton main-presenter)
-                      :cmd-entry (.getCommandEntryField main-presenter)
-                      :console (.getConsoleTextArea main-presenter)
-                      :mission-pane (.getMissionPane main-presenter)
-                      :mode-choice (.getMissionModeChoice main-presenter)
-                      :mission-spring (.getMissionBarSpring main-presenter)
-                      :load-btn (.getMissionLoadButton main-presenter)
-                      :ip-field (.getIpAddressField main-presenter)
-                      :port-field (.getPortField main-presenter)
-                      :exit-btn (.getExitItem main-presenter)
-                      :about-btn (.getAboutItem main-presenter)
-                      :server-path-lbl (.getServerPathLabel main-presenter)
-                      :server-path-btn (.getServerPathButton main-presenter)
-                      :get-diff-btn (.getGetDifficultyButton main-presenter)
-                      :set-diff-btn (.getSetDifficultyButton main-presenter)
-                      :diff-table (.getDifficultyTable main-presenter)
-                      :diff-set-col (.getDiffSettingColumn main-presenter)
-                      :diff-val-col (.getDiffValueColumn main-presenter)
-                      :server-chooser (FileChooser.)
-                      :mis-chooser (FileChooser.)
-                      :dcg-chooser (FileChooser.)
-                      :single-mis-pane (.getSingleMisPane single-presenter)
-                      :cycle-mis-pane (.getCycleMisPane cycle-presenter)
-                      :cycle-table (.getCycleMissionTable cycle-presenter)
-                      :cycle-mis-col (.getCycleMissionColumn cycle-presenter)
-                      :cycle-tim-col (.getCycleTimerColumn cycle-presenter)))))
+            (hash-map
+              ;Main FXML file controls
+              :connect-btn (.getConnectButton main-presenter)
+              :disconn-btn (.getDisconnectButton main-presenter)
+              :prog-stack (.getProgressStack main-presenter)
+              :prog-ind (.getProgressIndicator main-presenter)
+              :start-btn (.getStartStopButton main-presenter)
+              :next-btn (.getNextButton main-presenter)
+              :cmd-entry (.getCommandEntryField main-presenter)
+              :console (.getConsoleTextArea main-presenter)
+              :mission-pane (.getMissionPane main-presenter)
+              :mode-choice (.getMissionModeChoice main-presenter)
+              :mission-spring (.getMissionBarSpring main-presenter)
+              :load-btn (.getMissionLoadButton main-presenter)
+              :ip-field (.getIpAddressField main-presenter)
+              :port-field (.getPortField main-presenter)
+              :exit-btn (.getExitItem main-presenter)
+              :about-btn (.getAboutItem main-presenter)
+              :server-path-lbl (.getServerPathLabel main-presenter)
+              :server-path-btn (.getServerPathButton main-presenter)
+              :get-diff-btn (.getGetDifficultyButton main-presenter)
+              :set-diff-btn (.getSetDifficultyButton main-presenter)
+              :diff-table (.getDifficultyTable main-presenter)
+              :diff-set-col (.getDiffSettingColumn main-presenter)
+              :diff-val-col (.getDiffValueColumn main-presenter)
+              :server-chooser (FileChooser.)
+              :mis-chooser (FileChooser.)
+              :dcg-chooser (FileChooser.)
+              ;Single Mission FXML file controls
+              :single-mis-pane (.getSingleMisPane single-presenter)
+              :single-path-btn (.getChooseSingleMisButton single-presenter)
+              :single-path-fld (.getSingleMisPathField single-presenter)
+              :single-remote-btn (.getRemoteSelectButton single-presenter)
+              :single-path-lbl (.getSingleMisPathLabel single-presenter)
+              ;Mission Cycle FXML file controls
+              :cycle-mis-pane (.getCycleMisPane cycle-presenter)
+              :cycle-table (.getCycleMissionTable cycle-presenter)
+              :cycle-mis-col (.getCycleMissionColumn cycle-presenter)
+              :cycle-tim-col (.getCycleTimerColumn cycle-presenter)
+              :cycle-mis-upbtn (.getMissionUpButton cycle-presenter)
+              :cycle-mis-delbtn (.getMissionDeleteButton cycle-presenter)
+              :cycle-mis-dwnbtn (.getMissionDownButton cycle-presenter)
+              :cycle-path-fld (.getCycleMisPathField cycle-presenter)
+              :cycle-path-btn (.getChooseCycleMisButton cycle-presenter)
+              :cycle-mis-addbtn (.getAddMissionButton cycle-presenter)))))
 
 (defn init-handlers
   "### init-handlers
@@ -139,11 +153,14 @@
                 ^Button get-diff-btn
                 ^Button set-diff-btn
                 ^TextField ip-field
-                ^TextField port-field]}
+                ^TextField port-field
+                ^Button single-remote-btn]}
         @state/controls]
     (add-watch state/connected :connect event/set-connected)
     (add-watch state/loaded :load event/set-mission-loaded)
     (add-watch state/playing :play event/set-mission-playing)
+    (add-watch state/server-path :path event/set-server-selected)
+    ;Main UI EventHandlers and Listeners
     (util/button-handler connect-btn event/connect-command)
     (util/button-handler disconn-btn event/disconnect-command)
     (util/button-handler start-btn event/start-stop-command)
@@ -155,8 +172,10 @@
     (util/keypress-handler cmd-entry "Enter" event/enter-command)
     (util/focus-listener ip-field event/field-exit)
     (util/focus-listener port-field event/field-exit)
-    (util/value-listener mode-choice event/changed-choice modes)
-    (util/text-listener server-path-lbl event/changed-choice modes)))
+    (util/value-listener mode-choice event/mode-choice modes)
+    (util/text-listener server-path-lbl event/server-path-select)
+    ;Single Mission pane EventHandlers and Listeners
+    (util/button-handler single-remote-btn event/set-single-remote)))
 
 (defn init-controls
   "### init-controls
@@ -171,6 +190,7 @@
   (let [{:keys [^TextField ip-field
                 ^TextField port-field
                 ^Label server-path-lbl
+                ^Label single-path-lbl
                 ^StackPane prog-stack
                 ^ChoiceBox mode-choice
                 ^Region mission-spring]} @state/controls
@@ -256,7 +276,8 @@
     (.setCellValueFactory diff-val-col (PropertyValueFactory. "value"))
     (.setCellFactory diff-val-col (TextFieldTableCell/forTableColumn))
     (.setColumnResizePolicy diff-table TableView/CONSTRAINED_RESIZE_POLICY)
-    (swap! state/controls assoc :diff-data (FXCollections/observableArrayList))
+    (swap! state/controls assoc :diff-data
+           (FXCollections/synchronizedObservableList (FXCollections/observableArrayList)))
     (let [{:keys [^List diff-data]} @state/controls]
       (.setItems diff-table diff-data)
       (.setOnEditCommit diff-val-col (ui/diff-val-commit)))))
@@ -285,7 +306,8 @@
     (.setCellValueFactory cycle-tim-col (PropertyValueFactory. "timer"))
     (.setCellFactory cycle-tim-col (TextFieldTableCell/forTableColumn))
     (.setColumnResizePolicy cycle-table TableView/CONSTRAINED_RESIZE_POLICY)
-    (swap! state/controls assoc :cycle-data (FXCollections/observableArrayList))
+    (swap! state/controls assoc :cycle-data
+           (FXCollections/synchronizedObservableList (FXCollections/observableArrayList)))
     (let [{:keys [^List cycle-data]} @state/controls]
       (.setItems cycle-table cycle-data)
       (.setOnEditCommit cycle-tim-col (ui/cycle-timer-commit)))))

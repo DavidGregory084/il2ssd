@@ -3029,7 +3029,7 @@ net.brehaut.ClojureTools = (function (SH) {
   };
 })(SyntaxHighlighter);
 </script><title>uk.org.il2ssd/il2ssd -- Marginalia</title></head><body><table><tr><td class="docs"><div class="header"><h1 class="project-name">uk.org.il2ssd/il2ssd</h1><h2 class="project-version">0.1.0-SNAPSHOT</h2><br /><p>Il-2 Simple Server Daemon is a very simple server controller for the Il-2 Sturmovik 1946 dedicated server. It aims to be an easy-to-use tool with IL-2 DCG integration.</p>
-</div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">org.clojure/clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.5.1</td></tr><tr><td class="dep-name">org.clojure/core.async</td><td class="dotted"><hr /></td><td class="dep-version">0.1.267.0-0d7780-alpha</td></tr><tr><td class="dep-name">com.airhacks/afterburner.fx</td><td class="dotted"><hr /></td><td class="dep-version">1.3</td></tr><tr><td class="dep-name">commons-lang/commons-lang</td><td class="dotted"><hr /></td><td class="dep-version">2.3</td></tr><tr><td class="dep-name">instaparse/instaparse</td><td class="dotted"><hr /></td><td class="dep-version">1.2.13</td></tr><tr><td class="dep-name">com.brainbot/iniconfig</td><td class="dotted"><hr /></td><td class="dep-version">0.2.0</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#uk.org.il2ssd.channel">uk.org.il2ssd.channel</a></li><li><a href="#uk.org.il2ssd.core">uk.org.il2ssd.core</a></li><li><a href="#uk.org.il2ssd.event">uk.org.il2ssd.event</a></li><li><a href="#uk.org.il2ssd.jfx.init">uk.org.il2ssd.jfx.init</a></li><li><a href="#uk.org.il2ssd.jfx.ui">uk.org.il2ssd.jfx.ui</a></li><li><a href="#uk.org.il2ssd.jfx.util">uk.org.il2ssd.jfx.util</a></li><li><a href="#uk.org.il2ssd.parse">uk.org.il2ssd.parse</a></li><li><a href="#uk.org.il2ssd.server">uk.org.il2ssd.server</a></li><li><a href="#uk.org.il2ssd.settings">uk.org.il2ssd.settings</a></li><li><a href="#uk.org.il2ssd.state">uk.org.il2ssd.state</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#uk.org.il2ssd.channel" name="uk.org.il2ssd.channel"><h1 class="project-name">uk.org.il2ssd.channel</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><h2>Channels for thread-safe concurrency</h2>
+</div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">org.clojure/clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.5.1</td></tr><tr><td class="dep-name">org.clojure/core.async</td><td class="dotted"><hr /></td><td class="dep-version">0.1.267.0-0d7780-alpha</td></tr><tr><td class="dep-name">com.airhacks/afterburner.fx</td><td class="dotted"><hr /></td><td class="dep-version">1.3</td></tr><tr><td class="dep-name">commons-lang/commons-lang</td><td class="dotted"><hr /></td><td class="dep-version">2.3</td></tr><tr><td class="dep-name">instaparse/instaparse</td><td class="dotted"><hr /></td><td class="dep-version">1.2.13</td></tr><tr><td class="dep-name">com.brainbot/iniconfig</td><td class="dotted"><hr /></td><td class="dep-version">0.2.0</td></tr><tr><td class="dep-name">overtone/at-at</td><td class="dotted"><hr /></td><td class="dep-version">1.2.0</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#uk.org.il2ssd.channel">uk.org.il2ssd.channel</a></li><li><a href="#uk.org.il2ssd.core">uk.org.il2ssd.core</a></li><li><a href="#uk.org.il2ssd.event">uk.org.il2ssd.event</a></li><li><a href="#uk.org.il2ssd.jfx.init">uk.org.il2ssd.jfx.init</a></li><li><a href="#uk.org.il2ssd.jfx.ui">uk.org.il2ssd.jfx.ui</a></li><li><a href="#uk.org.il2ssd.jfx.util">uk.org.il2ssd.jfx.util</a></li><li><a href="#uk.org.il2ssd.parse">uk.org.il2ssd.parse</a></li><li><a href="#uk.org.il2ssd.server">uk.org.il2ssd.server</a></li><li><a href="#uk.org.il2ssd.settings">uk.org.il2ssd.settings</a></li><li><a href="#uk.org.il2ssd.state">uk.org.il2ssd.state</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#uk.org.il2ssd.channel" name="uk.org.il2ssd.channel"><h1 class="project-name">uk.org.il2ssd.channel</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><h2>Channels for thread-safe concurrency</h2>
 
 <p>Here we define the input channels that we use to safely process the server console
 output concurrently. The initial input channel will receive one line at a time from
@@ -3052,26 +3052,26 @@ of every input onto the mult.</p>
 <p>Because we are using unbuffered channels, further puts onto the mult will block
 until every tap is empty.</p>
 </td><td class="codes"><pre class="brush: clojure">(ns uk.org.il2ssd.channel
-  (:require [clojure.core.async :refer [chan filter&lt; mult tap]]))</pre></td></tr><tr><td class="docs"><h3>in-channel</h3>
+  (:require [clojure.core.async :refer [chan filter&lt; mult tap remove&lt;]]))</pre></td></tr><tr><td class="docs"><h3>in-channel</h3>
 
 <p>   This is the input channel from the Il-2 dedicated server console. It receives values
    one line at a time from the server socket.</p>
 </td><td class="codes"><pre class="brush: clojure">(def in-channel
-  (chan))</pre></td></tr><tr><td class="docs"><h3>mult-channel</h3>
+  (chan 10))</pre></td></tr><tr><td class="docs"><h3>mult-channel</h3>
 
 <p>   This mult channel filters the input values from in-channel above. We filter the
    channel to accept only lines which don't begin with the server console prompt
    text, so that only genuine output from the console is used in later processing.</p>
 </td><td class="codes"><pre class="brush: clojure">(def mult-channel
   (mult
-    (filter&lt;
-      #(not (re-matches #&quot;&lt;consoleN&gt;&lt;\d++&gt;&quot; %))
+    (remove&lt;
+      #(re-matches #&quot;&lt;consoleN&gt;&lt;\d++&gt;&quot; %)
       in-channel)))</pre></td></tr><tr><td class="docs"><h3>print-channel</h3>
 
 <p>   This channel taps mult-channel, and is used to print directly to the server console
    text area control.</p>
 </td><td class="codes"><pre class="brush: clojure">(def print-channel
-  (tap mult-channel (chan)))</pre></td></tr><tr><td class="docs"><h3>diff-channel</h3>
+  (tap mult-channel (chan 10)))</pre></td></tr><tr><td class="docs"><h3>diff-channel</h3>
 
 <p>   This channel taps mult-channel, and filters for lines which consist of two
    spaces, followed by a single word, followed by a single number which is either
@@ -3082,7 +3082,7 @@ until every tap is empty.</p>
 </td><td class="codes"><pre class="brush: clojure">(def diff-channel
   (filter&lt;
     #(re-matches #&quot;\s{2}[A-Z[a-z[_]]]++\s*+[0-1]\n&quot; %)
-    (tap mult-channel (chan))))</pre></td></tr><tr><td class="docs"><h3>mis-channel</h3>
+    (tap mult-channel (chan 10))))</pre></td></tr><tr><td class="docs"><h3>mis-channel</h3>
 
 <p>   This channel taps mult-channel, and filters for lines which contain the three
    mission status lines. This channel is used to parse mission load, begin, end
@@ -3090,7 +3090,15 @@ until every tap is empty.</p>
 </td><td class="codes"><pre class="brush: clojure">(def mis-channel
   (filter&lt;
     #(re-matches #&quot;Mission{1}:?+\s.+\w++\n&quot; %)
-    (tap mult-channel (chan))))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#uk.org.il2ssd.core" name="uk.org.il2ssd.core"><h1 class="project-name">uk.org.il2ssd.core</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><h2>Main application class and main method</h2>
+    (tap mult-channel (chan 10))))</pre></td></tr><tr><td class="docs"><h3>err-channel</h3>
+
+<p>   This channel taps mult-channel, and filters for lines which contain the
+   mission load error text. This channel is used to set the mission status
+   to unloaded when the user tries to load an invalid mission path.</p>
+</td><td class="codes"><pre class="brush: clojure">(def err-channel
+  (filter&lt;
+    #(re-find #&quot;ERROR mission:.+NOT loaded&quot; %)
+    (tap mult-channel (chan 10))))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#uk.org.il2ssd.core" name="uk.org.il2ssd.core"><h1 class="project-name">uk.org.il2ssd.core</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><h2>Main application class and main method</h2>
 
 <p>This namespace must be AOT compiled for the main application class to be generated!</p>
 
@@ -3313,15 +3321,30 @@ update the UI accordingly.</p>
                       (when (= state &quot;Playing&quot;)
                         (reset! state/loaded true)
                         (reset! state/playing true))
-                      (set-title mission state)))))))))</pre></td></tr><tr><td class="docs"><h3>start-listeners</h3>
+                      (set-title mission state)))))))))</pre></td></tr><tr><td class="docs"><h3>err-listener</h3>
+
+<p>   This is a zero argument function which listens for text on the error channel.
+   This channel filters for mission loading errors, so when we receive a value
+   from this channel we know that the requested mission failed to load, and we
+   can set the mission state to unloaded.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn err-listener
+  []
+  (thread (while @state/connected
+            (let [text (&lt;!! err-channel)]
+              (when text
+                (reset! state/loaded false)
+                (reset! state/playing false)
+                (set-title))))))</pre></td></tr><tr><td class="docs"><h3>start-listeners</h3>
 
 <p>   This is a zero argument convenience function which starts all of the listeners
-   which parse the server console output.</p>
+   which parse the server console output. They all need to be running and removing
+   puts from the channels or the program will stall.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn start-listeners
   []
   (console-listener)
   (difficulty-listener)
-  (mission-listener))</pre></td></tr><tr><td class="docs"><h3>set-connected</h3>
+  (mission-listener)
+  (err-listener))</pre></td></tr><tr><td class="docs"><h3>set-connected</h3>
 
 <p>   This is a watch function which sets the UI controls to the correct state
    for the connection status defined by the connected argument.</p>
@@ -3396,7 +3419,7 @@ update the UI accordingly.</p>
   (let [{:keys [ip-field
                 port-field]} @state/controls]
     (if (not focused)
-      (settings/save-server (ui/get-text ip-field) (ui/get-text port-field)))))</pre></td></tr><tr><td class="docs"><h3>changed-choice</h3>
+      (settings/save-server (ui/get-text ip-field) (ui/get-text port-field)))))</pre></td></tr><tr><td class="docs"><h3>mode-choice</h3>
 
 <p>   This is a one argument function which uses the content of the modes argument to
    retrieve the key of the mode text selected.</p>
@@ -3405,22 +3428,27 @@ update the UI accordingly.</p>
    selected.</p>
 
 <p>   After the UI pane has been loaded the field contents specific to this pane are
-   saved and finally the mode setting and any settings stored in labels are saved.</p>
-</td><td class="codes"><pre class="brush: clojure">(defn changed-choice
+   saved and finally the mode setting is saved.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn mode-choice
   [modes]
   (let [{:keys [mission-pane
                 single-mis-pane
                 cycle-mis-pane
-                mode-choice
-                server-path-lbl]} @state/controls
-        server-path (ui/get-text server-path-lbl)
+                mode-choice]} @state/controls
         mode (name ((map-invert modes) (ui/get-choice mode-choice)))]
     (when (= mode &quot;single&quot;)
       (ui/set-mis-pane mission-pane single-mis-pane))
     (when (= mode &quot;cycle&quot;)
       (ui/set-mis-pane mission-pane cycle-mis-pane))
-    (settings/save-mission mode)
-    (settings/save-server server-path)))</pre></td></tr><tr><td class="docs"><h3>server-choose-command</h3>
+    (settings/save-mission mode)))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn server-path-select
+  []
+  (let [{:keys [server-path-lbl]} @state/controls
+        server-path (ui/get-text server-path-lbl)]
+    (settings/save-server server-path)
+    (if (= server-path &quot;...&quot;)
+      (reset! state/server-path nil)
+      (reset! state/server-path server-path))))</pre></td></tr><tr><td class="docs"><h3>server-choose-command</h3>
 
 <p>   This zero argument function displays the server chooser dialog and uses
    the provided file to set the server path in the UI.</p>
@@ -3430,7 +3458,17 @@ update the UI accordingly.</p>
                 server-path-lbl]} @state/controls
         file (ui/show-chooser server-chooser)]
     (when file
-      (ui/set-label server-path-lbl (.getCanonicalPath file)))))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#uk.org.il2ssd.jfx.init" name="uk.org.il2ssd.jfx.init"><h1 class="project-name">uk.org.il2ssd.jfx.init</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><h2>UI initialisation functions</h2>
+      (ui/set-label server-path-lbl (.getCanonicalPath file)))))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn set-single-remote
+  []
+  (let [{:keys [single-path-fld single-path-lbl]} @state/controls
+        mission-path (ui/get-text single-path-fld)]
+    (when (not= mission-path )
+      (ui/set-label single-path-lbl mission-path)
+      (settings/save-mission &quot;single&quot; mission-path))))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn set-server-selected
+  [_ _ _ path]
+  (ui/set-ui-server path @state/controls))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#uk.org.il2ssd.jfx.init" name="uk.org.il2ssd.jfx.init"><h1 class="project-name">uk.org.il2ssd.jfx.init</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><h2>UI initialisation functions</h2>
 
 <p>In this namespace we define the functions which instantiate any objects that
 we need and initialise the objects we receive by dependency injection into data
@@ -3513,37 +3551,51 @@ structures which we can more easily manipulate in Clojure.</p>
         ^SinglePresenter single-presenter (.getPresenter (SingleView.))
         ^CyclePresenter cycle-presenter (.getPresenter (CycleView.))]
     (reset! state/controls
-            (hash-map :connect-btn (.getConnectButton main-presenter)
-                      :disconn-btn (.getDisconnectButton main-presenter)
-                      :prog-stack (.getProgressStack main-presenter)
-                      :prog-ind (.getProgressIndicator main-presenter)
-                      :start-btn (.getStartStopButton main-presenter)
-                      :next-btn (.getNextButton main-presenter)
-                      :cmd-entry (.getCommandEntryField main-presenter)
-                      :console (.getConsoleTextArea main-presenter)
-                      :mission-pane (.getMissionPane main-presenter)
-                      :mode-choice (.getMissionModeChoice main-presenter)
-                      :mission-spring (.getMissionBarSpring main-presenter)
-                      :load-btn (.getMissionLoadButton main-presenter)
-                      :ip-field (.getIpAddressField main-presenter)
-                      :port-field (.getPortField main-presenter)
-                      :exit-btn (.getExitItem main-presenter)
-                      :about-btn (.getAboutItem main-presenter)
-                      :server-path-lbl (.getServerPathLabel main-presenter)
-                      :server-path-btn (.getServerPathButton main-presenter)
-                      :get-diff-btn (.getGetDifficultyButton main-presenter)
-                      :set-diff-btn (.getSetDifficultyButton main-presenter)
-                      :diff-table (.getDifficultyTable main-presenter)
-                      :diff-set-col (.getDiffSettingColumn main-presenter)
-                      :diff-val-col (.getDiffValueColumn main-presenter)
-                      :server-chooser (FileChooser.)
-                      :mis-chooser (FileChooser.)
-                      :dcg-chooser (FileChooser.)
-                      :single-mis-pane (.getSingleMisPane single-presenter)
-                      :cycle-mis-pane (.getCycleMisPane cycle-presenter)
-                      :cycle-table (.getCycleMissionTable cycle-presenter)
-                      :cycle-mis-col (.getCycleMissionColumn cycle-presenter)
-                      :cycle-tim-col (.getCycleTimerColumn cycle-presenter)))))</pre></td></tr><tr><td class="docs"><h3>init-handlers</h3>
+            (hash-map
+              ;Main FXML file controls
+              :connect-btn (.getConnectButton main-presenter)
+              :disconn-btn (.getDisconnectButton main-presenter)
+              :prog-stack (.getProgressStack main-presenter)
+              :prog-ind (.getProgressIndicator main-presenter)
+              :start-btn (.getStartStopButton main-presenter)
+              :next-btn (.getNextButton main-presenter)
+              :cmd-entry (.getCommandEntryField main-presenter)
+              :console (.getConsoleTextArea main-presenter)
+              :mission-pane (.getMissionPane main-presenter)
+              :mode-choice (.getMissionModeChoice main-presenter)
+              :mission-spring (.getMissionBarSpring main-presenter)
+              :load-btn (.getMissionLoadButton main-presenter)
+              :ip-field (.getIpAddressField main-presenter)
+              :port-field (.getPortField main-presenter)
+              :exit-btn (.getExitItem main-presenter)
+              :about-btn (.getAboutItem main-presenter)
+              :server-path-lbl (.getServerPathLabel main-presenter)
+              :server-path-btn (.getServerPathButton main-presenter)
+              :get-diff-btn (.getGetDifficultyButton main-presenter)
+              :set-diff-btn (.getSetDifficultyButton main-presenter)
+              :diff-table (.getDifficultyTable main-presenter)
+              :diff-set-col (.getDiffSettingColumn main-presenter)
+              :diff-val-col (.getDiffValueColumn main-presenter)
+              :server-chooser (FileChooser.)
+              :mis-chooser (FileChooser.)
+              :dcg-chooser (FileChooser.)
+              ;Single Mission FXML file controls
+              :single-mis-pane (.getSingleMisPane single-presenter)
+              :single-path-btn (.getChooseSingleMisButton single-presenter)
+              :single-path-fld (.getSingleMisPathField single-presenter)
+              :single-remote-btn (.getRemoteSelectButton single-presenter)
+              :single-path-lbl (.getSingleMisPathLabel single-presenter)
+              ;Mission Cycle FXML file controls
+              :cycle-mis-pane (.getCycleMisPane cycle-presenter)
+              :cycle-table (.getCycleMissionTable cycle-presenter)
+              :cycle-mis-col (.getCycleMissionColumn cycle-presenter)
+              :cycle-tim-col (.getCycleTimerColumn cycle-presenter)
+              :cycle-mis-upbtn (.getMissionUpButton cycle-presenter)
+              :cycle-mis-delbtn (.getMissionDeleteButton cycle-presenter)
+              :cycle-mis-dwnbtn (.getMissionDownButton cycle-presenter)
+              :cycle-path-fld (.getCycleMisPathField cycle-presenter)
+              :cycle-path-btn (.getChooseCycleMisButton cycle-presenter)
+              :cycle-mis-addbtn (.getAddMissionButton cycle-presenter)))))</pre></td></tr><tr><td class="docs"><h3>init-handlers</h3>
 
 <p>   This zero argument function is used to add event handlers and change listeners
    to any objects that must respond to user input. We also add watch functions to
@@ -3565,11 +3617,14 @@ structures which we can more easily manipulate in Clojure.</p>
                 ^Button get-diff-btn
                 ^Button set-diff-btn
                 ^TextField ip-field
-                ^TextField port-field]}
+                ^TextField port-field
+                ^Button single-remote-btn]}
         @state/controls]
     (add-watch state/connected :connect event/set-connected)
     (add-watch state/loaded :load event/set-mission-loaded)
     (add-watch state/playing :play event/set-mission-playing)
+    (add-watch state/server-path :path event/set-server-selected)
+    ;Main UI EventHandlers and Listeners
     (util/button-handler connect-btn event/connect-command)
     (util/button-handler disconn-btn event/disconnect-command)
     (util/button-handler start-btn event/start-stop-command)
@@ -3581,8 +3636,10 @@ structures which we can more easily manipulate in Clojure.</p>
     (util/keypress-handler cmd-entry &quot;Enter&quot; event/enter-command)
     (util/focus-listener ip-field event/field-exit)
     (util/focus-listener port-field event/field-exit)
-    (util/value-listener mode-choice event/changed-choice modes)
-    (util/text-listener server-path-lbl event/changed-choice modes)))</pre></td></tr><tr><td class="docs"><h3>init-controls</h3>
+    (util/value-listener mode-choice event/mode-choice modes)
+    (util/text-listener server-path-lbl event/server-path-select)
+    ;Single Mission pane EventHandlers and Listeners
+    (util/button-handler single-remote-btn event/set-single-remote)))</pre></td></tr><tr><td class="docs"><h3>init-controls</h3>
 
 <p>   The zero argument function is used to initialise any controls with default
    values. If a configuration file is found, the UI is initialised using the
@@ -3596,6 +3653,7 @@ structures which we can more easily manipulate in Clojure.</p>
   (let [{:keys [^TextField ip-field
                 ^TextField port-field
                 ^Label server-path-lbl
+                ^Label single-path-lbl
                 ^StackPane prog-stack
                 ^ChoiceBox mode-choice
                 ^Region mission-spring]} @state/controls
@@ -3679,7 +3737,8 @@ structures which we can more easily manipulate in Clojure.</p>
     (.setCellValueFactory diff-val-col (PropertyValueFactory. &quot;value&quot;))
     (.setCellFactory diff-val-col (TextFieldTableCell/forTableColumn))
     (.setColumnResizePolicy diff-table TableView/CONSTRAINED_RESIZE_POLICY)
-    (swap! state/controls assoc :diff-data (FXCollections/observableArrayList))
+    (swap! state/controls assoc :diff-data
+           (FXCollections/synchronizedObservableList (FXCollections/observableArrayList)))
     (let [{:keys [^List diff-data]} @state/controls]
       (.setItems diff-table diff-data)
       (.setOnEditCommit diff-val-col (ui/diff-val-commit)))))</pre></td></tr><tr><td class="docs"><h3>init-cycle-table</h3>
@@ -3707,7 +3766,8 @@ structures which we can more easily manipulate in Clojure.</p>
     (.setCellValueFactory cycle-tim-col (PropertyValueFactory. &quot;timer&quot;))
     (.setCellFactory cycle-tim-col (TextFieldTableCell/forTableColumn))
     (.setColumnResizePolicy cycle-table TableView/CONSTRAINED_RESIZE_POLICY)
-    (swap! state/controls assoc :cycle-data (FXCollections/observableArrayList))
+    (swap! state/controls assoc :cycle-data
+           (FXCollections/synchronizedObservableList (FXCollections/observableArrayList)))
     (let [{:keys [^List cycle-data]} @state/controls]
       (.setItems cycle-table cycle-data)
       (.setOnEditCommit cycle-tim-col (ui/cycle-timer-commit)))))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#uk.org.il2ssd.jfx.ui" name="uk.org.il2ssd.jfx.ui"><h1 class="project-name">uk.org.il2ssd.jfx.ui</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
@@ -3909,7 +3969,15 @@ structures which we can more easily manipulate in Clojure.</p>
       (if (cycle-validator newval)
         (.setTimer current newval)
         (doto col (.setVisible false)
-                  (.setVisible true))))))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#uk.org.il2ssd.jfx.util" name="uk.org.il2ssd.jfx.util"><h1 class="project-name">uk.org.il2ssd.jfx.util</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><h2>JavaFX helper functions</h2>
+                  (.setVisible true))))))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn set-ui-server
+  [path controls]
+  (let [{:keys [single-path-btn cycle-path-btn]} controls]
+    (if path
+      (do (.setDisable single-path-btn false)
+          (.setDisable cycle-path-btn false))
+      (do (.setDisable single-path-btn true)
+          (.setDisable cycle-path-btn true)))))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#uk.org.il2ssd.jfx.util" name="uk.org.il2ssd.jfx.util"><h1 class="project-name">uk.org.il2ssd.jfx.util</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><h2>JavaFX helper functions</h2>
 
 <p>These functions wrap common JavaFX methods or return instances of anonymous classes
 which override their methods.
@@ -4048,19 +4116,27 @@ Dave Ray, originator of the excellent Seesaw, a Clojure wrapper for the Swing to
    supplied control's valueProperty, which calls the supplied function with the
    supplied arguments when the value is changed.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn value-listener
-  [^ChoiceBox control f arg]
-  (-&gt; control
-      ^ObservableValue .valueProperty
-      (.addListener (invalidation-listener [_] (f arg)))))</pre></td></tr><tr><td class="docs"><h3>text-listener</h3>
+  ([^ChoiceBox control f]
+   (-&gt; control
+       ^ObservableValue .valueProperty
+       (.addListener (invalidation-listener [_] (f)))))
+  ([^ChoiceBox control f arg]
+   (-&gt; control
+       ^ObservableValue .valueProperty
+       (.addListener (invalidation-listener [_] (f arg))))))</pre></td></tr><tr><td class="docs"><h3>text-listener</h3>
 
 <p>   This three argument function attaches an InvalidationListener instance to the
    supplied control's textProperty, which calls the supplied function with the
    supplied arguments when the text is changed.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn text-listener
-  [^Labeled control f arg]
-  (-&gt; control
-      .textProperty
-      (.addListener (invalidation-listener [_] (f arg)))))</pre></td></tr><tr><td class="docs"><h3>focus-listener</h3>
+  ([^Labeled control f]
+   (-&gt; control
+       .textProperty
+       (.addListener (invalidation-listener [_] (f)))))
+  ([^Labeled control f arg]
+   (-&gt; control
+       .textProperty
+       (.addListener (invalidation-listener [_] (f arg))))))</pre></td></tr><tr><td class="docs"><h3>focus-listener</h3>
 
 <p>   This two argument function attaches a ChangeListener instance to the supplied
    control's focusedProperty, which calls the supplied function with the new value
@@ -4085,8 +4161,7 @@ on our tapped channels.</p>
    the server console output.</p>
 </td><td class="codes"><pre class="brush: clojure">(def difficulty-parser
   (insta/parser
-    &quot;difficulty-rec = !&lt;filter&gt; &lt;2sp&gt; setting &lt;sp&gt; value &lt;nl&gt;
-    &lt;filter&gt; = #'\\d++ is \\w++' | 'Chat:'
+    &quot;difficulty-rec = &lt;2sp&gt; setting &lt;sp&gt; value &lt;nl&gt;
     &lt;sp&gt; = #'\\s*+'
     &lt;2sp&gt; = #'\\s{2}'
     &lt;nl&gt; = '\n'
@@ -4107,7 +4182,7 @@ on our tapped channels.</p>
    the server console output, and the mission and path if these are available.</p>
 </td><td class="codes"><pre class="brush: clojure">(def mission-parser
   (insta/parser
-    &quot;line = !'Chat:' &lt;'Mission'&gt; (&lt;':'&gt; &lt;sp&gt; path+ mission &lt;sp&gt; &lt;'is'&gt;)? &lt;sp&gt; state &lt;nl&gt;
+    &quot;line = &lt;'Mission'&gt; (&lt;':'&gt; &lt;sp&gt; path+ mission &lt;sp&gt; &lt;'is'&gt;)? &lt;sp&gt; state &lt;nl&gt;
      &lt;sp&gt; = #'\\s'
      &lt;nl&gt; = '\n'
      path = #'.+/'
@@ -4334,7 +4409,7 @@ files.</p>
   ([mode] (swap! mission-settings assoc &quot;Mode&quot; mode))
   ([mode mission]
    (swap! mission-settings assoc &quot;Mode&quot; mode)
-   (swap! mission-settings assoc &quot;Mission&quot; mission))
+   (swap! mission-settings assoc &quot;Single Mission&quot; mission))
   ([index mission timer]
    (swap! mission-cycle assoc-in [index]
           (sorted-map :mission mission :timer timer))
@@ -4480,5 +4555,14 @@ necessary to initialise these atoms.</p>
 <p>   This atom stores a true or false mission selected status for global use in the
    program.</p>
 </td><td class="codes"><pre class="brush: clojure">(def mis-selected
+  (atom nil))</pre></td></tr><tr><td class="docs"><h3>cycle-running</h3>
+
+<p>   This atom stores a true or false cycle running state for global use in the
+   program.</p>
+</td><td class="codes"><pre class="brush: clojure">(def cycle-running
+  (atom nil))</pre></td></tr><tr><td class="docs"><h3>server-path</h3>
+
+<p>   This atom stores the server path for global use in the program.</p>
+</td><td class="codes"><pre class="brush: clojure">(def server-path
   (atom nil))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr></table><div class="footer">Generated by <a href="https://github.com/fogus/marginalia">Marginalia</a>.&nbsp;&nbsp;Syntax highlighting provided by Alex Gorbatchev's <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a></div><script type="text/javascript">SyntaxHighlighter.defaults['gutter'] = false;
        SyntaxHighlighter.all()</script></body></html>

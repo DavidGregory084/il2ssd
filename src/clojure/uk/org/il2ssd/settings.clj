@@ -72,7 +72,7 @@
   ([mode] (swap! mission-settings assoc "Mode" mode))
   ([mode mission]
    (swap! mission-settings assoc "Mode" mode)
-   (swap! mission-settings assoc "Mission" mission))
+   (swap! mission-settings assoc "Single Mission" mission))
   ([index mission timer]
    (swap! mission-cycle assoc-in [index]
           (sorted-map :mission mission :timer timer))
