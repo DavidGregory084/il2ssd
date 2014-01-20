@@ -34,8 +34,8 @@
   <center>
     <TableView fx:id="cycleMissionTable" editable="true" prefHeight="-1.0" prefWidth="-1.0">
       <columns>
-        <TableColumn editable="false" maxWidth="5000.0" minWidth="10.0" prefWidth="309.0" resizable="false" text="Mission" fx:id="cycleMissionColumn" />
-        <TableColumn prefWidth="75.0" resizable="false" text="Timer" fx:id="cycleTimerColumn" />
+        <TableColumn editable="false" maxWidth="5000.0" minWidth="10.0" prefWidth="309.0" resizable="false" sortable="false" text="Mission" fx:id="cycleMissionColumn" />
+        <TableColumn prefWidth="75.0" resizable="false" sortable="false" text="Timer" fx:id="cycleTimerColumn" />
       </columns>
       <BorderPane.margin>
         <Insets left="5.0" right="5.0" top="5.0" />
