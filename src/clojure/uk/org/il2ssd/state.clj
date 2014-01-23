@@ -57,3 +57,9 @@
   "### server-path
    This atom stores the server path for global use in the program."
   (atom nil))
+
+(def mission-path
+  (atom nil))
+
+(def mode
+  (atom nil))

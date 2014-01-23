@@ -7,7 +7,7 @@
 (ns uk.org.il2ssd.jfx.init
 
   (:require [uk.org.il2ssd.channel :refer :all]
-            [uk.org.il2ssd.settings :as settings]
+            [uk.org.il2ssd.settings :refer :all]
             [uk.org.il2ssd.server :as server]
             [uk.org.il2ssd.state :as state]
             [uk.org.il2ssd.event :as event]
@@ -17,6 +17,7 @@
 
   (:import (java.net URL)
            (java.nio.file Paths Path)
+           (javafx.event Event)
            (javafx.scene Scene)
            (javafx.scene.layout HBox Priority StackPane Region)
            (javafx.scene.text Font)
@@ -31,8 +32,7 @@
 
 (def modes
   "### modes
-   This is a map of the mission loading modes. This is used to populate the
-   mode-choice ChoiceBox control."
+   This is a map of the mission loading modes."
   {:single "Single Mission", :cycle "Mission Cycle"})
 
 (defn init-stage
@@ -62,8 +62,8 @@
     (doto stage
       (.setScene scene)
       (.setResizable false)
-      (.show)
-      (.setOnCloseRequest (util/event-handler [_] (event/close))))
+      (.show))
+    (util/close-handler stage event/close)
     (.getPresenter main-view)))
 
 (defn init-objects
@@ -109,6 +109,7 @@
               :get-diff-btn (.getGetDifficultyButton main-presenter)
               :set-diff-btn (.getSetDifficultyButton main-presenter)
               :diff-table (.getDifficultyTable main-presenter)
+              :diff-data (FXCollections/synchronizedObservableList (FXCollections/observableArrayList))
               :diff-set-col (.getDiffSettingColumn main-presenter)
               :diff-val-col (.getDiffValueColumn main-presenter)
               :server-chooser (FileChooser.)
@@ -123,6 +124,8 @@
               ;Mission Cycle FXML file controls
               :cycle-mis-pane (.getCycleMisPane cycle-presenter)
               :cycle-table (.getCycleMissionTable cycle-presenter)
+              :cycle-data (FXCollections/synchronizedObservableList (FXCollections/observableArrayList))
+              :cycle-idx-col (.getCycleIndexColumn cycle-presenter)
               :cycle-mis-col (.getCycleMissionColumn cycle-presenter)
               :cycle-tim-col (.getCycleTimerColumn cycle-presenter)
               :cycle-mis-upbtn (.getMissionUpButton cycle-presenter)
@@ -154,12 +157,15 @@
                 ^Button set-diff-btn
                 ^TextField ip-field
                 ^TextField port-field
-                ^Button single-remote-btn]}
+                ^Button single-remote-btn
+                ^Button single-path-btn
+                ^Label single-path-lbl]}
         @state/controls]
     (add-watch state/connected :connect event/set-connected)
     (add-watch state/loaded :load event/set-mission-loaded)
     (add-watch state/playing :play event/set-mission-playing)
     (add-watch state/server-path :path event/set-server-selected)
+    (add-watch state/mission-path :mis event/set-mis-selected)
     ;Main UI EventHandlers and Listeners
     (util/button-handler connect-btn event/connect-command)
     (util/button-handler disconn-btn event/disconnect-command)
@@ -170,12 +176,12 @@
     (util/button-handler load-btn event/load-unload-command)
     (util/button-handler exit-btn event/close)
     (util/keypress-handler cmd-entry "Enter" event/enter-command)
-    (util/focus-listener ip-field event/field-exit)
-    (util/focus-listener port-field event/field-exit)
     (util/value-listener mode-choice event/mode-choice modes)
     (util/text-listener server-path-lbl event/server-path-select)
     ;Single Mission pane EventHandlers and Listeners
-    (util/button-handler single-remote-btn event/set-single-remote)))
+    (util/button-handler single-remote-btn event/set-single-remote)
+    (util/button-handler single-path-btn event/single-choose-command)
+    (util/text-listener single-path-lbl event/single-path-select)))
 
 (defn init-controls
   "### init-controls
@@ -194,25 +200,20 @@
                 ^StackPane prog-stack
                 ^ChoiceBox mode-choice
                 ^Region mission-spring]} @state/controls
-        configuration (settings/read-config-file)]
-    (-> mode-choice
-        .getItems
-        (.addAll ^List (map modes [:single :cycle])))
-    (if configuration
-      (do (-> mode-choice .getSelectionModel
-              (.select
-                (-> (get-in configuration ["Mission" "Mode"] "single")
-                    keyword
-                    modes)))
-          (.setText ip-field (get-in configuration ["Server" "IP"] ""))
-          (.setText port-field (get-in configuration ["Server" "Port"] ""))
-          (.setText server-path-lbl (get-in configuration ["Server" "Path"] "..."))
-          (settings/save-server (.getText ip-field)
-                                (.getText port-field)
-                                (.getText server-path-lbl)))
-      (-> mode-choice .getSelectionModel .selectFirst))
+        config (-> (read-config-file) (get-configuration))
+        ip (:ip-field config)
+        port (:port-field config)
+        srv-path (:server-path-lbl config)
+        mode (-> (:mode-choice config) keyword modes)]
     (HBox/setHgrow prog-stack Priority/ALWAYS)
-    (HBox/setHgrow mission-spring Priority/ALWAYS)))
+    (HBox/setHgrow mission-spring Priority/ALWAYS)
+    (-> mode-choice .getItems (.addAll ^List (map modes [:single :cycle])))
+    (if config
+      (do (-> mode-choice .getSelectionModel (.select mode))
+          (.setText ip-field ip)
+          (.setText port-field port)
+          (.setText server-path-lbl srv-path))
+      (-> mode-choice .getSelectionModel .selectFirst))))
 
 (defn init-choosers
   "### init-choosers
@@ -270,17 +271,15 @@
    Il-2 difficulty settings."
   []
   (let [{:keys [^TableView diff-table
+                ^List diff-data
                 ^TableColumn diff-set-col
                 ^TableColumn diff-val-col]} @state/controls]
     (.setCellValueFactory diff-set-col (PropertyValueFactory. "setting"))
     (.setCellValueFactory diff-val-col (PropertyValueFactory. "value"))
     (.setCellFactory diff-val-col (TextFieldTableCell/forTableColumn))
     (.setColumnResizePolicy diff-table TableView/CONSTRAINED_RESIZE_POLICY)
-    (swap! state/controls assoc :diff-data
-           (FXCollections/synchronizedObservableList (FXCollections/observableArrayList)))
-    (let [{:keys [^List diff-data]} @state/controls]
-      (.setItems diff-table diff-data)
-      (.setOnEditCommit diff-val-col (ui/diff-val-commit)))))
+    (.setItems diff-table diff-data)
+    (.setOnEditCommit diff-val-col (ui/diff-val-commit))))
 
 (defn init-cycle-table
   "### init-cycle-table
@@ -300,14 +299,15 @@
  zero."
   []
   (let [{:keys [^TableView cycle-table
+                ^List cycle-data
+                ^TableColumn cycle-idx-col
                 ^TableColumn cycle-mis-col
                 ^TableColumn cycle-tim-col]} @state/controls]
+    (.setCellValueFactory cycle-idx-col (PropertyValueFactory. "index"))
     (.setCellValueFactory cycle-mis-col (PropertyValueFactory. "mission"))
     (.setCellValueFactory cycle-tim-col (PropertyValueFactory. "timer"))
     (.setCellFactory cycle-tim-col (TextFieldTableCell/forTableColumn))
+    (-> cycle-table .getSortOrder (.add cycle-idx-col))
     (.setColumnResizePolicy cycle-table TableView/CONSTRAINED_RESIZE_POLICY)
-    (swap! state/controls assoc :cycle-data
-           (FXCollections/synchronizedObservableList (FXCollections/observableArrayList)))
-    (let [{:keys [^List cycle-data]} @state/controls]
-      (.setItems cycle-table cycle-data)
-      (.setOnEditCommit cycle-tim-col (ui/cycle-timer-commit)))))
+    (.setItems cycle-table cycle-data)
+    (.setOnEditCommit cycle-tim-col (ui/cycle-timer-commit))))

@@ -16,7 +16,8 @@
   (:import (org.apache.commons.lang StringEscapeUtils)
            (java.net InetSocketAddress Socket SocketTimeoutException ConnectException)
            (java.io BufferedReader InputStreamReader PrintWriter)
-           (java.nio.charset Charset)))
+           (java.nio.charset Charset)
+           (java.nio.file Path Paths)))
 
 ;; ### Socket atoms
 ;; Here we define atoms to access the specific instances of the Socket, PrintWriter

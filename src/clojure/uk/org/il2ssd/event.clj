@@ -29,17 +29,30 @@
            (javafx.event EventHandler)
            (java.io File)
            (javafx.scene.control.cell)
-           (java.util List)))
+           (java.util List)
+           (java.nio.file Paths Path)))
 
-(defn close
-  "### close
-   This is a zero argument function which disconnects from the server if the
-   program is connected, saves the current settings to the config file and
-   requests to close the program."
+(defn get-resolved-path
+  [in-path]
+  (let [path (Paths/get in-path (into-array [""]))
+        server-path (Paths/get @state/server-path (into-array [""]))
+        server-dir (.getParent server-path)
+        mis-dir (.resolve server-dir "Missions")]
+    (string/replace (->> path (.relativize mis-dir) .normalize .toString) "\\" "/")))
+
+
+(defn mis-selected?
   []
-  (do (if @state/connected (server/disconnect))
-      (settings/save-config-file)
-      (ui/exit)))
+  (let [{:keys [single-path-lbl]} @state/controls
+        single-mis (ui/get-text single-path-lbl)]
+    (when (= @state/mode "single")
+      (if (not (string/blank? single-mis))
+        true
+        false))
+    (when (= @state/mode "cycle")
+      false)
+    (when (= @state/mode "dcg")
+      false)))
 
 (defn start-stop-command
   "### start-stop-command
@@ -56,7 +69,9 @@
    it is loaded."
   []
   (if @state/loaded
-    (server/unload-mission)))
+    (server/unload-mission)
+    (when (= @state/mode "single")
+      (server/load-mission @state/mission-path))))
 
 (defn get-difficulties
   "### get-difficulties
@@ -282,16 +297,6 @@
   []
   (go (server/disconnect)))
 
-(defn field-exit
-  "### field-exit
-   This is a zero argument function which saves the content of the IP field
-   and port field if the argument is logical false."
-  [focused]
-  (let [{:keys [ip-field
-                port-field]} @state/controls]
-    (if (not focused)
-      (settings/save-server (ui/get-text ip-field) (ui/get-text port-field)))))
-
 (defn mode-choice
   "### mode-choice
    This is a one argument function which uses the content of the modes argument to
@@ -308,17 +313,16 @@
                 cycle-mis-pane
                 mode-choice]} @state/controls
         mode (name ((map-invert modes) (ui/get-choice mode-choice)))]
+    (reset! state/mode mode)
     (when (= mode "single")
       (ui/set-mis-pane mission-pane single-mis-pane))
     (when (= mode "cycle")
-      (ui/set-mis-pane mission-pane cycle-mis-pane))
-    (settings/save-mission mode)))
+      (ui/set-mis-pane mission-pane cycle-mis-pane))))
 
 (defn server-path-select
   []
   (let [{:keys [server-path-lbl]} @state/controls
         server-path (ui/get-text server-path-lbl)]
-    (settings/save-server server-path)
     (if (= server-path "...")
       (reset! state/server-path nil)
       (reset! state/server-path server-path))))
@@ -338,10 +342,58 @@
   []
   (let [{:keys [single-path-fld single-path-lbl]} @state/controls
         mission-path (ui/get-text single-path-fld)]
-    (when (not= mission-path "")
+    (when (not (string/blank? mission-path))
+      (println mission-path)
       (ui/set-label single-path-lbl mission-path)
-      (settings/save-mission "single" mission-path))))
+      (reset! state/mission-path mission-path))))
+
+(defn single-choose-command
+  []
+  (let [{:keys [mis-chooser
+                single-path-lbl]} @state/controls
+        file (ui/show-chooser mis-chooser)]
+    (when file
+      (ui/set-label single-path-lbl (get-resolved-path (.getCanonicalPath file))))))
+
+(defn single-path-select
+  []
+  (let [{:keys [single-path-lbl]} @state/controls
+        single-path (ui/get-text single-path-lbl)]
+    (if (= single-path "...")
+      (reset! state/mission-path nil)
+      (reset! state/mission-path single-path))))
 
 (defn set-server-selected
   [_ _ _ path]
-  (ui/set-ui-server path @state/controls))
+  (ui/set-ui-server path @state/controls)
+  (ui/set-mis-dir path @state/controls))
+
+(defn set-mis-selected
+  [_ _ _ selected]
+  (ui/set-ui-mis selected @state/controls))
+
+(defn save-ui-state
+  []
+  (let [{:keys [mode-choice
+                ip-field
+                port-field
+                server-path-lbl
+                single-path-lbl
+                cycle-data]} @state/controls
+        mode @state/mode
+        ip-addr (ui/get-text ip-field)
+        port (ui/get-text port-field)
+        server-path (ui/get-text server-path-lbl)]
+    (settings/save-server ip-addr port server-path)
+    (settings/save-mission mode)))
+
+(defn close
+  "### close
+   This is a zero argument function which disconnects from the server if the
+   program is connected, saves the current settings to the config file and
+   requests to close the program."
+  []
+  (do (if @state/connected (server/disconnect))
+      (save-ui-state)
+      (settings/save-config-file)
+      (ui/exit)))

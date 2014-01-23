@@ -5,7 +5,8 @@
 ;; files.
 (ns uk.org.il2ssd.settings
 
-  (:import [java.io FileNotFoundException File])
+  (:import [java.io FileNotFoundException File]
+           (clojure.lang PersistentArrayMap PersistentVector))
 
   (:require [clojure.string :as string]
             [com.brainbot.iniconfig :as iniconfig]))
@@ -27,7 +28,7 @@
    This is an atom to hold a vector of the missions in the current mission cycle
    so that they can be saved in the main \"il2ssd.ini\" config file. It is
    intended that these cycles will be saved separately as a further development."
-  (atom []))
+  (atom nil))
 
 (def server-settings
   "### server-settings
@@ -42,17 +43,52 @@
    files."
   (atom nil))
 
+(defprotocol BuildSettings
+  (build-conf [this file] [this file newln?]))
+
+(extend-protocol BuildSettings
+
+  nil
+  (build-conf
+    ([this file] file)
+    ([this newln? file] file))
+
+  String
+  (build-conf [this newln? file]
+                  (let [newln (System/lineSeparator)]
+                    (if newln?
+                      (swap! file conj (str newln this))
+                      (swap! file conj this))
+                    file))
+
+  PersistentArrayMap
+  (build-conf [this file]
+    (when (seq this)
+      (doseq [setting this
+            :let [[key value] setting]]
+        (swap! file conj (str key " = " value))))
+    file)
+
+  PersistentVector
+  (build-conf [this file]
+    (when (seq this)
+      (doseq [setting (map-indexed #(vector (inc %) %2) this)
+              :let [[key value] setting]]
+        (swap! file conj
+               (string/replace (str key " = " value) "\"" ""))))
+    file))
+
 (defn save-server
   "### save-server
    This is a multiple arity function that saves the provided arguments into the
    server-settings atom. If a path argument is provided, it determines whether
    the path is valid before saving the path."
-  ([ip port]
-   (swap! server-settings assoc "IP" ip)
-   (swap! server-settings assoc "Port" port))
   ([path]
    (if (.isFile (File. ^String path))
      (swap! server-settings assoc "Path" path)))
+  ([ip port]
+   (swap! server-settings assoc "IP" ip)
+   (swap! server-settings assoc "Port" port))
   ([ip port path]
    (swap! server-settings assoc "IP" ip)
    (swap! server-settings assoc "Port" port)
@@ -63,20 +99,26 @@
   "### save-mission
    This is a multiple-arity function to save the provided arguments into the
    mission-settings atom. If one or two arguments is provided the mode and
-   mission status can be saved.
+   mission status can be saved."
+  ([mode] (swap! mission-settings assoc "Mode" mode))
+  ([mode mission]
+   (swap! mission-settings assoc "Mode" mode)
+   (swap! mission-settings assoc "Single Mission" mission)))
+
+(defn save-cycle
+  "### save-cycle
+   This is a multiple-arity function to save mission cycle data. When no arguments
+   are provided it is assumed that the mission cycle has been saved in the mission
+   cycle atom and should be added to the mission settings atom.
 
    When three arguments are provided it is assumed that a mission cycle is being
    saved and the three arguments define the index that is assigned to the mission
    in the mission-cycle vector, the mission path that is to be saved and the
    timer that is applied to the mission."
-  ([mode] (swap! mission-settings assoc "Mode" mode))
-  ([mode mission]
-   (swap! mission-settings assoc "Mode" mode)
-   (swap! mission-settings assoc "Single Mission" mission))
+  ([]
+   (swap! mission-settings assoc "Cycle" @mission-cycle))
   ([index mission timer]
-   (swap! mission-cycle assoc-in [index]
-          (sorted-map :mission mission :timer timer))
-   (swap! mission-settings assoc "Cycle" @mission-cycle)))
+   (swap! mission-cycle assoc-in [index] [mission timer])))
 
 (defn build-config-file
   "### build-config-file
@@ -102,18 +144,15 @@
   []
   (let [file (atom [])
         newln (System/lineSeparator)]
-    (swap! file conj "# Il-2 Simple Server Daemon")
-    (swap! file conj (str newln "[Mission]"))
-    (if (seq @mission-settings)
-      (doseq [setting @mission-settings]
-        (let [[key value] setting]
-          (swap! file conj (str key " = " value)))))
-    (swap! file conj (str newln "[Server]"))
-    (if (seq @server-settings)
-      (doseq [setting @server-settings]
-        (let [[key value] setting]
-          (swap! file conj (str key " = " value)))))
-    (reset! file (string/join newln @file))))
+    (->> file
+         (build-conf "# Il-2 Simple Server Daemon" false)
+         (build-conf "[Server]" true)
+         (build-conf @server-settings)
+         (build-conf "[Mission]" true)
+         (build-conf @mission-settings)
+         (build-conf "[Cycle]" true)
+         (build-conf @mission-cycle))
+    (string/join newln @file)))
 
 (defn save-config-file
   "### save-config-file
@@ -142,48 +181,10 @@
     (iniconfig/read-ini "il2ssd.ini")
     (catch FileNotFoundException e nil)))
 
-
-(defn build-difficulty-file
-  "### build-difficulty-file
-   This is a one argument function which builds a difficulty file using a very
-   similar method to that used above for the main \"il2ssd.ini\" config file.
-
-   In this function we also use the provided host argument to add a comment
-   to the file that records from which server it was saved."
-  [host]
-  (let [file (atom [])
-        newln (System/lineSeparator)]
-    (swap! file conj "# Difficulty File")
-    (swap! file conj (str "# saved from server" host))
-    (swap! file conj (str newln "[Difficulty]"))
-    (if (seq @difficulty-settings)
-      (doseq [setting @difficulty-settings]
-        (let [[key value] setting]
-          (swap! file conj (str key " = " value)))))
-    (reset! file (string/join newln @file))))
-
-(defn save-difficulty-file
-  "### save-difficulty-file
-   This is a one argument function which uses the provided host argument to build
-   the difficulty file, then saves this file, using the host as a prefix to the
-   file name."
-  [host]
-  (->> (build-difficulty-file host)
-       (spit (str host "-difficulty.ini"))))
-
-(defn read-difficulty-file
-  "This is a one argument function which uses the provided path argument to call
-   the iniconfig parser and read the difficulty file into a nested map of
-   key-value pairs just like the main \"il2ssd.ini\" config file above.
-
-   As before, section headers form the top level keys of the map and each setting
-   is parsed as a map, where the setting names the keyword for the map.
-
-   We return this map to the calling function.
-
-   We also wrap the function in a try/catch to catch any FileNotFoundException as
-   before."
-  [path-to-file]
-  (try
-    (iniconfig/read-ini path-to-file)
-    (catch FileNotFoundException e nil)))
+(defn get-configuration
+  [file]
+  (hash-map
+    :mode-choice (get-in file ["Mission" "Mode"] "single")
+    :ip-field (get-in file ["Server" "IP"] "")
+    :port-field (get-in file ["Server" "Port"] "")
+    :server-path-lbl (get-in file ["Server" "Path"] "...")))

@@ -7,14 +7,20 @@
 <?import javafx.scene.layout.*?>
 
 <BorderPane id="BorderPane" fx:id="singleMisPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="399.0" prefWidth="500.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="uk.org.il2ssd.SinglePresenter">
+  <center>
+    <AnchorPane prefHeight="200.0" prefWidth="200.0">
+      <children>
+        <Label layoutX="14.0" layoutY="6.0" text="Mission Path:" />
+        <Label fx:id="singleMisPathLabel" layoutX="92.0" layoutY="6.0" text="..." wrapText="true" />
+      </children>
+    </AnchorPane>
+  </center>
   <top>
     <GridPane alignment="TOP_LEFT" hgap="10.0" vgap="5.0">
       <children>
         <TextField id="selectMisPathField" fx:id="singleMisPathField" prefHeight="25.0" prefWidth="-1.0" GridPane.columnIndex="1" GridPane.rowIndex="0" />
         <Button fx:id="remoteSelectButton" disable="false" mnemonicParsing="false" prefHeight="25.0" prefWidth="75.0" text=" Select" GridPane.columnIndex="2" GridPane.rowIndex="0" />
         <Button id="selectSingleMisButton" fx:id="chooseSingleMisButton" disable="true" mnemonicParsing="false" prefHeight="25.0" text="Select Local Mission" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-        <Label text="Mission Path:" GridPane.columnIndex="0" GridPane.halignment="RIGHT" GridPane.rowIndex="2" />
-        <Label fx:id="singleMisPathLabel" text="..." GridPane.columnIndex="1" GridPane.rowIndex="2" />
         <Label alignment="CENTER_LEFT" text="Remote:" GridPane.columnIndex="0" GridPane.halignment="RIGHT" GridPane.rowIndex="0" />
         <Label text="Local:" textAlignment="LEFT" GridPane.columnIndex="0" GridPane.halignment="RIGHT" GridPane.rowIndex="1" />
       </children>
@@ -24,10 +30,9 @@
         <ColumnConstraints hgrow="SOMETIMES" maxWidth="411.0" minWidth="10.0" prefWidth="111.0" />
       </columnConstraints>
       <padding>
-        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+        <Insets bottom="5.0" left="10.0" right="10.0" top="10.0" />
       </padding>
       <rowConstraints>
-        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
       </rowConstraints>

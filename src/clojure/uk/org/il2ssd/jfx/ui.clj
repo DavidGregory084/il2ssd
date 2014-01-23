@@ -11,7 +11,8 @@
            (javafx.scene.input KeyEvent)
            (uk.org.il2ssd DifficultySetting CycleMission)
            (java.io File)
-           (javafx.event EventHandler))
+           (javafx.event EventHandler)
+           (java.nio.file Paths Path))
 
   (:require [uk.org.il2ssd.state :as state]
             [uk.org.il2ssd.jfx.util :as util]))
@@ -112,7 +113,7 @@
                           (.setText load-btn "\uf05e Unload")))
       (util/run-later (do (.setDisable start-btn true)
                           (.setText load-btn "\uf093 Load")
-                          (if @state/mis-selected
+                          (if @state/mission-path
                             (.setDisable load-btn false)
                             (.setDisable load-btn true)))))))
 
@@ -228,3 +229,18 @@
           (.setDisable cycle-path-btn false))
       (do (.setDisable single-path-btn true)
           (.setDisable cycle-path-btn true)))))
+
+(defn set-mis-dir
+  [path controls]
+  (let [{:keys [^FileChooser mis-chooser]} @state/controls]
+    (.setInitialDirectory mis-chooser
+                          (-> (Paths/get path (into-array [""]))
+                              .getParent
+                              (.resolve "Missions")
+                              .toFile))))
+
+(defn set-ui-mis
+  [selected controls]
+  (let [{:keys [load-btn]} controls]
+    (when (and selected (not @state/loaded))
+      (.setDisable load-btn false))))

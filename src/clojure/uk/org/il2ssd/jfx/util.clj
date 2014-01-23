@@ -12,7 +12,8 @@
            (javafx.beans.value ChangeListener ObservableValue)
            (javafx.scene.control ButtonBase ChoiceBox Labeled)
            (javafx.scene.input KeyEvent)
-           (javafx.scene Node)))
+           (javafx.scene Node)
+           (javafx.stage Stage)))
 
 (defn run-later*
   "### run-later*
@@ -135,6 +136,10 @@
    control which calls the supplied function when the OnAction event is triggered."
   [control f]
   (.setOnAction control (event-handler [_] (f))))
+
+(defn close-handler
+  [control f]
+  (.setOnCloseRequest control (event-handler [_] (f))))
 
 (defn keypress-handler
   "### keypress-handler
