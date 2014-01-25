@@ -3215,6 +3215,7 @@ update the UI accordingly.</p>
   (if @state/loaded
     (server/unload-mission)
     (when (= @state/mode &quot;single&quot;)
+      (ui/toggle-prog-ind @state/controls true)
       (server/load-mission @state/mission-path))))</pre></td></tr><tr><td class="docs"><h3>get-difficulties</h3>
 
 <p>   This is a zero argument function which clears the difficulty data list and
@@ -3345,6 +3346,7 @@ update the UI accordingly.</p>
   (thread (while @state/connected
             (let [text (&lt;!! err-channel)]
               (when text
+                (ui/toggle-prog-ind @state/controls false)
                 (reset! state/loaded false)
                 (reset! state/playing false)
                 (set-title))))))</pre></td></tr><tr><td class="docs"><h3>start-listeners</h3>
@@ -3822,7 +3824,7 @@ structures which we can more easily manipulate in Clojure.</p>
 </td><td class="codes"><pre class="brush: clojure">(ns uk.org.il2ssd.jfx.ui
   (:import (javafx.application Platform)
            (javafx.scene.control TextArea Button TextField TextInputControl ChoiceBox TableColumn$CellEditEvent
-                                 TableColumn TablePosition Label TableView)
+                                 TableColumn TablePosition Label TableView ProgressIndicator)
            (java.util List)
            (javafx.stage Stage FileChooser)
            (javafx.scene.layout BorderPane)
@@ -3865,7 +3867,13 @@ structures which we can more easily manipulate in Clojure.</p>
    supplied text value.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn set-title
   [^Stage stage title]
-  (util/run-later (.setTitle stage title)))</pre></td></tr><tr><td class="docs"><h3>set-ui-connected</h3>
+  (util/run-later (.setTitle stage title)))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn toggle-prog-ind
+  [controls show]
+  (let [{:keys [^ProgressIndicator prog-ind]} controls]
+    (if show
+      (util/run-later (.setVisible prog-ind true))
+      (util/run-later (.setVisible prog-ind false)))))</pre></td></tr><tr><td class="docs"><h3>set-ui-connected</h3>
 
 <p>   This two argument function sets the controls in the supplied map of controls
    to the relevant state for the connection state provided.</p>
@@ -3918,7 +3926,8 @@ structures which we can more easily manipulate in Clojure.</p>
     (if loaded
       (util/run-later (do (.setDisable start-btn false)
                           (.setDisable load-btn false)
-                          (.setText load-btn &quot;\uf05e Unload&quot;)))
+                          (.setText load-btn &quot;\uf05e Unload&quot;)
+                          (toggle-prog-ind controls false)))
       (util/run-later (do (.setDisable start-btn true)
                           (.setText load-btn &quot;\uf093 Load&quot;)
                           (if mission-path

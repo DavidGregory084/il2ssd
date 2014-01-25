@@ -71,6 +71,7 @@
   (if @state/loaded
     (server/unload-mission)
     (when (= @state/mode "single")
+      (ui/toggle-prog-ind @state/controls true)
       (server/load-mission @state/mission-path))))
 
 (defn get-difficulties
@@ -209,6 +210,7 @@
   (thread (while @state/connected
             (let [text (<!! err-channel)]
               (when text
+                (ui/toggle-prog-ind @state/controls false)
                 (reset! state/loaded false)
                 (reset! state/playing false)
                 (set-title))))))

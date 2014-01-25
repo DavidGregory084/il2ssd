@@ -4,7 +4,7 @@
 
   (:import (javafx.application Platform)
            (javafx.scene.control TextArea Button TextField TextInputControl ChoiceBox TableColumn$CellEditEvent
-                                 TableColumn TablePosition Label TableView)
+                                 TableColumn TablePosition Label TableView ProgressIndicator)
            (java.util List)
            (javafx.stage Stage FileChooser)
            (javafx.scene.layout BorderPane)
@@ -55,6 +55,13 @@
    supplied text value."
   [^Stage stage title]
   (util/run-later (.setTitle stage title)))
+
+(defn toggle-prog-ind
+  [controls show]
+  (let [{:keys [^ProgressIndicator prog-ind]} controls]
+    (if show
+      (util/run-later (.setVisible prog-ind true))
+      (util/run-later (.setVisible prog-ind false)))))
 
 (defn set-ui-connected
   "### set-ui-connected
@@ -110,7 +117,8 @@
     (if loaded
       (util/run-later (do (.setDisable start-btn false)
                           (.setDisable load-btn false)
-                          (.setText load-btn "\uf05e Unload")))
+                          (.setText load-btn "\uf05e Unload")
+                          (toggle-prog-ind controls false)))
       (util/run-later (do (.setDisable start-btn true)
                           (.setText load-btn "\uf093 Load")
                           (if mission-path
