@@ -204,7 +204,8 @@
         ip (:ip-field config)
         port (:port-field config)
         srv-path (:server-path-lbl config)
-        mode (-> (:mode-choice config) keyword modes)]
+        mode (-> (:mode-choice config) keyword modes)
+        single-mis (:single-path-lbl config)]
     (HBox/setHgrow prog-stack Priority/ALWAYS)
     (HBox/setHgrow mission-spring Priority/ALWAYS)
     (-> mode-choice .getItems (.addAll ^List (map modes [:single :cycle])))
@@ -212,7 +213,8 @@
       (do (-> mode-choice .getSelectionModel (.select mode))
           (.setText ip-field ip)
           (.setText port-field port)
-          (.setText server-path-lbl srv-path))
+          (.setText server-path-lbl srv-path)
+          (.setText single-path-lbl single-mis))
       (-> mode-choice .getSelectionModel .selectFirst))))
 
 (defn init-choosers

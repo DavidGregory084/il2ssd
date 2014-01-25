@@ -104,7 +104,7 @@
   "### set-ui-loaded
    This two argument function sets the controls in the supplied map of controls to
    the correct state for the supplied mission running state."
-  [loaded controls]
+  [loaded mission-path controls]
   (let [{:keys [^Button start-btn
                 ^Button load-btn]} controls]
     (if loaded
@@ -113,7 +113,7 @@
                           (.setText load-btn "\uf05e Unload")))
       (util/run-later (do (.setDisable start-btn true)
                           (.setText load-btn "\uf093 Load")
-                          (if @state/mission-path
+                          (if mission-path
                             (.setDisable load-btn false)
                             (.setDisable load-btn true)))))))
 
@@ -223,7 +223,8 @@
 
 (defn set-ui-server
   [path controls]
-  (let [{:keys [single-path-btn cycle-path-btn]} controls]
+  (let [{:keys [^Button single-path-btn
+                ^Button cycle-path-btn]} controls]
     (if path
       (do (.setDisable single-path-btn false)
           (.setDisable cycle-path-btn false))
@@ -240,7 +241,7 @@
                               .toFile))))
 
 (defn set-ui-mis
-  [selected controls]
-  (let [{:keys [load-btn]} controls]
-    (when (and selected (not @state/loaded))
+  [selected connected loaded controls]
+  (let [{:keys [^Button load-btn]} controls]
+    (when (and selected connected (not loaded))
       (.setDisable load-btn false))))

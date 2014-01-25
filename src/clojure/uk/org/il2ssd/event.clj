@@ -33,12 +33,12 @@
            (java.nio.file Paths Path)))
 
 (defn get-resolved-path
-  [in-path]
+  [root-path in-path]
   (let [path (Paths/get in-path (into-array [""]))
-        server-path (Paths/get @state/server-path (into-array [""]))
+        server-path (Paths/get root-path (into-array [""]))
         server-dir (.getParent server-path)
         mis-dir (.resolve server-dir "Missions")]
-    (string/replace (->> path (.relativize mis-dir) .normalize .toString) "\\" "/")))
+    (string/replace (->> path (.relativize mis-dir) .normalize str) "\\" "/")))
 
 
 (defn mis-selected?
@@ -253,7 +253,7 @@
    This is a watch function which sets the UI controls to the correct state for
    the mission loaded status defined by the loaded argument."
   [_ _ _ loaded]
-  (ui/set-ui-loaded loaded @state/controls))
+  (ui/set-ui-loaded loaded @state/mission-path @state/controls))
 
 
 (defn enter-command
@@ -343,9 +343,7 @@
   (let [{:keys [single-path-fld single-path-lbl]} @state/controls
         mission-path (ui/get-text single-path-fld)]
     (when (not (string/blank? mission-path))
-      (println mission-path)
-      (ui/set-label single-path-lbl mission-path)
-      (reset! state/mission-path mission-path))))
+      (ui/set-label single-path-lbl mission-path))))
 
 (defn single-choose-command
   []
@@ -353,7 +351,8 @@
                 single-path-lbl]} @state/controls
         file (ui/show-chooser mis-chooser)]
     (when file
-      (ui/set-label single-path-lbl (get-resolved-path (.getCanonicalPath file))))))
+      (ui/set-label single-path-lbl
+                    (get-resolved-path @state/server-path (.getCanonicalPath file))))))
 
 (defn single-path-select
   []
@@ -370,7 +369,7 @@
 
 (defn set-mis-selected
   [_ _ _ selected]
-  (ui/set-ui-mis selected @state/controls))
+  (ui/set-ui-mis selected @state/connected @state/loaded @state/controls))
 
 (defn save-ui-state
   []
@@ -383,9 +382,10 @@
         mode @state/mode
         ip-addr (ui/get-text ip-field)
         port (ui/get-text port-field)
-        server-path (ui/get-text server-path-lbl)]
+        server-path (ui/get-text server-path-lbl)
+        single-path (ui/get-text single-path-lbl)]
     (settings/save-server ip-addr port server-path)
-    (settings/save-mission mode)))
+    (settings/save-mission mode single-path)))
 
 (defn close
   "### close

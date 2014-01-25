@@ -55,28 +55,28 @@
 
   String
   (build-conf [this newln? file]
-                  (let [newln (System/lineSeparator)]
-                    (if newln?
-                      (swap! file conj (str newln this))
-                      (swap! file conj this))
-                    file))
+    (let [newln (System/lineSeparator)]
+      (if newln?
+        (conj file (str newln this))
+        (conj file this))))
 
   PersistentArrayMap
   (build-conf [this file]
-    (when (seq this)
-      (doseq [setting this
-            :let [[key value] setting]]
-        (swap! file conj (str key " = " value))))
-    file)
+    (if (seq this)
+      (reduce conj file
+              (for [setting this
+                    :let [[key value] setting]]
+                (str key " = " value)))
+      file))
 
   PersistentVector
   (build-conf [this file]
-    (when (seq this)
-      (doseq [setting (map-indexed #(vector (inc %) %2) this)
-              :let [[key value] setting]]
-        (swap! file conj
-               (string/replace (str key " = " value) "\"" ""))))
-    file))
+    (if (seq this)
+      (reduce conj file
+              (for [setting (map-indexed #(vector (inc %) %2) this)
+                    :let [[key value] setting]]
+                (string/replace (str key " = " value) "\"" "")))
+      file)))
 
 (defn save-server
   "### save-server
@@ -142,17 +142,16 @@
 
    We then return this string to the calling function."
   []
-  (let [file (atom [])
-        newln (System/lineSeparator)]
-    (->> file
+  (let [newln (System/lineSeparator)]
+    (->> []
          (build-conf "# Il-2 Simple Server Daemon" false)
          (build-conf "[Server]" true)
          (build-conf @server-settings)
          (build-conf "[Mission]" true)
          (build-conf @mission-settings)
          (build-conf "[Cycle]" true)
-         (build-conf @mission-cycle))
-    (string/join newln @file)))
+         (build-conf @mission-cycle)
+         (string/join newln))))
 
 (defn save-config-file
   "### save-config-file
@@ -184,7 +183,8 @@
 (defn get-configuration
   [file]
   (hash-map
-    :mode-choice (get-in file ["Mission" "Mode"] "single")
     :ip-field (get-in file ["Server" "IP"] "")
     :port-field (get-in file ["Server" "Port"] "")
-    :server-path-lbl (get-in file ["Server" "Path"] "...")))
+    :server-path-lbl (get-in file ["Server" "Path"] "...")
+    :mode-choice (get-in file ["Mission" "Mode"] "single")
+    :single-path-lbl (get-in file ["Mission" "Single Mission"] "...")))

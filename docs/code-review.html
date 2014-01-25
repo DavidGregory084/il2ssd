@@ -3028,7 +3028,7 @@ net.brehaut.ClojureTools = (function (SH) {
     build_tree: build_tree
   };
 })(SyntaxHighlighter);
-</script><title>Il-2 Simple Server Daemon -- Marginalia</title></head><body><table><tr><td class="docs"><div class="header"><h1 class="project-name">Il-2 Simple Server Daemon</h1><h2 class="project-version">0.1.0-SNAPSHOT</h2><br /><p>Il-2 Simple Server Daemon is a very simple server controller for the Il-2 Sturmovik 1946 dedicated server. It aims to be an easy-to-use tool with IL-2 DCG integration.</p>
+</script><title>uk.org.il2ssd/il2ssd -- Marginalia</title></head><body><table><tr><td class="docs"><div class="header"><h1 class="project-name">uk.org.il2ssd/il2ssd</h1><h2 class="project-version">0.1.0-SNAPSHOT</h2><br /><p>Il-2 Simple Server Daemon is a very simple server controller for the Il-2 Sturmovik 1946 dedicated server. It aims to be an easy-to-use tool with IL-2 DCG integration.</p>
 </div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">org.clojure/clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.5.1</td></tr><tr><td class="dep-name">org.clojure/core.async</td><td class="dotted"><hr /></td><td class="dep-version">0.1.267.0-0d7780-alpha</td></tr><tr><td class="dep-name">com.airhacks/afterburner.fx</td><td class="dotted"><hr /></td><td class="dep-version">1.3</td></tr><tr><td class="dep-name">commons-lang/commons-lang</td><td class="dotted"><hr /></td><td class="dep-version">2.3</td></tr><tr><td class="dep-name">instaparse/instaparse</td><td class="dotted"><hr /></td><td class="dep-version">1.2.13</td></tr><tr><td class="dep-name">com.brainbot/iniconfig</td><td class="dotted"><hr /></td><td class="dep-version">0.2.0</td></tr><tr><td class="dep-name">overtone/at-at</td><td class="dotted"><hr /></td><td class="dep-version">1.2.0</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#uk.org.il2ssd.channel">uk.org.il2ssd.channel</a></li><li><a href="#uk.org.il2ssd.core">uk.org.il2ssd.core</a></li><li><a href="#uk.org.il2ssd.event">uk.org.il2ssd.event</a></li><li><a href="#uk.org.il2ssd.jfx.init">uk.org.il2ssd.jfx.init</a></li><li><a href="#uk.org.il2ssd.jfx.ui">uk.org.il2ssd.jfx.ui</a></li><li><a href="#uk.org.il2ssd.jfx.util">uk.org.il2ssd.jfx.util</a></li><li><a href="#uk.org.il2ssd.parse">uk.org.il2ssd.parse</a></li><li><a href="#uk.org.il2ssd.server">uk.org.il2ssd.server</a></li><li><a href="#uk.org.il2ssd.settings">uk.org.il2ssd.settings</a></li><li><a href="#uk.org.il2ssd.state">uk.org.il2ssd.state</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#uk.org.il2ssd.channel" name="uk.org.il2ssd.channel"><h1 class="project-name">uk.org.il2ssd.channel</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><h2>Channels for thread-safe concurrency</h2>
 
 <p>Here we define the input channels that we use to safely process the server console
@@ -3181,12 +3181,12 @@ update the UI accordingly.</p>
            (java.util List)
            (java.nio.file Paths Path)))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn get-resolved-path
-  [in-path]
+  [root-path in-path]
   (let [path (Paths/get in-path (into-array []))
-        server-path (Paths/get @state/server-path (into-array []))
+        server-path (Paths/get root-path (into-array []))
         server-dir (.getParent server-path)
         mis-dir (.resolve server-dir &quot;Missions&quot;)]
-    (string/replace (-&gt;&gt; path (.relativize mis-dir) .normalize .toString) &quot;\\&quot; &quot;/&quot;)))</pre></td></tr><tr><td class="docs">
+    (string/replace (-&gt;&gt; path (.relativize mis-dir) .normalize str) &quot;\\&quot; &quot;/&quot;)))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn mis-selected?
   []
   (let [{:keys [single-path-lbl]} @state/controls
@@ -3385,7 +3385,7 @@ update the UI accordingly.</p>
    the mission loaded status defined by the loaded argument.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn set-mission-loaded
   [_ _ _ loaded]
-  (ui/set-ui-loaded loaded @state/controls))</pre></td></tr><tr><td class="docs"><h3>enter-command</h3>
+  (ui/set-ui-loaded loaded @state/mission-path @state/controls))</pre></td></tr><tr><td class="docs"><h3>enter-command</h3>
 
 <p>   This is zero argument function which checks whether the text in the TextField
    control is "clear". In that case we clear the application's server console
@@ -3467,16 +3467,15 @@ update the UI accordingly.</p>
   (let [{:keys [single-path-fld single-path-lbl]} @state/controls
         mission-path (ui/get-text single-path-fld)]
     (when (not (string/blank? mission-path))
-      (println mission-path)
-      (ui/set-label single-path-lbl mission-path)
-      (reset! state/mission-path mission-path))))</pre></td></tr><tr><td class="docs">
+      (ui/set-label single-path-lbl mission-path))))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn single-choose-command
   []
   (let [{:keys [mis-chooser
                 single-path-lbl]} @state/controls
         file (ui/show-chooser mis-chooser)]
     (when file
-      (ui/set-label single-path-lbl (get-resolved-path (.getCanonicalPath file))))))</pre></td></tr><tr><td class="docs">
+      (ui/set-label single-path-lbl
+                    (get-resolved-path @state/server-path (.getCanonicalPath file))))))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn single-path-select
   []
   (let [{:keys [single-path-lbl]} @state/controls
@@ -3490,7 +3489,7 @@ update the UI accordingly.</p>
   (ui/set-mis-dir path @state/controls))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn set-mis-selected
   [_ _ _ selected]
-  (ui/set-ui-mis selected @state/controls))</pre></td></tr><tr><td class="docs">
+  (ui/set-ui-mis selected @state/connected @state/loaded @state/controls))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn save-ui-state
   []
   (let [{:keys [mode-choice
@@ -3502,9 +3501,10 @@ update the UI accordingly.</p>
         mode @state/mode
         ip-addr (ui/get-text ip-field)
         port (ui/get-text port-field)
-        server-path (ui/get-text server-path-lbl)]
+        server-path (ui/get-text server-path-lbl)
+        single-path (ui/get-text single-path-lbl)]
     (settings/save-server ip-addr port server-path)
-    (settings/save-mission mode)))</pre></td></tr><tr><td class="docs"><h3>close</h3>
+    (settings/save-mission mode single-path)))</pre></td></tr><tr><td class="docs"><h3>close</h3>
 
 <p>   This is a zero argument function which disconnects from the server if the
    program is connected, saves the current settings to the config file and
@@ -3713,7 +3713,8 @@ structures which we can more easily manipulate in Clojure.</p>
         ip (:ip-field config)
         port (:port-field config)
         srv-path (:server-path-lbl config)
-        mode (-&gt; (:mode-choice config) keyword modes)]
+        mode (-&gt; (:mode-choice config) keyword modes)
+        single-mis (:single-path-lbl config)]
     (HBox/setHgrow prog-stack Priority/ALWAYS)
     (HBox/setHgrow mission-spring Priority/ALWAYS)
     (-&gt; mode-choice .getItems (.addAll ^List (map modes [:single :cycle])))
@@ -3721,7 +3722,8 @@ structures which we can more easily manipulate in Clojure.</p>
       (do (-&gt; mode-choice .getSelectionModel (.select mode))
           (.setText ip-field ip)
           (.setText port-field port)
-          (.setText server-path-lbl srv-path))
+          (.setText server-path-lbl srv-path)
+          (.setText single-path-lbl single-mis))
       (-&gt; mode-choice .getSelectionModel .selectFirst))))</pre></td></tr><tr><td class="docs"><h3>init-choosers</h3>
 
 <p>   This zero argument function initialises the FileChooser objects that will be
@@ -3910,7 +3912,7 @@ structures which we can more easily manipulate in Clojure.</p>
 <p>   This two argument function sets the controls in the supplied map of controls to
    the correct state for the supplied mission running state.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn set-ui-loaded
-  [loaded controls]
+  [loaded mission-path controls]
   (let [{:keys [^Button start-btn
                 ^Button load-btn]} controls]
     (if loaded
@@ -3919,7 +3921,7 @@ structures which we can more easily manipulate in Clojure.</p>
                           (.setText load-btn &quot;\uf05e Unload&quot;)))
       (util/run-later (do (.setDisable start-btn true)
                           (.setText load-btn &quot;\uf093 Load&quot;)
-                          (if @state/mission-path
+                          (if mission-path
                             (.setDisable load-btn false)
                             (.setDisable load-btn true)))))))</pre></td></tr><tr><td class="docs"><h3>get-text</h3>
 
@@ -4019,7 +4021,8 @@ structures which we can more easily manipulate in Clojure.</p>
                   (.setVisible true))))))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn set-ui-server
   [path controls]
-  (let [{:keys [single-path-btn cycle-path-btn]} controls]
+  (let [{:keys [^Button single-path-btn
+                ^Button cycle-path-btn]} controls]
     (if path
       (do (.setDisable single-path-btn false)
           (.setDisable cycle-path-btn false))
@@ -4034,9 +4037,9 @@ structures which we can more easily manipulate in Clojure.</p>
                               (.resolve &quot;Missions&quot;)
                               .toFile))))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn set-ui-mis
-  [selected controls]
-  (let [{:keys [load-btn]} controls]
-    (when (and selected (not @state/loaded))
+  [selected connected loaded controls]
+  (let [{:keys [^Button load-btn]} controls]
+    (when (and selected connected (not loaded))
       (.setDisable load-btn false))))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#uk.org.il2ssd.jfx.util" name="uk.org.il2ssd.jfx.util"><h1 class="project-name">uk.org.il2ssd.jfx.util</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><h2>JavaFX helper functions</h2>
 
 <p>These functions wrap common JavaFX methods or return instances of anonymous classes
@@ -4457,28 +4460,28 @@ files.</p>
 
   String
   (build-conf [this newln? file]
-                  (let [newln (System/lineSeparator)]
-                    (if newln?
-                      (swap! file conj (str newln this))
-                      (swap! file conj this))
-                    file))
+    (let [newln (System/lineSeparator)]
+      (if newln?
+        (conj file (str newln this))
+        (conj file this))))
 
   PersistentArrayMap
   (build-conf [this file]
-    (when (seq this)
-      (doseq [setting this
-            :let [[key value] setting]]
-        (swap! file conj (str key &quot; = &quot; value))))
-    file)
+    (if (seq this)
+      (reduce conj file
+              (for [setting this
+                    :let [[key value] setting]]
+                (str key &quot; = &quot; value)))
+      file))
 
   PersistentVector
   (build-conf [this file]
-    (when (seq this)
-      (doseq [setting (map-indexed #(vector (inc %) %2) this)
-              :let [[key value] setting]]
-        (swap! file conj
-               (string/replace (str key &quot; = &quot; value) &quot;\&quot;&quot; &quot;&quot;))))
-    file))</pre></td></tr><tr><td class="docs"><h3>save-server</h3>
+    (if (seq this)
+      (reduce conj file
+              (for [setting (map-indexed #(vector (inc %) %2) this)
+                    :let [[key value] setting]]
+                (string/replace (str key &quot; = &quot; value) &quot;\&quot;&quot; &quot;&quot;)))
+      file)))</pre></td></tr><tr><td class="docs"><h3>save-server</h3>
 
 <p>   This is a multiple arity function that saves the provided arguments into the
    server-settings atom. If a path argument is provided, it determines whether
@@ -4540,17 +4543,16 @@ files.</p>
 <p>   We then return this string to the calling function.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn build-config-file
   []
-  (let [file (atom [])
-        newln (System/lineSeparator)]
-    (-&gt;&gt; file
+  (let [newln (System/lineSeparator)]
+    (-&gt;&gt; []
          (build-conf &quot;# Il-2 Simple Server Daemon&quot; false)
          (build-conf &quot;[Server]&quot; true)
          (build-conf @server-settings)
          (build-conf &quot;[Mission]&quot; true)
          (build-conf @mission-settings)
          (build-conf &quot;[Cycle]&quot; true)
-         (build-conf @mission-cycle))
-    (string/join newln @file)))</pre></td></tr><tr><td class="docs"><h3>save-config-file</h3>
+         (build-conf @mission-cycle)
+         (string/join newln))))</pre></td></tr><tr><td class="docs"><h3>save-config-file</h3>
 
 <p>   This is a zero argument function which calls build-config-file and saves the
    results to an il2ssd.ini file in the program's current working directory.</p>
@@ -4579,10 +4581,11 @@ files.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn get-configuration
   [file]
   (hash-map
-    :mode-choice (get-in file [&quot;Mission&quot; &quot;Mode&quot;] &quot;single&quot;)
     :ip-field (get-in file [&quot;Server&quot; &quot;IP&quot;] )
     :port-field (get-in file [&quot;Server&quot; &quot;Port&quot;] )
-    :server-path-lbl (get-in file [&quot;Server&quot; &quot;Path&quot;] &quot;...&quot;)))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#uk.org.il2ssd.state" name="uk.org.il2ssd.state"><h1 class="project-name">uk.org.il2ssd.state</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><h2>Global state atoms</h2>
+    :server-path-lbl (get-in file [&quot;Server&quot; &quot;Path&quot;] &quot;...&quot;)
+    :mode-choice (get-in file [&quot;Mission&quot; &quot;Mode&quot;] &quot;single&quot;)
+    :single-path-lbl (get-in file [&quot;Mission&quot; &quot;Single Mission&quot;] &quot;...&quot;)))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#uk.org.il2ssd.state" name="uk.org.il2ssd.state"><h1 class="project-name">uk.org.il2ssd.state</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><h2>Global state atoms</h2>
 
 <p>In this namespace we define a number of atoms which will simply hold true or
 false values that will define the global state of the program.</p>
