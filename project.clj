@@ -9,7 +9,12 @@
                  [instaparse/instaparse "1.2.13"]
                  [com.brainbot/iniconfig "0.2.0"]
                  [overtone/at-at "1.2.0"]]
-  :profiles {:dev {:dependencies [[org.apache.maven/maven-ant-tasks "2.1.3"]]}}
+  :profiles {:dev {:dependencies [[midje "1.6.0"]
+                                  [org.apache.maven/maven-ant-tasks "2.1.3"]
+                                  [junit/junit "4.11"]
+                                  [org.loadui/testFx "3.1.1"]]}
+             :junit {:java-source-paths ["src/java" "test/java"]}}
+  :plugins [[lein-midje "3.1.3"]]
   :main uk.org.il2ssd.core
   :aot [uk.org.il2ssd.core]
   :source-paths ["src/clojure"]

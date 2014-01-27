@@ -92,7 +92,7 @@
   ([ip port path]
    (swap! server-settings assoc "IP" ip)
    (swap! server-settings assoc "Port" port)
-   (if (.isFile (File. ^String path))
+   (when (.isFile (File. ^String path))
      (swap! server-settings assoc "Path" path))))
 
 (defn save-mission
@@ -103,7 +103,8 @@
   ([mode] (swap! mission-settings assoc "Mode" mode))
   ([mode mission]
    (swap! mission-settings assoc "Mode" mode)
-   (swap! mission-settings assoc "Single Mission" mission)))
+   (when (.isFile (File. ^String mission))
+     (swap! mission-settings assoc "Single Mission" mission))))
 
 (defn save-cycle
   "### save-cycle
