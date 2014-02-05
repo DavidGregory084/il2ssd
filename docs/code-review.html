@@ -3028,7 +3028,7 @@ net.brehaut.ClojureTools = (function (SH) {
     build_tree: build_tree
   };
 })(SyntaxHighlighter);
-</script><title>uk.org.il2ssd/il2ssd -- Marginalia</title></head><body><table><tr><td class="docs"><div class="header"><h1 class="project-name">uk.org.il2ssd/il2ssd</h1><h2 class="project-version">0.1.0-SNAPSHOT</h2><br /><p>Il-2 Simple Server Daemon is a very simple server controller for the Il-2 Sturmovik 1946 dedicated server. It aims to be an easy-to-use tool with IL-2 DCG integration.</p>
+</script><title>Il-2 Simple Server Daemon -- Marginalia</title></head><body><table><tr><td class="docs"><div class="header"><h1 class="project-name">Il-2 Simple Server Daemon</h1><h2 class="project-version">0.1.0-SNAPSHOT</h2><br /><p>Il-2 Simple Server Daemon is a very simple server controller for the Il-2 Sturmovik 1946 dedicated server. It aims to be an easy-to-use tool with IL-2 DCG integration.</p>
 </div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">org.clojure/clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.5.1</td></tr><tr><td class="dep-name">org.clojure/core.async</td><td class="dotted"><hr /></td><td class="dep-version">0.1.267.0-0d7780-alpha</td></tr><tr><td class="dep-name">com.airhacks/afterburner.fx</td><td class="dotted"><hr /></td><td class="dep-version">1.3</td></tr><tr><td class="dep-name">commons-lang/commons-lang</td><td class="dotted"><hr /></td><td class="dep-version">2.3</td></tr><tr><td class="dep-name">instaparse/instaparse</td><td class="dotted"><hr /></td><td class="dep-version">1.2.13</td></tr><tr><td class="dep-name">com.brainbot/iniconfig</td><td class="dotted"><hr /></td><td class="dep-version">0.2.0</td></tr><tr><td class="dep-name">overtone/at-at</td><td class="dotted"><hr /></td><td class="dep-version">1.2.0</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#uk.org.il2ssd.channel">uk.org.il2ssd.channel</a></li><li><a href="#uk.org.il2ssd.core">uk.org.il2ssd.core</a></li><li><a href="#uk.org.il2ssd.event">uk.org.il2ssd.event</a></li><li><a href="#uk.org.il2ssd.jfx.init">uk.org.il2ssd.jfx.init</a></li><li><a href="#uk.org.il2ssd.jfx.ui">uk.org.il2ssd.jfx.ui</a></li><li><a href="#uk.org.il2ssd.jfx.util">uk.org.il2ssd.jfx.util</a></li><li><a href="#uk.org.il2ssd.parse">uk.org.il2ssd.parse</a></li><li><a href="#uk.org.il2ssd.server">uk.org.il2ssd.server</a></li><li><a href="#uk.org.il2ssd.settings">uk.org.il2ssd.settings</a></li><li><a href="#uk.org.il2ssd.state">uk.org.il2ssd.state</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#uk.org.il2ssd.channel" name="uk.org.il2ssd.channel"><h1 class="project-name">uk.org.il2ssd.channel</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><h2>Channels for thread-safe concurrency</h2>
 
 <p>Here we define the input channels that we use to safely process the server console
@@ -4039,7 +4039,7 @@ structures which we can more easily manipulate in Clojure.</p>
           (.setDisable cycle-path-btn true)))))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn set-mis-dir
   [path controls]
-  (let [{:keys [^FileChooser mis-chooser]} @state/controls]
+  (let [{:keys [^FileChooser mis-chooser]} controls]
     (.setInitialDirectory mis-chooser
                           (-&gt; (Paths/get path (into-array []))
                               .getParent
@@ -4277,7 +4277,7 @@ server state processing in the UI is driven.</p>
             [uk.org.il2ssd.state :as state])
   (:import (org.apache.commons.lang StringEscapeUtils)
            (java.net InetSocketAddress Socket SocketTimeoutException ConnectException)
-           (java.io BufferedReader InputStreamReader PrintWriter)
+           (java.io BufferedReader InputStreamReader PrintWriter BufferedWriter OutputStreamWriter)
            (java.nio.charset Charset)
            (java.nio.file Path Paths)))</pre></td></tr><tr><td class="docs"><h3>Socket atoms</h3>
 
@@ -4397,7 +4397,10 @@ of the initial connection function.</p>
                                            (.getInputStream ^Socket @socket)
                                            (Charset/forName &quot;UTF-8&quot;))))
                      (reset! socket-out (PrintWriter.
-                                          (.getOutputStream ^Socket @socket)
+                                          (BufferedWriter.
+                                            (OutputStreamWriter.
+                                              (.getOutputStream ^Socket @socket)
+                                              (Charset/forName &quot;UTF-8&quot;)))
                                           true))
                      (reset! state/connected true)
                      (socket-listener)
@@ -4459,7 +4462,7 @@ files.</p>
 </td><td class="codes"><pre class="brush: clojure">(def saved-difficulties
   (atom nil))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defprotocol BuildSettings
-  (build-conf [this file] [this file newln?]))</pre></td></tr><tr><td class="docs">
+  (build-conf [this file] [this newln? file]))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(extend-protocol BuildSettings
 
   nil
@@ -4505,14 +4508,15 @@ files.</p>
   ([ip port path]
    (swap! server-settings assoc &quot;IP&quot; ip)
    (swap! server-settings assoc &quot;Port&quot; port)
-   (if (.isFile (File. ^String path))
+   (when (.isFile (File. ^String path))
      (swap! server-settings assoc &quot;Path&quot; path))))</pre></td></tr><tr><td class="docs"><h3>save-mission</h3>
 
 <p>   This is a multiple-arity function to save the provided arguments into the
    mission-settings atom. If one or two arguments is provided the mode and
    mission status can be saved.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn save-mission
-  ([mode] (swap! mission-settings assoc &quot;Mode&quot; mode))
+  ([mode]
+   (swap! mission-settings assoc &quot;Mode&quot; mode))
   ([mode mission]
    (swap! mission-settings assoc &quot;Mode&quot; mode)
    (swap! mission-settings assoc &quot;Single Mission&quot; mission)))</pre></td></tr><tr><td class="docs"><h3>save-cycle</h3>

@@ -15,7 +15,7 @@
 
   (:import (org.apache.commons.lang StringEscapeUtils)
            (java.net InetSocketAddress Socket SocketTimeoutException ConnectException)
-           (java.io BufferedReader InputStreamReader PrintWriter)
+           (java.io BufferedReader InputStreamReader PrintWriter BufferedWriter OutputStreamWriter)
            (java.nio.charset Charset)
            (java.nio.file Path Paths)))
 
@@ -147,7 +147,10 @@
                                            (.getInputStream ^Socket @socket)
                                            (Charset/forName "UTF-8"))))
                      (reset! socket-out (PrintWriter.
-                                          (.getOutputStream ^Socket @socket)
+                                          (BufferedWriter.
+                                            (OutputStreamWriter.
+                                              (.getOutputStream ^Socket @socket)
+                                              (Charset/forName "UTF-8")))
                                           true))
                      (reset! state/connected true)
                      (socket-listener)

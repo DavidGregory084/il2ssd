@@ -44,7 +44,7 @@
   (atom nil))
 
 (defprotocol BuildSettings
-  (build-conf [this file] [this file newln?]))
+  (build-conf [this file] [this newln? file]))
 
 (extend-protocol BuildSettings
 
@@ -100,11 +100,11 @@
    This is a multiple-arity function to save the provided arguments into the
    mission-settings atom. If one or two arguments is provided the mode and
    mission status can be saved."
-  ([mode] (swap! mission-settings assoc "Mode" mode))
+  ([mode]
+   (swap! mission-settings assoc "Mode" mode))
   ([mode mission]
    (swap! mission-settings assoc "Mode" mode)
-   (when (.isFile (File. ^String mission))
-     (swap! mission-settings assoc "Single Mission" mission))))
+   (swap! mission-settings assoc "Single Mission" mission)))
 
 (defn save-cycle
   "### save-cycle

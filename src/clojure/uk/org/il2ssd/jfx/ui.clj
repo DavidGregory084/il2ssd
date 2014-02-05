@@ -241,7 +241,7 @@
 
 (defn set-mis-dir
   [path controls]
-  (let [{:keys [^FileChooser mis-chooser]} @state/controls]
+  (let [{:keys [^FileChooser mis-chooser]} controls]
     (.setInitialDirectory mis-chooser
                           (-> (Paths/get path (into-array [""]))
                               .getParent
