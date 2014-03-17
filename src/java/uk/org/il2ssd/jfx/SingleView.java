@@ -1,9 +1,9 @@
-package uk.org.il2ssd;
+package uk.org.il2ssd.jfx;
 
 import com.airhacks.afterburner.views.FXMLView;
 
 /**
  * Airhacks fxml and css loader
  */
-public class CycleView extends FXMLView {
+public class SingleView extends FXMLView {
 }

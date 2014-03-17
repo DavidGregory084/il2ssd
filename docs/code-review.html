@@ -3029,7 +3029,7 @@ net.brehaut.ClojureTools = (function (SH) {
   };
 })(SyntaxHighlighter);
 </script><title>Il-2 Simple Server Daemon -- Marginalia</title></head><body><table><tr><td class="docs"><div class="header"><h1 class="project-name">Il-2 Simple Server Daemon</h1><h2 class="project-version">0.1.0-SNAPSHOT</h2><br /><p>Il-2 Simple Server Daemon is a very simple server controller for the Il-2 Sturmovik 1946 dedicated server. It aims to be an easy-to-use tool with IL-2 DCG integration.</p>
-</div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">org.clojure/clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.5.1</td></tr><tr><td class="dep-name">org.clojure/core.async</td><td class="dotted"><hr /></td><td class="dep-version">0.1.267.0-0d7780-alpha</td></tr><tr><td class="dep-name">com.airhacks/afterburner.fx</td><td class="dotted"><hr /></td><td class="dep-version">1.3</td></tr><tr><td class="dep-name">commons-lang/commons-lang</td><td class="dotted"><hr /></td><td class="dep-version">2.3</td></tr><tr><td class="dep-name">instaparse/instaparse</td><td class="dotted"><hr /></td><td class="dep-version">1.2.13</td></tr><tr><td class="dep-name">com.brainbot/iniconfig</td><td class="dotted"><hr /></td><td class="dep-version">0.2.0</td></tr><tr><td class="dep-name">overtone/at-at</td><td class="dotted"><hr /></td><td class="dep-version">1.2.0</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#uk.org.il2ssd.channel">uk.org.il2ssd.channel</a></li><li><a href="#uk.org.il2ssd.core">uk.org.il2ssd.core</a></li><li><a href="#uk.org.il2ssd.event">uk.org.il2ssd.event</a></li><li><a href="#uk.org.il2ssd.jfx.init">uk.org.il2ssd.jfx.init</a></li><li><a href="#uk.org.il2ssd.jfx.ui">uk.org.il2ssd.jfx.ui</a></li><li><a href="#uk.org.il2ssd.jfx.util">uk.org.il2ssd.jfx.util</a></li><li><a href="#uk.org.il2ssd.parse">uk.org.il2ssd.parse</a></li><li><a href="#uk.org.il2ssd.server">uk.org.il2ssd.server</a></li><li><a href="#uk.org.il2ssd.settings">uk.org.il2ssd.settings</a></li><li><a href="#uk.org.il2ssd.state">uk.org.il2ssd.state</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#uk.org.il2ssd.channel" name="uk.org.il2ssd.channel"><h1 class="project-name">uk.org.il2ssd.channel</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><h2>Channels for thread-safe concurrency</h2>
+</div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">org.clojure/clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.5.1</td></tr><tr><td class="dep-name">org.clojure/core.async</td><td class="dotted"><hr /></td><td class="dep-version">0.1.267.0-0d7780-alpha</td></tr><tr><td class="dep-name">com.airhacks/afterburner.fx</td><td class="dotted"><hr /></td><td class="dep-version">1.4.2</td></tr><tr><td class="dep-name">commons-lang/commons-lang</td><td class="dotted"><hr /></td><td class="dep-version">2.6</td></tr><tr><td class="dep-name">instaparse/instaparse</td><td class="dotted"><hr /></td><td class="dep-version">1.3.0</td></tr><tr><td class="dep-name">com.brainbot/iniconfig</td><td class="dotted"><hr /></td><td class="dep-version">0.2.0</td></tr><tr><td class="dep-name">overtone/at-at</td><td class="dotted"><hr /></td><td class="dep-version">1.2.0</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#uk.org.il2ssd.channel">uk.org.il2ssd.channel</a></li><li><a href="#uk.org.il2ssd.core">uk.org.il2ssd.core</a></li><li><a href="#uk.org.il2ssd.event">uk.org.il2ssd.event</a></li><li><a href="#uk.org.il2ssd.jfx.init">uk.org.il2ssd.jfx.init</a></li><li><a href="#uk.org.il2ssd.jfx.ui">uk.org.il2ssd.jfx.ui</a></li><li><a href="#uk.org.il2ssd.jfx.util">uk.org.il2ssd.jfx.util</a></li><li><a href="#uk.org.il2ssd.parse">uk.org.il2ssd.parse</a></li><li><a href="#uk.org.il2ssd.server">uk.org.il2ssd.server</a></li><li><a href="#uk.org.il2ssd.settings">uk.org.il2ssd.settings</a></li><li><a href="#uk.org.il2ssd.state">uk.org.il2ssd.state</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#uk.org.il2ssd.channel" name="uk.org.il2ssd.channel"><h1 class="project-name">uk.org.il2ssd.channel</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><h2>Channels for thread-safe concurrency</h2>
 
 <p>Here we define the input channels that we use to safely process the server console
 output concurrently. The initial input channel will receive one line at a time from
@@ -3158,6 +3158,7 @@ the UI controls used in the program and update the state of these controls.</p>
 update the UI accordingly.</p>
 </td><td class="codes"><pre class="brush: clojure">(ns uk.org.il2ssd.event
   (:require [clojure.core.async :refer [go thread &lt;!!]]
+            [clojure.data :refer [diff]]
             [clojure.set :refer [map-invert]]
             [clojure.string :as string]
             [uk.org.il2ssd.channel :refer :all]
@@ -3168,7 +3169,7 @@ update the UI accordingly.</p>
             [uk.org.il2ssd.jfx.ui :as ui])
   (:import (javafx.application Platform)
            (javafx.stage Stage FileChooser)
-           (uk.org.il2ssd DifficultySetting CycleMission)
+           (uk.org.il2ssd.jfx DifficultySetting CycleMission)
            (javafx.scene.control TextArea Button TextField TableView Label ChoiceBox TableColumn$CellEditEvent
                                  TableColumn TablePosition)
            (javafx.scene.input KeyEvent)
@@ -3179,7 +3180,7 @@ update the UI accordingly.</p>
            (java.io File)
            (javafx.scene.control.cell)
            (java.util List)
-           (java.nio.file Paths Path)))</pre></td></tr><tr><td class="docs">
+           (java.nio.file LinkOption Paths Path)))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn get-resolved-path
   [root-path in-path]
   (let [path (Paths/get in-path (into-array []))
@@ -3537,7 +3538,7 @@ structures which we can more easily manipulate in Clojure.</p>
            (javafx.scene.layout HBox Priority StackPane Region)
            (javafx.scene.text Font)
            (javafx.stage FileChooser FileChooser$ExtensionFilter Stage)
-           (uk.org.il2ssd MainView MainPresenter SingleView SinglePresenter CycleView CyclePresenter)
+           (uk.org.il2ssd.jfx MainView MainPresenter SingleView SinglePresenter CycleView CyclePresenter)
            (javafx.scene.control Button TextField ChoiceBox MenuItem Label SelectionModel TableView TableColumn)
            (javafx.beans Observable)
            (javafx.collections FXCollections)
@@ -3586,7 +3587,7 @@ structures which we can more easily manipulate in Clojure.</p>
 <p>   By doing this, we can refer to an object instance in any namespace by using the
    following syntax:</p>
 
-<pre><code>   (let [{:keys [&lt;object we want to use&gt;]}
+<pre><code>   (let [{:keys [&lt;objects we want to use&gt;]}
          @state/controls]
      (&lt;function body&gt;))
 </code></pre>
@@ -3673,6 +3674,7 @@ structures which we can more easily manipulate in Clojure.</p>
                 ^Button single-path-btn
                 ^Label single-path-lbl]}
         @state/controls]
+    ;State atom watch functions
     (add-watch state/connected :connect event/set-connected)
     (add-watch state/loaded :load event/set-mission-loaded)
     (add-watch state/playing :play event/set-mission-playing)
@@ -3786,11 +3788,13 @@ structures which we can more easily manipulate in Clojure.</p>
                 ^TableColumn diff-set-col
                 ^TableColumn diff-val-col]} @state/controls]
     (.setCellValueFactory diff-set-col (PropertyValueFactory. &quot;setting&quot;))
-    (.setCellValueFactory diff-val-col (PropertyValueFactory. &quot;value&quot;))
-    (.setCellFactory diff-val-col (TextFieldTableCell/forTableColumn))
-    (.setColumnResizePolicy diff-table TableView/CONSTRAINED_RESIZE_POLICY)
-    (.setItems diff-table diff-data)
-    (.setOnEditCommit diff-val-col (ui/diff-val-commit))))</pre></td></tr><tr><td class="docs"><h3>init-cycle-table</h3>
+    (doto diff-val-col
+      (.setCellFactory (TextFieldTableCell/forTableColumn))
+      (.setCellValueFactory (PropertyValueFactory. &quot;value&quot;))
+      (.setOnEditCommit (ui/diff-val-commit)))
+    (doto diff-table
+      (.setColumnResizePolicy TableView/CONSTRAINED_RESIZE_POLICY)
+      (.setItems diff-data))))</pre></td></tr><tr><td class="docs"><h3>init-cycle-table</h3>
 
 <p> This is a zero argument function which instantiates the cell factories and cell
  value factories for the mission cycle table so that the table is populated
@@ -3815,13 +3819,16 @@ structures which we can more easily manipulate in Clojure.</p>
                 ^TableColumn cycle-tim-col]} @state/controls]
     (.setCellValueFactory cycle-idx-col (PropertyValueFactory. &quot;index&quot;))
     (.setCellValueFactory cycle-mis-col (PropertyValueFactory. &quot;mission&quot;))
-    (.setCellValueFactory cycle-tim-col (PropertyValueFactory. &quot;timer&quot;))
-    (.setCellFactory cycle-tim-col (TextFieldTableCell/forTableColumn))
-    (-&gt; cycle-table .getSortOrder (.add cycle-idx-col))
-    (.setColumnResizePolicy cycle-table TableView/CONSTRAINED_RESIZE_POLICY)
-    (.setItems cycle-table cycle-data)
-    (.setOnEditCommit cycle-tim-col (ui/cycle-timer-commit))))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#uk.org.il2ssd.jfx.ui" name="uk.org.il2ssd.jfx.ui"><h1 class="project-name">uk.org.il2ssd.jfx.ui</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
+    (doto cycle-tim-col
+      (.setCellFactory (TextFieldTableCell/forTableColumn))
+      (.setCellValueFactory (PropertyValueFactory. &quot;timer&quot;))
+      (.setOnEditCommit (ui/cycle-timer-commit)))
+    (doto cycle-table
+      (-&gt; .getSortOrder (.add cycle-idx-col))
+      (.setColumnResizePolicy TableView/CONSTRAINED_RESIZE_POLICY)
+      (.setItems cycle-data))))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#uk.org.il2ssd.jfx.ui" name="uk.org.il2ssd.jfx.ui"><h1 class="project-name">uk.org.il2ssd.jfx.ui</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(ns uk.org.il2ssd.jfx.ui
+  (:import (uk.org.il2ssd.jfx DifficultySetting CycleMission))
   (:import (javafx.application Platform)
            (javafx.scene.control TextArea Button TextField TextInputControl ChoiceBox TableColumn$CellEditEvent
                                  TableColumn TablePosition Label TableView ProgressIndicator)
@@ -3829,7 +3836,7 @@ structures which we can more easily manipulate in Clojure.</p>
            (javafx.stage Stage FileChooser)
            (javafx.scene.layout BorderPane)
            (javafx.scene.input KeyEvent)
-           (uk.org.il2ssd DifficultySetting CycleMission)
+           (uk.org.il2ssd.jfx DifficultySetting CycleMission)
            (java.io File)
            (javafx.event EventHandler)
            (java.nio.file Paths Path))
@@ -4312,7 +4319,8 @@ of the initial connection function.</p>
    instantiated when we successfully connect to the server.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn write-socket
   [text]
-  (.println ^PrintWriter @socket-out text))</pre></td></tr><tr><td class="docs"><h3>get-server-text</h3>
+  (.print ^PrintWriter @socket-out (str text &quot;\n&quot;))
+  (.flush ^PrintWriter @socket-out))</pre></td></tr><tr><td class="docs"><h3>get-server-text</h3>
 
 <p>   This is a zero argument function which simply sends the command to the server
    console which returns the server description text to the console output using
@@ -4410,7 +4418,7 @@ of the initial connection function.</p>
                      (catch SocketTimeoutException e nil))))</pre></td></tr><tr><td class="docs"><h3>disconnect</h3>
 
 <p>   This is a zero argument function, which simply resets all of the global state
-   values to their initial values and closes our reader, writer and socket.</p>
+   values to their initial values and closes our socket.</p>
 
 <p>   We are forced to call the shutdownInput method on the socket so that read
    attempts return nil and any reads that are currently blocking return this
@@ -4422,9 +4430,6 @@ of the initial connection function.</p>
   (reset! state/playing false)
   (reset! state/connected false)
   (.shutdownInput ^Socket @socket)
-  (.flush ^PrintWriter @socket-out)
-  (.close ^PrintWriter @socket-out)
-  (.close ^BufferedReader @socket-in)
   (.close ^Socket @socket))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#uk.org.il2ssd.settings" name="uk.org.il2ssd.settings"><h1 class="project-name">uk.org.il2ssd.settings</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><h2>Settings functions</h2>
 
 <p>Here we define functions to build config files and to save and load these

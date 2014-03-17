@@ -53,7 +53,8 @@
    This atom should contain the instance of the PrintWriter object that is
    instantiated when we successfully connect to the server."
   [text]
-  (.println ^PrintWriter @socket-out text))
+  (.print ^PrintWriter @socket-out (str text "\n"))
+  (.flush ^PrintWriter @socket-out))
 
 (defn get-server-text
   "### get-server-text
@@ -162,7 +163,7 @@
 (defn disconnect
   "### disconnect
    This is a zero argument function, which simply resets all of the global state
-   values to their initial values and closes our reader, writer and socket.
+   values to their initial values and closes our socket.
 
    We are forced to call the shutdownInput method on the socket so that read
    attempts return nil and any reads that are currently blocking return this
@@ -173,8 +174,5 @@
   (reset! state/playing false)
   (reset! state/connected false)
   (.shutdownInput ^Socket @socket)
-  (.flush ^PrintWriter @socket-out)
-  (.close ^PrintWriter @socket-out)
-  (.close ^BufferedReader @socket-in)
   (.close ^Socket @socket))
 

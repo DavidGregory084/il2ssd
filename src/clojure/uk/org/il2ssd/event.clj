@@ -8,6 +8,7 @@
 (ns uk.org.il2ssd.event
 
   (:require [clojure.core.async :refer [go thread <!!]]
+            [clojure.data :refer [diff]]
             [clojure.set :refer [map-invert]]
             [clojure.string :as string]
             [uk.org.il2ssd.channel :refer :all]
@@ -19,7 +20,7 @@
 
   (:import (javafx.application Platform)
            (javafx.stage Stage FileChooser)
-           (uk.org.il2ssd DifficultySetting CycleMission)
+           (uk.org.il2ssd.jfx DifficultySetting CycleMission)
            (javafx.scene.control TextArea Button TextField TableView Label ChoiceBox TableColumn$CellEditEvent
                                  TableColumn TablePosition)
            (javafx.scene.input KeyEvent)
@@ -30,7 +31,7 @@
            (java.io File)
            (javafx.scene.control.cell)
            (java.util List)
-           (java.nio.file Paths Path)))
+           (java.nio.file LinkOption Paths Path)))
 
 (defn get-resolved-path
   [root-path in-path]

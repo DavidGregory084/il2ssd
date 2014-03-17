@@ -1,4 +1,4 @@
-package uk.org.il2ssd;
+package uk.org.il2ssd.jfx;
 
 import javafx.beans.property.SimpleStringProperty;
 

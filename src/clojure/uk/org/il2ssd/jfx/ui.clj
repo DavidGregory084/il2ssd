@@ -1,6 +1,7 @@
 ;; 
 ;;
 (ns uk.org.il2ssd.jfx.ui
+  (:import (uk.org.il2ssd.jfx DifficultySetting CycleMission))
 
   (:import (javafx.application Platform)
            (javafx.scene.control TextArea Button TextField TextInputControl ChoiceBox TableColumn$CellEditEvent
@@ -9,7 +10,7 @@
            (javafx.stage Stage FileChooser)
            (javafx.scene.layout BorderPane)
            (javafx.scene.input KeyEvent)
-           (uk.org.il2ssd DifficultySetting CycleMission)
+           (uk.org.il2ssd.jfx DifficultySetting CycleMission)
            (java.io File)
            (javafx.event EventHandler)
            (java.nio.file Paths Path))

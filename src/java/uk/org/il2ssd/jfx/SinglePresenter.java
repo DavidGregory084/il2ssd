@@ -1,4 +1,4 @@
-package uk.org.il2ssd;
+package uk.org.il2ssd.jfx;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;

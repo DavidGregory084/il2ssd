@@ -22,7 +22,7 @@
            (javafx.scene.layout HBox Priority StackPane Region)
            (javafx.scene.text Font)
            (javafx.stage FileChooser FileChooser$ExtensionFilter Stage)
-           (uk.org.il2ssd MainView MainPresenter SingleView SinglePresenter CycleView CyclePresenter)
+           (uk.org.il2ssd.jfx MainView MainPresenter SingleView SinglePresenter CycleView CyclePresenter)
            (javafx.scene.control Button TextField ChoiceBox MenuItem Label SelectionModel TableView TableColumn)
            (javafx.beans Observable)
            (javafx.collections FXCollections)
@@ -75,7 +75,7 @@
    By doing this, we can refer to an object instance in any namespace by using the
    following syntax:
 
-       (let [{:keys [<object we want to use>]}
+       (let [{:keys [<objects we want to use>]}
              @state/controls]
          (<function body>))
 
@@ -161,6 +161,7 @@
                 ^Button single-path-btn
                 ^Label single-path-lbl]}
         @state/controls]
+    ;State atom watch functions
     (add-watch state/connected :connect event/set-connected)
     (add-watch state/loaded :load event/set-mission-loaded)
     (add-watch state/playing :play event/set-mission-playing)
@@ -277,11 +278,13 @@
                 ^TableColumn diff-set-col
                 ^TableColumn diff-val-col]} @state/controls]
     (.setCellValueFactory diff-set-col (PropertyValueFactory. "setting"))
-    (.setCellValueFactory diff-val-col (PropertyValueFactory. "value"))
-    (.setCellFactory diff-val-col (TextFieldTableCell/forTableColumn))
-    (.setColumnResizePolicy diff-table TableView/CONSTRAINED_RESIZE_POLICY)
-    (.setItems diff-table diff-data)
-    (.setOnEditCommit diff-val-col (ui/diff-val-commit))))
+    (doto diff-val-col
+      (.setCellFactory (TextFieldTableCell/forTableColumn))
+      (.setCellValueFactory (PropertyValueFactory. "value"))
+      (.setOnEditCommit (ui/diff-val-commit)))
+    (doto diff-table
+      (.setColumnResizePolicy TableView/CONSTRAINED_RESIZE_POLICY)
+      (.setItems diff-data))))
 
 (defn init-cycle-table
   "### init-cycle-table
@@ -307,9 +310,11 @@
                 ^TableColumn cycle-tim-col]} @state/controls]
     (.setCellValueFactory cycle-idx-col (PropertyValueFactory. "index"))
     (.setCellValueFactory cycle-mis-col (PropertyValueFactory. "mission"))
-    (.setCellValueFactory cycle-tim-col (PropertyValueFactory. "timer"))
-    (.setCellFactory cycle-tim-col (TextFieldTableCell/forTableColumn))
-    (-> cycle-table .getSortOrder (.add cycle-idx-col))
-    (.setColumnResizePolicy cycle-table TableView/CONSTRAINED_RESIZE_POLICY)
-    (.setItems cycle-table cycle-data)
-    (.setOnEditCommit cycle-tim-col (ui/cycle-timer-commit))))
+    (doto cycle-tim-col
+      (.setCellFactory (TextFieldTableCell/forTableColumn))
+      (.setCellValueFactory (PropertyValueFactory. "timer"))
+      (.setOnEditCommit (ui/cycle-timer-commit)))
+    (doto cycle-table
+      (-> .getSortOrder (.add cycle-idx-col))
+      (.setColumnResizePolicy TableView/CONSTRAINED_RESIZE_POLICY)
+      (.setItems cycle-data))))

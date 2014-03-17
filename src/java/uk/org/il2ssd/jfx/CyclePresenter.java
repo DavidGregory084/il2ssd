@@ -1,14 +1,11 @@
-package uk.org.il2ssd;
+package uk.org.il2ssd.jfx;
 
-import com.sun.javafx.collections.ObservableListWrapper;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
-
-import java.util.Collection;
 
 /**
  * Instantiation from FXML
