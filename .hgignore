@@ -3,7 +3,8 @@ syntax: glob
 *.iml
 target/
 *.ini
-test/
+*.png
+test/clojure
 .lein-failures
 .nrepl-port
 *.properties

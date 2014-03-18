@@ -6,15 +6,22 @@
 ;; Here we call all of our main initialisation methods after launching the application
 ;; on the JavaFX Application thread.
 (ns uk.org.il2ssd.core
-  (:gen-class :name uk.org.il2ssd.core
+  (:gen-class :name uk.org.il2ssd.Core
               :extends javafx.application.Application
-              :main true)
+              :main true
+              :methods [#^{:static true} [getStage [] javafx.stage.Stage]])
 
   (:require [uk.org.il2ssd.jfx.init :as jfx])
 
   (:import (javafx.application Application)
            (com.airhacks.afterburner.injection InjectionProvider)
-           (uk.org.il2ssd core)))
+           (uk.org.il2ssd Core)))
+
+(def stage (atom nil))
+
+(defn -getStage
+  []
+  stage)
 
 (defn -main
   "### -main
@@ -24,7 +31,7 @@
 
    The class will be generated when this namespace is AOT compiled."
   [& args]
-  (Application/launch core (into-array String [args])))
+  (Application/launch Core (into-array String [args])))
 
 (defn -start
   "### -start
@@ -38,6 +45,7 @@
    After initialising the objects, we initialise event handlers, watches and  various
    controls."
   [this primaryStage]
+  (reset! stage primaryStage)
   (let [main-presenter (jfx/init-stage primaryStage)]
     (jfx/init-objects main-presenter)
     (jfx/init-handlers)

@@ -1,197 +1,170 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?scenebuilder-stylesheet main.css?>
-
+<?import java.lang.*?>
+<?import java.net.*?>
+<?import java.net.URL?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import java.net.URL?>
-<BorderPane id="borderPane" prefHeight="528.0" prefWidth="500.0" xmlns:fx="http://javafx.com/fxml/1"
-            xmlns="http://javafx.com/javafx/2.2" fx:controller="uk.org.il2ssd.jfx.MainPresenter">
-    <bottom>
-        <ToolBar>
-            <Button fx:id="connectButton" alignment="CENTER" mnemonicParsing="false" prefHeight="30.0" prefWidth="95.0"
-                    text="  Connect" textAlignment="CENTER"/>
-            <Button fx:id="disconnectButton" disable="true" mnemonicParsing="false" prefHeight="30.0" prefWidth="95.0"
-                    text="  Disconnect"/>
-            <StackPane id="StackPane" fx:id="progressStack" maxHeight="39.0" maxWidth="-1.0" prefHeight="39.0"
-                       prefWidth="-1.0" visible="true">
+
+<BorderPane id="borderPane" prefHeight="528.0" prefWidth="500.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="uk.org.il2ssd.jfx.MainPresenter">
+  <bottom>
+    <ToolBar>
+      <Button fx:id="connectButton" alignment="CENTER" mnemonicParsing="false" prefHeight="30.0" prefWidth="95.0" text="  Connect" textAlignment="CENTER" />
+      <Button fx:id="disconnectButton" disable="true" mnemonicParsing="false" prefHeight="30.0" prefWidth="95.0" text="  Disconnect" />
+      <StackPane id="StackPane" fx:id="progressStack" maxHeight="39.0" maxWidth="-1.0" prefHeight="39.0" prefWidth="-1.0" visible="true">
+        <children>
+          <ProgressIndicator fx:id="progressIndicator" maxHeight="-1.0" maxWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" progress="-1.0" visible="false" />
+        </children>
+        <padding>
+          <Insets fx:id="x1" />
+        </padding>
+      </StackPane>
+      <Button fx:id="startStopButton" disable="true" mnemonicParsing="false" prefHeight="30.0" prefWidth="95.0" text="  Start" />
+      <Button fx:id="nextButton" alignment="CENTER" disable="true" mnemonicParsing="false" prefHeight="30.0" prefWidth="95.0" text=" Next" />
+    </ToolBar>
+  </bottom>
+  <center>
+    <TabPane prefHeight="-1.0" prefWidth="-1.0" tabClosingPolicy="UNAVAILABLE">
+      <Tab closable="false" text="Console">
+        <content>
+          <BorderPane prefHeight="200.0" prefWidth="200.0">
+            <bottom>
+              <AnchorPane minHeight="-1.0" prefHeight="-1.0" prefWidth="500.0">
                 <children>
-                    <ProgressIndicator fx:id="progressIndicator" maxHeight="-1.0" maxWidth="-1.0" prefHeight="-1.0"
-                                       prefWidth="-1.0" progress="-1.0" visible="false"/>
+                  <TextField fx:id="commandEntryField" disable="true" maxHeight="30.0" minHeight="30.0" prefHeight="30.0" prefWidth="-1.0" promptText="&lt;enter command&gt;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
                 </children>
                 <padding>
-                    <Insets fx:id="x1"/>
+                  <Insets bottom="10.0" left="10.0" right="10.0" top="5.0" />
                 </padding>
-            </StackPane>
-            <Button fx:id="startStopButton" disable="true" mnemonicParsing="false" prefHeight="30.0" prefWidth="95.0"
-                    text="  Start"/>
-            <Button fx:id="nextButton" alignment="CENTER" disable="true" mnemonicParsing="false" prefHeight="30.0"
-                    prefWidth="95.0" text=" Next"/>
-        </ToolBar>
-    </bottom>
-    <center>
-        <TabPane prefHeight="-1.0" prefWidth="-1.0" tabClosingPolicy="UNAVAILABLE">
-            <Tab closable="false" text="Console">
-                <content>
-                    <BorderPane prefHeight="200.0" prefWidth="200.0">
-                        <bottom>
-                            <AnchorPane minHeight="-1.0" prefHeight="-1.0" prefWidth="500.0">
-                                <children>
-                                    <TextField fx:id="commandEntryField" disable="true" maxHeight="30.0"
-                                               minHeight="30.0" prefHeight="30.0" prefWidth="-1.0"
-                                               promptText="&lt;enter command&gt;" AnchorPane.bottomAnchor="0.0"
-                                               AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
-                                               AnchorPane.topAnchor="0.0"/>
-                                </children>
-                                <padding>
-                                    <Insets bottom="10.0" left="10.0" right="10.0" top="5.0"/>
-                                </padding>
-                            </AnchorPane>
-                        </bottom>
-                        <center>
-                            <AnchorPane prefHeight="374.0" prefWidth="500.0">
-                                <TextArea fx:id="consoleTextArea" disable="false" editable="false"
-                                          focusTraversable="false" prefHeight="-1.0" prefWidth="-1.0" promptText=""
-                                          text="&lt;disconnected&gt;" wrapText="false" AnchorPane.bottomAnchor="0.0"
-                                          AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
-                                          AnchorPane.topAnchor="0.0"/>
-                                <padding>
-                                    <Insets bottom="5.0" left="10.0" right="10.0" top="10.0"/>
-                                </padding>
-                            </AnchorPane>
-                        </center>
-                    </BorderPane>
-                </content>
-            </Tab>
-            <Tab id="missionTab" closable="false" text="Mission">
-                <content>
-                    <BorderPane fx:id="missionPane" prefHeight="200.0" prefWidth="200.0">
-                        <top>
-                            <ToolBar disable="false" visible="true">
-                                <items>
-                                    <ChoiceBox fx:id="missionModeChoice" prefHeight="25.0" prefWidth="120.0"/>
-                                    <Region fx:id="missionBarSpring" prefHeight="-1.0" prefWidth="-1.0"/>
-                                    <Button fx:id="missionLoadButton" disable="true" mnemonicParsing="false"
-                                            prefHeight="25.0" prefWidth="75.0" text=" Load"/>
-                                </items>
-                            </ToolBar>
-                        </top>
-                    </BorderPane>
-                </content>
-            </Tab>
-            <Tab id="configTab" closable="false" text="Settings">
-                <content>
-                    <BorderPane prefHeight="200.0" prefWidth="200.0">
-                        <bottom>
-                            <BorderPane prefHeight="-1.0" prefWidth="-1.0">
-                                <center>
-                                    <TableView fx:id="difficultyTable" editable="true" prefHeight="-1.0"
-                                               prefWidth="-1.0" tableMenuButtonVisible="false">
-                                        <columns>
-                                            <TableColumn editable="false" maxWidth="5000.0" minWidth="10.0"
-                                                         prefWidth="333.0" resizable="false" text="Setting"
-                                                         fx:id="diffSettingColumn"/>
-                                            <TableColumn maxWidth="5000.0" minWidth="10.0" prefWidth="60.0"
-                                                         resizable="false" text="Value" fx:id="diffValueColumn"/>
-                                        </columns>
-                                        <BorderPane.margin>
-                                            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" fx:id="x4"/>
-                                        </BorderPane.margin>
-                                    </TableView>
-                                </center>
-                                <right>
-                                    <VBox id="difficultycontrols" prefHeight="200.0" prefWidth="106.0" spacing="15.0">
-                                        <children>
-                                            <Button fx:id="getDifficultyButton" disable="true" mnemonicParsing="false"
-                                                    prefHeight="25.0" prefWidth="100.0" text=" Get"/>
-                                            <Button fx:id="setDifficultyButton" disable="true" mnemonicParsing="false"
-                                                    prefHeight="25.0" prefWidth="100.0" text=" Put"/>
-                                        </children>
-                                        <padding>
-                                            <Insets bottom="15.0" left="15.0" right="15.0" top="70.0"/>
-                                        </padding>
-                                        <BorderPane.margin>
-                                            <Insets fx:id="x2"/>
-                                        </BorderPane.margin>
-                                    </VBox>
-                                </right>
-                                <top>
-                                    <VBox fillWidth="true" prefHeight="-1.0" prefWidth="-1.0" spacing="0.0">
-                                        <children>
-                                            <Label alignment="CENTER_LEFT" text="Difficulty Settings"
-                                                   textAlignment="LEFT" underline="true"/>
-                                        </children>
-                                        <padding>
-                                            <Insets bottom="10.0" left="10.0" right="5.0" top="5.0"/>
-                                        </padding>
-                                        <BorderPane.margin>
-                                            <Insets fx:id="x3"/>
-                                        </BorderPane.margin>
-                                    </VBox>
-                                </top>
-                            </BorderPane>
-                        </bottom>
-                        <top>
-                            <VBox fillWidth="true" prefHeight="199.0" prefWidth="262.0" spacing="10.0">
-                                <children>
-                                    <Label text="Server Settings" underline="true"/>
-                                    <GridPane hgap="5.0" vgap="5.0">
-                                        <children>
-                                            <TextField fx:id="ipAddressField" prefWidth="-1.0" GridPane.columnIndex="1"
-                                                       GridPane.rowIndex="0"/>
-                                            <Label text="IP Address:" GridPane.columnIndex="0"
-                                                   GridPane.halignment="RIGHT" GridPane.rowIndex="0"/>
-                                            <TextField fx:id="portField" prefWidth="-1.0" GridPane.columnIndex="1"
-                                                       GridPane.rowIndex="1"/>
-                                            <Label text="Port:" GridPane.columnIndex="0" GridPane.halignment="RIGHT"
-                                                   GridPane.margin="$x1" GridPane.rowIndex="1"/>
-                                            <Label text="Server Path:" textAlignment="LEFT" GridPane.columnIndex="0"
-                                                   GridPane.halignment="RIGHT" GridPane.rowIndex="2"/>
-                                            <Label fx:id="serverPathLabel" text="..." textOverrun="CLIP"
-                                                   GridPane.columnIndex="1" GridPane.rowIndex="2"/>
-                                            <Button fx:id="serverPathButton" mnemonicParsing="false"
-                                                    text="Select il2server.exe" GridPane.columnIndex="1"
-                                                    GridPane.rowIndex="3"/>
-                                        </children>
-                                        <columnConstraints>
-                                            <ColumnConstraints fillWidth="false" halignment="RIGHT" hgrow="SOMETIMES"
-                                                               maxWidth="189.0" minWidth="10.0" prefWidth="66.0"/>
-                                            <ColumnConstraints fillWidth="false" halignment="LEFT" hgrow="SOMETIMES"
-                                                               maxWidth="405.0" minWidth="10.0" prefWidth="399.0"/>
-                                        </columnConstraints>
-                                        <padding>
-                                            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" fx:id="x4"/>
-                                        </padding>
-                                        <rowConstraints>
-                                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
-                                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
-                                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
-                                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
-                                        </rowConstraints>
-                                    </GridPane>
-                                </children>
-                                <padding>
-                                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
-                                </padding>
-                            </VBox>
-                        </top>
-                    </BorderPane>
-                </content>
-            </Tab>
-        </TabPane>
-    </center>
-    <stylesheets>
-        <URL value="@main.css"/>
-    </stylesheets>
-    <top>
-        <MenuBar>
-            <Menu mnemonicParsing="false" text="File">
-                <MenuItem mnemonicParsing="false" text="Exit" fx:id="exitItem"/>
-            </Menu>
-            <Menu disable="false" mnemonicParsing="false" text="Help" visible="true">
-                <MenuItem mnemonicParsing="false" text="About" fx:id="aboutItem"/>
-            </Menu>
-        </MenuBar>
-    </top>
+              </AnchorPane>
+            </bottom>
+            <center>
+              <AnchorPane prefHeight="374.0" prefWidth="500.0">
+                <TextArea fx:id="consoleTextArea" disable="false" editable="false" focusTraversable="false" prefHeight="-1.0" prefWidth="-1.0" promptText="" text="&lt;disconnected&gt;" wrapText="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                <padding>
+                  <Insets bottom="5.0" left="10.0" right="10.0" top="10.0" />
+                </padding>
+              </AnchorPane>
+            </center>
+          </BorderPane>
+        </content>
+      </Tab>
+      <Tab id="missionTab" closable="false" text="Mission">
+        <content>
+          <BorderPane fx:id="missionPane" prefHeight="200.0" prefWidth="200.0">
+            <top>
+              <ToolBar disable="false" visible="true">
+                <items>
+                  <ChoiceBox fx:id="missionModeChoice" prefHeight="25.0" prefWidth="120.0" />
+                  <Region fx:id="missionBarSpring" prefHeight="-1.0" prefWidth="-1.0" />
+                  <Button fx:id="missionLoadButton" disable="true" mnemonicParsing="false" prefHeight="25.0" prefWidth="75.0" text=" Load" />
+                </items>
+              </ToolBar>
+            </top>
+          </BorderPane>
+        </content>
+      </Tab>
+      <Tab id="configTab" closable="false" text="Settings">
+        <content>
+          <BorderPane prefHeight="200.0" prefWidth="200.0">
+            <bottom>
+              <BorderPane prefHeight="-1.0" prefWidth="-1.0">
+                <center>
+                  <TableView fx:id="difficultyTable" editable="true" prefHeight="-1.0" prefWidth="-1.0" tableMenuButtonVisible="false">
+                    <columns>
+                      <TableColumn editable="false" maxWidth="5000.0" minWidth="10.0" prefWidth="333.0" resizable="false" text="Setting" fx:id="diffSettingColumn" />
+                      <TableColumn maxWidth="5000.0" minWidth="10.0" prefWidth="60.0" resizable="false" text="Value" fx:id="diffValueColumn" />
+                    </columns>
+                    <BorderPane.margin>
+                      <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" fx:id="x4" />
+                    </BorderPane.margin>
+                  </TableView>
+                </center>
+                <right>
+                  <VBox id="difficultycontrols" prefHeight="200.0" prefWidth="106.0" spacing="15.0">
+                    <children>
+                      <Button fx:id="getDifficultyButton" disable="true" mnemonicParsing="false" prefHeight="25.0" prefWidth="100.0" text=" Get" />
+                      <Button fx:id="setDifficultyButton" disable="true" mnemonicParsing="false" prefHeight="25.0" prefWidth="100.0" text=" Put" />
+                    </children>
+                    <padding>
+                      <Insets bottom="15.0" left="15.0" right="15.0" top="70.0" />
+                    </padding>
+                    <BorderPane.margin>
+                      <Insets fx:id="x2" />
+                    </BorderPane.margin>
+                  </VBox>
+                </right>
+                <top>
+                  <VBox fillWidth="true" prefHeight="-1.0" prefWidth="-1.0" spacing="0.0">
+                    <children>
+                      <Label alignment="CENTER_LEFT" text="Difficulty Settings" textAlignment="LEFT" underline="true" />
+                    </children>
+                    <padding>
+                      <Insets bottom="10.0" left="10.0" right="5.0" top="5.0" />
+                    </padding>
+                    <BorderPane.margin>
+                      <Insets fx:id="x3" />
+                    </BorderPane.margin>
+                  </VBox>
+                </top>
+              </BorderPane>
+            </bottom>
+            <top>
+              <VBox fillWidth="true" prefHeight="199.0" prefWidth="262.0" spacing="10.0">
+                <children>
+                  <Label text="Server Settings" underline="true" />
+                  <GridPane hgap="5.0" vgap="5.0">
+                    <children>
+                      <TextField fx:id="ipAddressField" prefWidth="-1.0" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                      <Label labelFor="$ipAddressField" text="IP Address:" GridPane.columnIndex="0" GridPane.halignment="RIGHT" GridPane.rowIndex="0" />
+                      <TextField fx:id="portField" prefWidth="-1.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                      <Label labelFor="$portField" text="Port:" GridPane.columnIndex="0" GridPane.halignment="RIGHT" GridPane.margin="$x1" GridPane.rowIndex="1" />
+                      <Label text="Server Path:" textAlignment="LEFT" GridPane.columnIndex="0" GridPane.halignment="RIGHT" GridPane.rowIndex="2">
+                        <labelFor>
+                          <Label fx:id="serverPathLabel" text="..." textOverrun="CLIP" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                        </labelFor>
+                      </Label>
+                      <fx:reference source="serverPathLabel" />
+                      <Button fx:id="serverPathButton" mnemonicParsing="false" text="Select il2server.exe" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                    </children>
+                    <columnConstraints>
+                      <ColumnConstraints fillWidth="false" halignment="RIGHT" hgrow="SOMETIMES" maxWidth="189.0" minWidth="10.0" prefWidth="66.0" />
+                      <ColumnConstraints fillWidth="false" halignment="LEFT" hgrow="SOMETIMES" maxWidth="405.0" minWidth="10.0" prefWidth="399.0" />
+                    </columnConstraints>
+                    <padding>
+                      <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" fx:id="x4" />
+                    </padding>
+                    <rowConstraints>
+                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                    </rowConstraints>
+                  </GridPane>
+                </children>
+                <padding>
+                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                </padding>
+              </VBox>
+            </top>
+          </BorderPane>
+        </content>
+      </Tab>
+    </TabPane>
+  </center>
+  <stylesheets>
+    <URL value="@main.css" />
+  </stylesheets>
+  <top>
+    <MenuBar>
+      <Menu mnemonicParsing="false" text="File">
+        <MenuItem mnemonicParsing="false" text="Exit" fx:id="exitItem" />
+      </Menu>
+      <Menu disable="false" mnemonicParsing="false" text="Help" visible="true">
+        <MenuItem mnemonicParsing="false" text="About" fx:id="aboutItem" />
+      </Menu>
+    </MenuBar>
+  </top>
 </BorderPane>
