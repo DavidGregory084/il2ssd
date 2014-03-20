@@ -11,7 +11,7 @@ import static org.loadui.testfx.controls.Commons.nodeLabeledBy;
 import static org.loadui.testfx.controls.TextInputControls.clearTextIn;
 
 /**
- *
+ * GUI Test Controller
  */
 public class Il2SsdGuiTest extends GuiTest {
 
@@ -36,7 +36,6 @@ public class Il2SsdGuiTest extends GuiTest {
     }
 
     public void enterSettings() {
-        System.out.println("Entering settings...");
         this.click(settingsTab);
         clearTextIn((TextInputControl) nodeLabeledBy(ipAddressLabel));
         this.click(nodeLabeledBy(ipAddressLabel)).type(ipAddress);
