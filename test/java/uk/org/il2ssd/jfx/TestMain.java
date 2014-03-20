@@ -8,20 +8,19 @@ import org.loadui.testfx.exceptions.NoNodesFoundException;
 import org.loadui.testfx.utils.FXTestUtils;
 import uk.org.il2ssd.Core;
 
-import java.util.concurrent.TimeUnit;
-
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
-import static org.loadui.testfx.Assertions.assertNodeExists;
 import static org.loadui.testfx.Assertions.verifyThat;
+import static org.loadui.testfx.GuiTest.waitUntil;
 import static org.loadui.testfx.controls.Commons.hasText;
 import static org.loadui.testfx.controls.impl.EnabledMatcher.disabled;
 import static org.loadui.testfx.controls.impl.EnabledMatcher.enabled;
+import static org.loadui.testfx.controls.impl.NodeExistsMatcher.exists;
+import static org.loadui.testfx.controls.impl.VisibleNodesMatcher.visible;
 
 /**
  * Main GUI Tests
  */
-
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class TestMain {
 
@@ -31,26 +30,24 @@ public class TestMain {
     public static void setUpClass() {
         FXTestUtils.launchApp(Core.class);
         controller = new Il2SsdGuiTest();
-        controller.sleep(5, TimeUnit.SECONDS);
+        waitUntil(Il2SsdGuiTest.settingsTab, is(visible()));
         controller.enterSettings();
     }
 
     @Test
     public void test1_ConnectDisconnect() {
-        controller.click(Il2SsdGuiTest.consoleTab);
         // Verify initial state
+        controller.click(Il2SsdGuiTest.consoleTab);
         verifyThat(Il2SsdGuiTest.connectButton, is(enabled()));
         verifyThat(Il2SsdGuiTest.disconnectButton, is(disabled()));
         verifyThat(Il2SsdGuiTest.consoleTextArea, hasText("<disconnected>"));
-
-        controller.connect();
         // Verify connected state
+        controller.connect();
         verifyThat(Il2SsdGuiTest.connectButton, is(disabled()));
         verifyThat(Il2SsdGuiTest.disconnectButton, is(enabled()));
         verifyThat(Il2SsdGuiTest.consoleTextArea, not(hasText("<disconnected>")));
-
-        controller.disconnect();
         // Verify disconnected state
+        controller.disconnect();
         verifyThat(Il2SsdGuiTest.connectButton, is(enabled()));
         verifyThat(Il2SsdGuiTest.disconnectButton, is(disabled()));
         verifyThat(Il2SsdGuiTest.consoleTextArea, hasText("<disconnected>"));
@@ -59,7 +56,6 @@ public class TestMain {
     @Test(expected = NoNodesFoundException.class)
     public void test2_Exit() {
         controller.click(Il2SsdGuiTest.fileMenu).click(Il2SsdGuiTest.exitMenuItem);
-        assertNodeExists(Il2SsdGuiTest.fileMenu);
+        verifyThat(Il2SsdGuiTest.fileMenu, not(exists()));
     }
-
 }
