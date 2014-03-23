@@ -3591,12 +3591,13 @@ structures which we can more easily manipulate in Clojure.</p>
         main-view (MainView.)
         single-view (SingleView.)
         cycle-view (CycleView.)
+        scene (Scene. (.getView main-view))
         main-presenter (.getPresenter main-view)
         single-presenter (.getPresenter single-view)
         cycle-presenter (.getPresenter cycle-view)]
     (event/set-title)
     (doto stage
-      (.setScene (Scene. (.getView main-view)))
+      (.setScene scene)
       (.setResizable false)
       (.show))
     (Font/loadFont
