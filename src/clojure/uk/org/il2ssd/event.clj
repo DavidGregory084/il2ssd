@@ -20,7 +20,6 @@
 
   (:import (javafx.application Platform)
            (javafx.stage Stage FileChooser)
-           (uk.org.il2ssd.jfx DifficultySetting CycleMission)
            (javafx.scene.control TextArea Button TextField TableView Label ChoiceBox TableColumn$CellEditEvent
                                  TableColumn TablePosition)
            (javafx.scene.input KeyEvent)
@@ -33,14 +32,25 @@
            (java.util List)
            (java.nio.file LinkOption Paths Path)))
 
-(defn get-resolved-path
-  [root-path in-path]
-  (let [path (Paths/get in-path (into-array [""]))
-        server-path (Paths/get root-path (into-array [""]))
-        server-dir (.getParent server-path)
-        mis-dir (.resolve server-dir "Missions")]
-    (string/replace (->> path (.relativize mis-dir) .normalize str) "\\" "/")))
-
+(defn get-relative-path
+  "This two-argument function returns a relative path for a mission based
+   upon the two input paths.
+   The server path is expected to be the string path to the il2server.exe file.
+   The mission path should be the full canonical path string of the mission file
+   we wish to load.
+   In order to determine the path to send to the server we convert the strings
+   to Path objects, get the parent path of the server .exe file (which should be
+   the main server directory), and resolve this against the string \"Missions\".
+   This Path object should represent the Missions directory of our server.
+   Finally, we relativise the input path against the Missions directory path to
+   get a relative path to the mission from the Missions directory."
+  [server-path mis-path]
+  (let [in-path (Paths/get mis-path (into-array String []))
+        server-exe (Paths/get server-path (into-array String []))
+        server-dir (.getParent server-exe)
+        mis-dir (.resolve server-dir "Missions")
+        out-path (->> in-path (.relativize mis-dir) str)]
+    (string/replace out-path "\\" "/")))
 
 (defn mis-selected?
   []
@@ -95,9 +105,9 @@
    difficulty settings list"
   []
   (let [{:keys [diff-data]} @state/controls]
-    (doseq [^DifficultySetting item diff-data]
-      (let [setting (.getSetting item)
-            value (.getValue item)]
+    (doseq [item diff-data]
+      (let [setting (:setting (ui/get-item-data item))
+            value (:value (ui/get-item-data item))]
         (server/set-difficulty setting value)))))
 
 (defn console-listener
@@ -137,7 +147,7 @@
                       {:keys [diff-data]} @state/controls
                       setting ((parsed 1) 1)
                       value ((parsed 2) 1)]
-                  (ui/add-diff-data diff-data (DifficultySetting. setting value))))))))
+                  (ui/add-diff-data diff-data setting value)))))))
 
 (defn set-title
   "### set-title
@@ -306,10 +316,7 @@
    retrieve the key of the mode text selected.
 
    This key is used to load the correct UI pane for the mission mode the user has
-   selected.
-
-   After the UI pane has been loaded the field contents specific to this pane are
-   saved and finally the mode setting is saved."
+   selected."
   [modes]
   (let [{:keys [mission-pane
                 single-mis-pane
@@ -343,7 +350,8 @@
 
 (defn set-single-remote
   []
-  (let [{:keys [single-path-fld single-path-lbl]} @state/controls
+  (let [{:keys [single-path-fld
+                single-path-lbl]} @state/controls
         mission-path (ui/get-text single-path-fld)]
     (when (not (string/blank? mission-path))
       (ui/set-label single-path-lbl mission-path))))
@@ -355,7 +363,7 @@
         file (ui/show-chooser mis-chooser)]
     (when file
       (ui/set-label single-path-lbl
-                    (get-resolved-path @state/server-path (.getCanonicalPath file))))))
+                    (get-relative-path @state/server-path (.getCanonicalPath file))))))
 
 (defn single-path-select
   []

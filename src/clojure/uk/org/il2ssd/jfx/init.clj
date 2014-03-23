@@ -37,34 +37,40 @@
 
 (defn init-stage
   "### init-stage
-   This one argument function instantiates the afterburner.fx MainView class
-   which loads the view from fxml.
+   This zero argument function instantiates the subclasses of afterburner.fx's
+   FXMLView class that we have defined to hold our views.
 
-   It then saves the stage instance into a global state atom so that it can be altered
-   later and sets the scene for this stage to a new Scene object which contains this
-   view before showing the stage.
+   It then sets the title, sets the scene for this stage to a new Scene object
+   which contains the main view and defines the stage as non-resizable before
+   showing the stage.
 
-   We also load the icon font that we will use for the UI, set an event handler
-   function to run when the user requests to close the stage and define the stage
-   as non-resizable.
+   It also loads the icon font that we will use for the UI, sets an event
+   handler function to run when the user requests to close the stage and
+   defines the stage as non-resizable.
 
-   Finally, we return the presenter instance for the view we loaded.
-
-   The Java presenter class simply contains getter functions for the objects
-   which are instantiated by the afterburner.fx dependency injection framework"
-  [^Stage primaryStage]
-  (let [stage primaryStage
+   Finally, it gets the presenter instance for each of these views and loads
+   them into a map atom."
+  []
+  (let [^Stage stage @state/stage
         main-view (MainView.)
-        scene (Scene. (.getView main-view))]
-    (reset! state/stage primaryStage)
+        single-view (SingleView.)
+        cycle-view (CycleView.)
+        scene (Scene. (.getView main-view))
+        main-presenter (.getPresenter main-view)
+        single-presenter (.getPresenter single-view)
+        cycle-presenter (.getPresenter cycle-view)]
     (event/set-title)
-    (Font/loadFont (.toExternalForm ^URL (resource "fontawesome-webfont.ttf")) 12.0)
     (doto stage
       (.setScene scene)
       (.setResizable false)
       (.show))
+    (Font/loadFont
+      (.toExternalForm ^URL (resource "fontawesome-webfont.ttf")) 12.0)
     (util/close-handler stage event/close)
-    (.getPresenter main-view)))
+    (reset! state/presenters
+            {:main-presenter main-presenter
+             :single-presenter single-presenter
+             :cycle-presenter cycle-presenter})))
 
 (defn init-objects
   "### init-objects
@@ -81,10 +87,10 @@
 
    It may be necessary to use type hinting to limit uses of the Reflection API at
    runtime for performance reasons."
-  [presenter]
-  (let [^MainPresenter main-presenter presenter
-        ^SinglePresenter single-presenter (.getPresenter (SingleView.))
-        ^CyclePresenter cycle-presenter (.getPresenter (CycleView.))]
+  []
+  (let [{:keys [^MainPresenter main-presenter
+                ^SinglePresenter single-presenter
+                ^CyclePresenter cycle-presenter]} @state/presenters]
     (reset! state/controls
             (hash-map
               ;Main FXML file controls
@@ -233,28 +239,35 @@
     (doto server-chooser
       (.setTitle "Choose Il-2 Server Executable")
       (.setInitialDirectory
-        (-> (Paths/get "" (into-array [""])) .toAbsolutePath .toFile))
+        (-> (Paths/get "" ^"[Ljava.lang.String;"
+                       (into-array String []))
+            .toAbsolutePath .toFile))
       (-> ^List .getExtensionFilters
           (.add
             (FileChooser$ExtensionFilter.
               "Il-2 Server (il2server.exe)"
-              ^"[Ljava.lang.String;" (into-array ["il2server.exe"])))))
+              ^"[Ljava.lang.String;"
+              (into-array String ["il2server.exe"])))))
     (doto mis-chooser
       (.setTitle "Choose Il-2 Mission File")
       (-> ^List .getExtensionFilters
           (.add
             (FileChooser$ExtensionFilter.
               "Il-2 Mission (*.mis)"
-              ^"[Ljava.lang.String;" (into-array ["*.mis"])))))
+              ^"[Ljava.lang.String;"
+              (into-array ["*.mis"])))))
     (doto dcg-chooser
       (.setTitle "Choose DCG Executable")
       (.setInitialDirectory
-        (-> (Paths/get "" (into-array [""])) .toAbsolutePath .toFile))
+        (-> (Paths/get "" ^"[Ljava.lang.String;"
+                       (into-array String []))
+            .toAbsolutePath .toFile))
       (-> ^List .getExtensionFilters
           (.add
             (FileChooser$ExtensionFilter.
               "DCG Executable (il2dcg.exe)"
-              ^"[Ljava.lang.String;" (into-array ["il2dcg.exe"])))))))
+              ^"[Ljava.lang.String;"
+              (into-array ["il2dcg.exe"])))))))
 
 (defn init-diff-table
   "### init-diff-table

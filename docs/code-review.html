@@ -3029,7 +3029,7 @@ net.brehaut.ClojureTools = (function (SH) {
   };
 })(SyntaxHighlighter);
 </script><title>Il-2 Simple Server Daemon -- Marginalia</title></head><body><table><tr><td class="docs"><div class="header"><h1 class="project-name">Il-2 Simple Server Daemon</h1><h2 class="project-version">0.1.0-SNAPSHOT</h2><br /><p>Il-2 Simple Server Daemon is a very simple server controller for the Il-2 Sturmovik 1946 dedicated server. It aims to be an easy-to-use tool with IL-2 DCG integration.</p>
-</div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">org.clojure/clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.5.1</td></tr><tr><td class="dep-name">org.clojure/core.async</td><td class="dotted"><hr /></td><td class="dep-version">0.1.267.0-0d7780-alpha</td></tr><tr><td class="dep-name">com.airhacks/afterburner.fx</td><td class="dotted"><hr /></td><td class="dep-version">1.4.2</td></tr><tr><td class="dep-name">commons-lang/commons-lang</td><td class="dotted"><hr /></td><td class="dep-version">2.6</td></tr><tr><td class="dep-name">instaparse/instaparse</td><td class="dotted"><hr /></td><td class="dep-version">1.3.0</td></tr><tr><td class="dep-name">com.brainbot/iniconfig</td><td class="dotted"><hr /></td><td class="dep-version">0.2.0</td></tr><tr><td class="dep-name">overtone/at-at</td><td class="dotted"><hr /></td><td class="dep-version">1.2.0</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#uk.org.il2ssd.channel">uk.org.il2ssd.channel</a></li><li><a href="#uk.org.il2ssd.core">uk.org.il2ssd.core</a></li><li><a href="#uk.org.il2ssd.event">uk.org.il2ssd.event</a></li><li><a href="#uk.org.il2ssd.jfx.init">uk.org.il2ssd.jfx.init</a></li><li><a href="#uk.org.il2ssd.jfx.ui">uk.org.il2ssd.jfx.ui</a></li><li><a href="#uk.org.il2ssd.jfx.util">uk.org.il2ssd.jfx.util</a></li><li><a href="#uk.org.il2ssd.parse">uk.org.il2ssd.parse</a></li><li><a href="#uk.org.il2ssd.server">uk.org.il2ssd.server</a></li><li><a href="#uk.org.il2ssd.settings">uk.org.il2ssd.settings</a></li><li><a href="#uk.org.il2ssd.state">uk.org.il2ssd.state</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#uk.org.il2ssd.channel" name="uk.org.il2ssd.channel"><h1 class="project-name">uk.org.il2ssd.channel</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><h2>Channels for thread-safe concurrency</h2>
+</div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">org.clojure/clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.5.1</td></tr><tr><td class="dep-name">org.clojure/core.async</td><td class="dotted"><hr /></td><td class="dep-version">0.1.267.0-0d7780-alpha</td></tr><tr><td class="dep-name">com.airhacks/afterburner.fx</td><td class="dotted"><hr /></td><td class="dep-version">1.4.4</td></tr><tr><td class="dep-name">commons-lang/commons-lang</td><td class="dotted"><hr /></td><td class="dep-version">2.6</td></tr><tr><td class="dep-name">instaparse/instaparse</td><td class="dotted"><hr /></td><td class="dep-version">1.3.0</td></tr><tr><td class="dep-name">com.brainbot/iniconfig</td><td class="dotted"><hr /></td><td class="dep-version">0.2.0</td></tr><tr><td class="dep-name">overtone/at-at</td><td class="dotted"><hr /></td><td class="dep-version">1.2.0</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#uk.org.il2ssd.channel">uk.org.il2ssd.channel</a></li><li><a href="#uk.org.il2ssd.core">uk.org.il2ssd.core</a></li><li><a href="#uk.org.il2ssd.event">uk.org.il2ssd.event</a></li><li><a href="#uk.org.il2ssd.jfx.init">uk.org.il2ssd.jfx.init</a></li><li><a href="#uk.org.il2ssd.jfx.ui">uk.org.il2ssd.jfx.ui</a></li><li><a href="#uk.org.il2ssd.jfx.util">uk.org.il2ssd.jfx.util</a></li><li><a href="#uk.org.il2ssd.parse">uk.org.il2ssd.parse</a></li><li><a href="#uk.org.il2ssd.server">uk.org.il2ssd.server</a></li><li><a href="#uk.org.il2ssd.settings">uk.org.il2ssd.settings</a></li><li><a href="#uk.org.il2ssd.state">uk.org.il2ssd.state</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#uk.org.il2ssd.channel" name="uk.org.il2ssd.channel"><h1 class="project-name">uk.org.il2ssd.channel</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><h2>Channels for thread-safe concurrency</h2>
 
 <p>Here we define the input channels that we use to safely process the server console
 output concurrently. The initial input channel will receive one line at a time from
@@ -3109,20 +3109,25 @@ on the JavaFX Application thread.</p>
               :extends javafx.application.Application
               :main true
               :methods [#^{:static true} [getStage [] javafx.stage.Stage]])
-  (:require [uk.org.il2ssd.jfx.init :as jfx])
+  (:require [uk.org.il2ssd.jfx.init :as jfx]
+            [uk.org.il2ssd.state :as state])
   (:import (javafx.application Application)
            (com.airhacks.afterburner.injection InjectionProvider)
-           (uk.org.il2ssd Core)))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(def stage (atom nil))</pre></td></tr><tr><td class="docs">
+           (uk.org.il2ssd Core)))</pre></td></tr><tr><td class="docs"><p>This zero-argument function appears externally as a static method which returns
+   the javafx.stage.Stage instance for our current stage.</p>
+
+<p>   This was done as a requirement for using the TestFX framework, which requires
+   access to the root node of the scene when extending the getRootNode method
+   of the GuiTest class.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn -getStage
   []
-  stage)</pre></td></tr><tr><td class="docs"><h3>-main</h3>
+  @state/stage)</pre></td></tr><tr><td class="docs"><h3>-main</h3>
 
-<p>   This is the main application method, which calls the main method of the class
-   we defined above with gen-class, using the JavaFX Application.launch
+<p>   This is the main application method, which calls the main method of Core.class
+   which we defined above with gen-class, using the JavaFX Application.launch
    static method.</p>
 
-<p>   The class will be generated when this namespace is AOT compiled.</p>
+<p>   The file Core.class will be generated when this namespace is AOT compiled.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn -main
   [&amp; args]
   (Application/launch Core (into-array String [args])))</pre></td></tr><tr><td class="docs"><h3>-start</h3>
@@ -3131,21 +3136,24 @@ on the JavaFX Application thread.</p>
    the JavaFX Application Thread.</p>
 
 <p>   We use this method to launch all of our UI initialisation methods, first initialising
-   the stage and then passing the instance of our MainPresenter class into our object
-   initialisation method.</p>
+   the stage and then our object map, which will hold each of the controls we need to
+   manipulate.</p>
 
-<p>   After initialising the objects, we initialise event handlers, watches and  various
-   controls.</p>
+<p>   After initialising the objects map, we initialise event handlers, watches and the
+   state for our standard controls from defaults or from our stored config file.</p>
+
+<p>   Finally the tables and file choosers are instantiated, which requires some extra
+   configuration.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn -start
   [this primaryStage]
-  (reset! stage primaryStage)
-  (let [main-presenter (jfx/init-stage primaryStage)]
-    (jfx/init-objects main-presenter)
-    (jfx/init-handlers)
-    (jfx/init-controls)
-    (jfx/init-choosers)
-    (jfx/init-diff-table)
-    (jfx/init-cycle-table)))</pre></td></tr><tr><td class="docs"><h3>-stop</h3>
+  (reset! state/stage primaryStage)
+  (jfx/init-stage)
+  (jfx/init-objects)
+  (jfx/init-handlers)
+  (jfx/init-controls)
+  (jfx/init-choosers)
+  (jfx/init-diff-table)
+  (jfx/init-cycle-table))</pre></td></tr><tr><td class="docs"><h3>-stop</h3>
 
 <p>   Every JavaFX application runs the "stop" method when a close request is made for
    the last visible stage, so that cleanup can be performed before the application
@@ -3175,7 +3183,6 @@ update the UI accordingly.</p>
             [uk.org.il2ssd.jfx.ui :as ui])
   (:import (javafx.application Platform)
            (javafx.stage Stage FileChooser)
-           (uk.org.il2ssd.jfx DifficultySetting CycleMission)
            (javafx.scene.control TextArea Button TextField TableView Label ChoiceBox TableColumn$CellEditEvent
                                  TableColumn TablePosition)
            (javafx.scene.input KeyEvent)
@@ -3186,14 +3193,25 @@ update the UI accordingly.</p>
            (java.io File)
            (javafx.scene.control.cell)
            (java.util List)
-           (java.nio.file LinkOption Paths Path)))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(defn get-resolved-path
-  [root-path in-path]
-  (let [path (Paths/get in-path (into-array []))
-        server-path (Paths/get root-path (into-array []))
-        server-dir (.getParent server-path)
-        mis-dir (.resolve server-dir &quot;Missions&quot;)]
-    (string/replace (-&gt;&gt; path (.relativize mis-dir) .normalize str) &quot;\\&quot; &quot;/&quot;)))</pre></td></tr><tr><td class="docs">
+           (java.nio.file LinkOption Paths Path)))</pre></td></tr><tr><td class="docs"><p>This two-argument function returns a relative path for a mission based
+   upon the two input paths.
+   The server path is expected to be the string path to the il2server.exe file.
+   The mission path should be the full canonical path string of the mission file
+   we wish to load.
+   In order to determine the path to send to the server we convert the strings
+   to Path objects, get the parent path of the server .exe file (which should be
+   the main server directory), and resolve this against the string "Missions".
+   This Path object should represent the Missions directory of our server.
+   Finally, we relativise the input path against the Missions directory path to
+   get a relative path to the mission from the Missions directory.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn get-relative-path
+  [server-path mis-path]
+  (let [in-path (Paths/get mis-path (into-array String []))
+        server-exe (Paths/get server-path (into-array String []))
+        server-dir (.getParent server-exe)
+        mis-dir (.resolve server-dir &quot;Missions&quot;)
+        out-path (-&gt;&gt; in-path (.relativize mis-dir) str)]
+    (string/replace out-path &quot;\\&quot; &quot;/&quot;)))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn mis-selected?
   []
   (let [{:keys [single-path-lbl]} @state/controls
@@ -3243,9 +3261,9 @@ update the UI accordingly.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn set-difficulties
   []
   (let [{:keys [diff-data]} @state/controls]
-    (doseq [^DifficultySetting item diff-data]
-      (let [setting (.getSetting item)
-            value (.getValue item)]
+    (doseq [item diff-data]
+      (let [setting (:setting (ui/get-item-data item))
+            value (:value (ui/get-item-data item))]
         (server/set-difficulty setting value)))))</pre></td></tr><tr><td class="docs"><h3>console-listener</h3>
 
 <p>   This is a zero argument function which spawns another thread. The process on
@@ -3282,7 +3300,7 @@ update the UI accordingly.</p>
                       {:keys [diff-data]} @state/controls
                       setting ((parsed 1) 1)
                       value ((parsed 2) 1)]
-                  (ui/add-diff-data diff-data (DifficultySetting. setting value))))))))</pre></td></tr><tr><td class="docs"><h3>set-title</h3>
+                  (ui/add-diff-data diff-data setting value)))))))</pre></td></tr><tr><td class="docs"><h3>set-title</h3>
 
 <p>   This is a multiple-arity function which changes the title of the program
    window.</p>
@@ -3439,9 +3457,6 @@ update the UI accordingly.</p>
 
 <p>   This key is used to load the correct UI pane for the mission mode the user has
    selected.</p>
-
-<p>   After the UI pane has been loaded the field contents specific to this pane are
-   saved and finally the mode setting is saved.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn mode-choice
   [modes]
   (let [{:keys [mission-pane
@@ -3473,7 +3488,8 @@ update the UI accordingly.</p>
       (ui/set-label server-path-lbl (.getCanonicalPath file)))))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn set-single-remote
   []
-  (let [{:keys [single-path-fld single-path-lbl]} @state/controls
+  (let [{:keys [single-path-fld
+                single-path-lbl]} @state/controls
         mission-path (ui/get-text single-path-fld)]
     (when (not (string/blank? mission-path))
       (ui/set-label single-path-lbl mission-path))))</pre></td></tr><tr><td class="docs">
@@ -3484,7 +3500,7 @@ update the UI accordingly.</p>
         file (ui/show-chooser mis-chooser)]
     (when file
       (ui/set-label single-path-lbl
-                    (get-resolved-path @state/server-path (.getCanonicalPath file))))))</pre></td></tr><tr><td class="docs">
+                    (get-relative-path @state/server-path (.getCanonicalPath file))))))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn single-path-select
   []
   (let [{:keys [single-path-lbl]} @state/controls
@@ -3556,35 +3572,40 @@ structures which we can more easily manipulate in Clojure.</p>
 </td><td class="codes"><pre class="brush: clojure">(def modes
   {:single &quot;Single Mission&quot;, :cycle &quot;Mission Cycle&quot;})</pre></td></tr><tr><td class="docs"><h3>init-stage</h3>
 
-<p>   This one argument function instantiates the afterburner.fx MainView class
-   which loads the view from fxml.</p>
+<p>   This zero argument function instantiates the subclasses of afterburner.fx's
+   FXMLView class that we have defined to hold our views.</p>
 
-<p>   It then saves the stage instance into a global state atom so that it can be altered
-   later and sets the scene for this stage to a new Scene object which contains this
-   view before showing the stage.</p>
+<p>   It then sets the title, sets the scene for this stage to a new Scene object
+   which contains the main view and defines the stage as non-resizable before
+   showing the stage.</p>
 
-<p>   We also load the icon font that we will use for the UI, set an event handler
-   function to run when the user requests to close the stage and define the stage
-   as non-resizable.</p>
+<p>   It also loads the icon font that we will use for the UI, sets an event
+   handler function to run when the user requests to close the stage and
+   defines the stage as non-resizable.</p>
 
-<p>   Finally, we return the presenter instance for the view we loaded.</p>
-
-<p>   The Java presenter class simply contains getter functions for the objects
-   which are instantiated by the afterburner.fx dependency injection framework</p>
+<p>   Finally, it gets the presenter instance for each of these views and loads
+   them into a map atom.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn init-stage
-  [^Stage primaryStage]
-  (let [stage primaryStage
+  []
+  (let [^Stage stage @state/stage
         main-view (MainView.)
-        scene (Scene. (.getView main-view))]
-    (reset! state/stage primaryStage)
+        single-view (SingleView.)
+        cycle-view (CycleView.)
+        main-presenter (.getPresenter main-view)
+        single-presenter (.getPresenter single-view)
+        cycle-presenter (.getPresenter cycle-view)]
     (event/set-title)
-    (Font/loadFont (.toExternalForm ^URL (resource &quot;fontawesome-webfont.ttf&quot;)) 12.0)
     (doto stage
-      (.setScene scene)
+      (.setScene (Scene. (.getView main-view)))
       (.setResizable false)
       (.show))
+    (Font/loadFont
+      (.toExternalForm ^URL (resource &quot;fontawesome-webfont.ttf&quot;)) 12.0)
     (util/close-handler stage event/close)
-    (.getPresenter main-view)))</pre></td></tr><tr><td class="docs"><h3>init-objects</h3>
+    (reset! state/presenters
+            {:main-presenter main-presenter
+             :single-presenter single-presenter
+             :cycle-presenter cycle-presenter})))</pre></td></tr><tr><td class="docs"><h3>init-objects</h3>
 
 <p>   This one argument function accepts a main presenter instance and instantiates
    any subsidiary presenter classes before loading all of the objects which we
@@ -3601,10 +3622,10 @@ structures which we can more easily manipulate in Clojure.</p>
 <p>   It may be necessary to use type hinting to limit uses of the Reflection API at
    runtime for performance reasons.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn init-objects
-  [presenter]
-  (let [^MainPresenter main-presenter presenter
-        ^SinglePresenter single-presenter (.getPresenter (SingleView.))
-        ^CyclePresenter cycle-presenter (.getPresenter (CycleView.))]
+  []
+  (let [{:keys [^MainPresenter main-presenter
+                ^SinglePresenter single-presenter
+                ^CyclePresenter cycle-presenter]} @state/presenters]
     (reset! state/controls
             (hash-map
               ;Main FXML file controls
@@ -3750,28 +3771,35 @@ structures which we can more easily manipulate in Clojure.</p>
     (doto server-chooser
       (.setTitle &quot;Choose Il-2 Server Executable&quot;)
       (.setInitialDirectory
-        (-&gt; (Paths/get &quot;&quot; (into-array [&quot;&quot;])) .toAbsolutePath .toFile))
+        (-&gt; (Paths/get &quot;&quot; ^&quot;[Ljava.lang.String;&quot;
+                       (into-array String []))
+            .toAbsolutePath .toFile))
       (-&gt; ^List .getExtensionFilters
           (.add
             (FileChooser$ExtensionFilter.
               &quot;Il-2 Server (il2server.exe)&quot;
-              ^&quot;[Ljava.lang.String;&quot; (into-array [&quot;il2server.exe&quot;])))))
+              ^&quot;[Ljava.lang.String;&quot;
+              (into-array String [&quot;il2server.exe&quot;])))))
     (doto mis-chooser
       (.setTitle &quot;Choose Il-2 Mission File&quot;)
       (-&gt; ^List .getExtensionFilters
           (.add
             (FileChooser$ExtensionFilter.
               &quot;Il-2 Mission (*.mis)&quot;
-              ^&quot;[Ljava.lang.String;&quot; (into-array [&quot;*.mis&quot;])))))
+              ^&quot;[Ljava.lang.String;&quot;
+              (into-array [&quot;*.mis&quot;])))))
     (doto dcg-chooser
       (.setTitle &quot;Choose DCG Executable&quot;)
       (.setInitialDirectory
-        (-&gt; (Paths/get &quot;&quot; (into-array [&quot;&quot;])) .toAbsolutePath .toFile))
+        (-&gt; (Paths/get &quot;&quot; ^&quot;[Ljava.lang.String;&quot;
+                       (into-array String []))
+            .toAbsolutePath .toFile))
       (-&gt; ^List .getExtensionFilters
           (.add
             (FileChooser$ExtensionFilter.
               &quot;DCG Executable (il2dcg.exe)&quot;
-              ^&quot;[Ljava.lang.String;&quot; (into-array [&quot;il2dcg.exe&quot;])))))))</pre></td></tr><tr><td class="docs"><h3>init-diff-table</h3>
+              ^&quot;[Ljava.lang.String;&quot;
+              (into-array [&quot;il2dcg.exe&quot;])))))))</pre></td></tr><tr><td class="docs"><h3>init-diff-table</h3>
 
 <p>   This is a zero argument function which instantiates the cell factories and cell
    value factories for the difficulty table so that the table is populated
@@ -3834,7 +3862,8 @@ structures which we can more easily manipulate in Clojure.</p>
       (.setColumnResizePolicy TableView/CONSTRAINED_RESIZE_POLICY)
       (.setItems cycle-data))))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#uk.org.il2ssd.jfx.ui" name="uk.org.il2ssd.jfx.ui"><h1 class="project-name">uk.org.il2ssd.jfx.ui</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(ns uk.org.il2ssd.jfx.ui
-  (:import (uk.org.il2ssd.jfx DifficultySetting CycleMission))
+  (:import (uk.org.il2ssd.jfx DifficultySetting CycleMission)
+           (javafx.scene.control Labeled))
   (:import (javafx.application Platform)
            (javafx.scene.control TextArea Button TextField TextInputControl ChoiceBox TableColumn$CellEditEvent
                                  TableColumn TablePosition Label TableView ProgressIndicator)
@@ -3862,8 +3891,10 @@ structures which we can more easily manipulate in Clojure.</p>
 <p>   This two argument function adds the supplied element to the supplied list
    object.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn add-diff-data
-  [^List diff-data item]
-  (util/run-later (.add diff-data item)))</pre></td></tr><tr><td class="docs"><h3>print-console</h3>
+  [^List diff-data
+   ^String setting
+   ^String value]
+  (util/run-later (.add diff-data (DifficultySetting. setting value))))</pre></td></tr><tr><td class="docs"><h3>print-console</h3>
 
 <p>   This two argument function appends the supplied text to the supplied text area
    control.</p>
@@ -3945,12 +3976,23 @@ structures which we can more easily manipulate in Clojure.</p>
                           (.setText load-btn &quot;\uf093 Load&quot;)
                           (if mission-path
                             (.setDisable load-btn false)
-                            (.setDisable load-btn true)))))))</pre></td></tr><tr><td class="docs"><h3>get-text</h3>
+                            (.setDisable load-btn true)))))))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defprotocol GetText
+  (get-text [control]))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(extend-protocol GetText
 
-<p>   This one argument function returns the text from the supplied control.</p>
-</td><td class="codes"><pre class="brush: clojure">(defn get-text
-  ^String [control]
-  (.getText control))</pre></td></tr><tr><td class="docs"><h3>set-mis-pane</h3>
+  TextInputControl
+  (get-text [control]
+    (.getText control))
+
+  Labeled
+  (get-text [control]
+    (.getText control)))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn get-item-data
+  [^DifficultySetting data-item]
+  (-&gt; {}
+      (assoc :setting (.getSetting data-item))
+      (assoc :value (.getValue data-item))))</pre></td></tr><tr><td class="docs"><h3>set-mis-pane</h3>
 
 <p>   This two argument function sets the centre content of the supplied BorderPane
    instance to the supplied object.</p>
@@ -4054,7 +4096,7 @@ structures which we can more easily manipulate in Clojure.</p>
   [path controls]
   (let [{:keys [^FileChooser mis-chooser]} controls]
     (.setInitialDirectory mis-chooser
-                          (-&gt; (Paths/get path (into-array []))
+                          (-&gt; (Paths/get path (into-array String []))
                               .getParent
                               (.resolve &quot;Missions&quot;)
                               .toFile))))</pre></td></tr><tr><td class="docs">
@@ -4624,6 +4666,10 @@ necessary to initialise these atoms.</p>
 <p>   This atom will store the JavaFX Stage instance so that we can set the stage
    title during the execution of the program.</p>
 </td><td class="codes"><pre class="brush: clojure">(def stage
+  (atom nil))</pre></td></tr><tr><td class="docs"><h3>presenters</h3>
+
+<p>   This atom will store a map of presenter instances.</p>
+</td><td class="codes"><pre class="brush: clojure">(def presenters
   (atom nil))</pre></td></tr><tr><td class="docs"><h3>controls</h3>
 
 <p>   This atom will store a map of the control object instances which are returned

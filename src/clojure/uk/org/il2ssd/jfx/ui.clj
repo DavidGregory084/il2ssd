@@ -1,7 +1,8 @@
 ;; 
 ;;
 (ns uk.org.il2ssd.jfx.ui
-  (:import (uk.org.il2ssd.jfx DifficultySetting CycleMission))
+  (:import (uk.org.il2ssd.jfx DifficultySetting CycleMission)
+           (javafx.scene.control Labeled))
 
   (:import (javafx.application Platform)
            (javafx.scene.control TextArea Button TextField TextInputControl ChoiceBox TableColumn$CellEditEvent
@@ -34,8 +35,10 @@
   "### add-diff-data
    This two argument function adds the supplied element to the supplied list
    object."
-  [^List diff-data item]
-  (util/run-later (.add diff-data item)))
+  [^List diff-data
+   ^String setting
+   ^String value]
+  (util/run-later (.add diff-data (DifficultySetting. setting value))))
 
 (defn print-console
   "### print-console
@@ -126,11 +129,24 @@
                             (.setDisable load-btn false)
                             (.setDisable load-btn true)))))))
 
-(defn get-text
-  "### get-text
-   This one argument function returns the text from the supplied control."
-  ^String [control]
-  (.getText control))
+(defprotocol GetText
+  (get-text [control]))
+
+(extend-protocol GetText
+
+  TextInputControl
+  (get-text [control]
+    (.getText control))
+
+  Labeled
+  (get-text [control]
+    (.getText control)))
+
+(defn get-item-data
+  [^DifficultySetting data-item]
+  (-> {}
+      (assoc :setting (.getSetting data-item))
+      (assoc :value (.getValue data-item))))
 
 (defn set-mis-pane
   "### set-mis-pane
@@ -244,7 +260,7 @@
   [path controls]
   (let [{:keys [^FileChooser mis-chooser]} controls]
     (.setInitialDirectory mis-chooser
-                          (-> (Paths/get path (into-array [""]))
+                          (-> (Paths/get path (into-array String []))
                               .getParent
                               (.resolve "Missions")
                               .toFile))))

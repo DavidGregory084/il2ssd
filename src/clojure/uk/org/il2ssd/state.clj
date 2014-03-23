@@ -17,6 +17,11 @@
    title during the execution of the program."
   (atom nil))
 
+(def presenters
+  "### presenters
+   This atom will store a map of presenter instances."
+  (atom nil))
+
 (def controls
   "### controls
    This atom will store a map of the control object instances which are returned

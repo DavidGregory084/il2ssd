@@ -11,25 +11,30 @@
               :main true
               :methods [#^{:static true} [getStage [] javafx.stage.Stage]])
 
-  (:require [uk.org.il2ssd.jfx.init :as jfx])
+  (:require [uk.org.il2ssd.jfx.init :as jfx]
+            [uk.org.il2ssd.state :as state])
 
   (:import (javafx.application Application)
            (com.airhacks.afterburner.injection InjectionProvider)
            (uk.org.il2ssd Core)))
 
-(def stage (atom nil))
-
 (defn -getStage
+  "This zero-argument function appears externally as a static method which returns
+   the javafx.stage.Stage instance for our current stage.
+
+   This was done as a requirement for using the TestFX framework, which requires
+   access to the root node of the scene when extending the getRootNode method
+   of the GuiTest class."
   []
-  stage)
+  @state/stage)
 
 (defn -main
   "### -main
-   This is the main application method, which calls the main method of the class
-   we defined above with gen-class, using the JavaFX Application.launch
+   This is the main application method, which calls the main method of Core.class
+   which we defined above with gen-class, using the JavaFX Application.launch
    static method.
 
-   The class will be generated when this namespace is AOT compiled."
+   The file Core.class will be generated when this namespace is AOT compiled."
   [& args]
   (Application/launch Core (into-array String [args])))
 
@@ -39,20 +44,23 @@
    the JavaFX Application Thread.
 
    We use this method to launch all of our UI initialisation methods, first initialising
-   the stage and then passing the instance of our MainPresenter class into our object
-   initialisation method.
+   the stage and then our object map, which will hold each of the controls we need to
+   manipulate.
 
-   After initialising the objects, we initialise event handlers, watches and  various
-   controls."
+   After initialising the objects map, we initialise event handlers, watches and the
+   state for our standard controls from defaults or from our stored config file.
+
+   Finally the tables and file choosers are instantiated, which requires some extra
+   configuration."
   [this primaryStage]
-  (reset! stage primaryStage)
-  (let [main-presenter (jfx/init-stage primaryStage)]
-    (jfx/init-objects main-presenter)
-    (jfx/init-handlers)
-    (jfx/init-controls)
-    (jfx/init-choosers)
-    (jfx/init-diff-table)
-    (jfx/init-cycle-table)))
+  (reset! state/stage primaryStage)
+  (jfx/init-stage)
+  (jfx/init-objects)
+  (jfx/init-handlers)
+  (jfx/init-controls)
+  (jfx/init-choosers)
+  (jfx/init-diff-table)
+  (jfx/init-cycle-table))
 
 (defn -stop
   "### -stop
