@@ -12,7 +12,7 @@
             [clojure.set :refer [map-invert]]
             [clojure.string :as string]
             [uk.org.il2ssd.channel :refer :all]
-            [uk.org.il2ssd.parse :as parse]
+            [uk.org.il2ssd.parse :refer :all]
             [uk.org.il2ssd.server :as server]
             [uk.org.il2ssd.settings :as settings]
             [uk.org.il2ssd.state :as state]
@@ -33,15 +33,21 @@
            (java.nio.file LinkOption Paths Path)))
 
 (defn get-relative-path
-  "This two-argument function returns a relative path for a mission based
-   upon the two input paths.
+  "### get-relative-path
+   This two-argument function returns a relative path for a mission based upon
+   the two input paths.
+
    The server path is expected to be the string path to the il2server.exe file.
+
    The mission path should be the full canonical path string of the mission file
    we wish to load.
+
    In order to determine the path to send to the server we convert the strings
    to Path objects, get the parent path of the server .exe file (which should be
    the main server directory), and resolve this against the string \"Missions\".
+
    This Path object should represent the Missions directory of our server.
+
    Finally, we relativise the input path against the Missions directory path to
    get a relative path to the mission from the Missions directory."
   [server-path mis-path]
@@ -53,6 +59,9 @@
     (string/replace out-path "\\" "/")))
 
 (defn mis-selected?
+  "### mis-selected?
+   This zero argument function is used to determine whether there is a valid
+   mission selection, dependent upon the current UI mission loading mode."
   []
   (let [{:keys [single-path-lbl]} @state/controls
         single-mis (ui/get-text single-path-lbl)]
@@ -77,7 +86,8 @@
 (defn load-unload-command
   "### load-unload-command
    This is a zero argument function which unloads the currently loaded mission if
-   it is loaded."
+   it is loaded, and loads the current mission (dependent upon the mission loading
+   mode) if it is not."
   []
   (if @state/loaded
     (server/unload-mission)
@@ -98,16 +108,17 @@
 (defn set-difficulties
   "### set-difficulties
    This is a zero argument function which iterates over the difficulty data list
-   and gets the setting and value for each DifficultySetting instance in the list,
+   and gets the setting and value for each difficulty setting in the list,
    setting each provided setting to the provided value on the server.
 
    This will update the server with any changes that the user has made to the
-   difficulty settings list"
+   difficulty settings list."
   []
   (let [{:keys [diff-data]} @state/controls]
     (doseq [item diff-data]
-      (let [setting (:setting (ui/get-item-data item))
-            value (:value (ui/get-item-data item))]
+      (let [item-data (ui/get-item-data item)
+            setting (:setting item-data)
+            value (:value item-data)]
         (server/set-difficulty setting value)))))
 
 (defn console-listener
@@ -118,14 +129,13 @@
    is printed to the application console.
 
    Functions which spawn a thread return immediately so that execution can
-   proceed in the other thread. This prevents these functions from blocking
-   the current thread."
+   proceed in the new thread. This prevents these functions from blocking
+   the calling thread."
   []
   (thread (while @state/connected
-            (let [text (<!! print-channel)]
-              (when text
-                (let [{:keys [console]} @state/controls]
-                  (ui/print-console console text)))))))
+            (when-let [text (<!! print-channel)]
+              (let [{:keys [console]} @state/controls]
+                (ui/print-console console text))))))
 
 
 (defn difficulty-listener
@@ -135,19 +145,17 @@
    global connection state atom says that we are connected.
 
    Any text which is read is parsed into a setting-value pair which is used to
-   instantiate a DifficultySetting object in the difficulty settings list.
+   add a new setting-value pair to the difficulty settings list.
 
    As above, we should note that this function will return immediately and
-   execution will continue on another thread without blocking this one."
+   execution will continue on a new thread without blocking the caller."
   []
   (thread (while @state/connected
-            (let [text (<!! diff-channel)]
-              (when text
-                (let [parsed (parse/difficulty-parser text)
-                      {:keys [diff-data]} @state/controls
-                      setting ((parsed 1) 1)
-                      value ((parsed 2) 1)]
-                  (ui/add-diff-data diff-data setting value)))))))
+            (when-let [text (<!! diff-channel)]
+              (let [parsed (parse-text difficulty-parser text)
+                    {:keys [diff-data]} @state/controls
+                    {:keys [setting value]} parsed]
+                (ui/add-diff-data diff-data setting value))))))
 
 (defn set-title
   "### set-title
@@ -171,66 +179,59 @@
    this thread listens for non-nil output on the mis-channel for as long as the
    global connection state atom says that we are connected.
 
-   Any text which is taken from the channel is parsed by the mission parser.
+   Any text which is taken from the channel is parsed into a map of key-value
+   pairs.
 
-   If the parser returns one element we know that a mission and its path were not
-   found. This can only mean that no mission was loaded. In this case we set the
-   global state atoms to false and reset the title to the default.
-
-   If the parser returns three elements we know that a mission is loaded and that
-   we can use the state returned for further processing. We reset the global
-   state atoms depending upon the state returned and add the mission and state
-   to the stage title.
+   If we have a mission key we know that a mission is loaded. We can use this
+   and the value of the mission state key to determine how to set the UI.
 
    Any text which doesn't match the parser rules does not trigger any further
    processing.
 
    Functions which spawn a thread return immediately so that execution can
-   proceed in the other thread. This prevents these functions from blocking
-   the current thread."
+   proceed in the new thread. This prevents these functions from blocking
+   the calling thread."
   []
   (thread (while @state/connected
-            (let [text (<!! mis-channel)]
-              (when text
-                (let [parsed (parse/mission-parser text)]
-                  (when (nil? (get parsed 2))
-                    (let [state (get-in parsed [1 1])]
-                      (when (= state "NOT loaded")
-                        (reset! state/loaded false)
-                        (reset! state/playing false)
-                        (set-title))))
-                  (when (seq (get parsed 3))
-                    (let [path (get-in parsed [1 1])
-                          mission (get-in parsed [2 1])
-                          state (get-in parsed [3 1])]
-                      (when (= state "Loaded")
-                        (reset! state/loaded true)
-                        (reset! state/playing false))
-                      (when (= state "Playing")
-                        (reset! state/loaded true)
-                        (reset! state/playing true))
-                      (set-title mission state)))))))))
+            (when-let [text (<!! mis-channel)]
+              (let [parsed (parse-text mission-parser text)]
+                (if (nil? (:mission parsed))
+                  (let [state (:state parsed)]
+                    (when (= state "NOT loaded")
+                      (reset! state/loaded false)
+                      (reset! state/playing false)
+                      (set-title)))
+                  (let [{:keys [mission state]} parsed]
+                    (when (= state "Loaded")
+                      (reset! state/loaded true)
+                      (reset! state/playing false))
+                    (when (= state "Playing")
+                      (reset! state/loaded true)
+                      (reset! state/playing true))
+                    (set-title mission state))))))))
 
 (defn err-listener
   "### err-listener
    This is a zero argument function which listens for text on the error channel.
+
    This channel filters for mission loading errors, so when we receive a value
    from this channel we know that the requested mission failed to load, and we
    can set the mission state to unloaded."
   []
   (thread (while @state/connected
-            (let [text (<!! err-channel)]
-              (when text
-                (ui/toggle-prog-ind @state/controls false)
-                (reset! state/loaded false)
-                (reset! state/playing false)
-                (set-title))))))
+            (when-let [text (<!! err-channel)]
+              (ui/toggle-prog-ind @state/controls false)
+              (reset! state/loaded false)
+              (reset! state/playing false)
+              (set-title)))))
 
 (defn start-listeners
   "### start-listeners
    This is a zero argument convenience function which starts all of the listeners
-   which parse the server console output. They all need to be running and removing
-   puts from the channels or the program will stall."
+   which parse the server console output.
+
+   They all need to be running and removing puts from the channels or the program
+   will stall - every tap must take each value from the mult to stay synchronised."
   []
   (console-listener)
   (difficulty-listener)
@@ -268,13 +269,13 @@
   [_ _ _ loaded]
   (ui/set-ui-loaded loaded @state/mission-path @state/controls))
 
-
 (defn enter-command
   "### enter-command
    This is zero argument function which checks whether the text in the TextField
-   control is \"clear\". In that case we clear the application's server console
-   text. For all other text values, we send the entered text as a command to the
-   server."
+   control is \"clear\".
+
+   In that case we clear the application's server console text. For all other text
+   values, we send the entered text as a command to the server."
   []
   (let [{:keys [cmd-entry
                 console]} @state/controls]
@@ -330,6 +331,9 @@
       (ui/set-mis-pane mission-pane cycle-mis-pane))))
 
 (defn server-path-select
+  "### server-path-select
+   This zero argument function sets the global server path atom. It is
+   called when the server path label text changes."
   []
   (let [{:keys [server-path-lbl]} @state/controls
         server-path (ui/get-text server-path-lbl)]
@@ -349,6 +353,12 @@
       (ui/set-label server-path-lbl (.getCanonicalPath file)))))
 
 (defn set-single-remote
+  "### set-single-remote
+   This zero argument function sets the UI label which defines the mission
+   to load based upon the content of the remote single mission text field.
+
+   This is used when the user does not have local access to the server
+   mission files."
   []
   (let [{:keys [single-path-fld
                 single-path-lbl]} @state/controls
@@ -357,6 +367,14 @@
       (ui/set-label single-path-lbl mission-path))))
 
 (defn single-choose-command
+  "### single-choose-command
+   This zero argument function gets the mission file selected by the user
+   after displaying a mission file chooser. This value is relativised
+   against the Missions directory so that it is in the format expected
+   by the server in LOAD commands.
+
+   This value is loaded into the single mission path label as the active
+   mission to load."
   []
   (let [{:keys [mis-chooser
                 single-path-lbl]} @state/controls
@@ -366,6 +384,9 @@
                     (get-relative-path @state/server-path (.getCanonicalPath file))))))
 
 (defn single-path-select
+  "### server-path-select
+   This zero argument function sets the global single mission path atom.
+   It is called when the single mission path label text changes."
   []
   (let [{:keys [single-path-lbl]} @state/controls
         single-path (ui/get-text single-path-lbl)]
@@ -374,15 +395,24 @@
       (reset! state/mission-path single-path))))
 
 (defn set-server-selected
+  "### set-server-selected
+   This watch function sets the UI accordingly when a path to the server
+   .exe has been defined."
   [_ _ _ path]
   (ui/set-ui-server path @state/controls)
   (ui/set-mis-dir path @state/controls))
 
 (defn set-mis-selected
+  "### set-mis-selected
+   This watch function sets the UI accordingly when a single mission has
+   been selected."
   [_ _ _ selected]
   (ui/set-ui-mis selected @state/connected @state/loaded @state/controls))
 
 (defn save-ui-state
+  "### save-ui-state
+   This zero argument function saves the text values from various UI
+   controls into settings atoms."
   []
   (let [{:keys [mode-choice
                 ip-field

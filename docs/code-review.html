@@ -3113,7 +3113,9 @@ on the JavaFX Application thread.</p>
             [uk.org.il2ssd.state :as state])
   (:import (javafx.application Application)
            (com.airhacks.afterburner.injection InjectionProvider)
-           (uk.org.il2ssd Core)))</pre></td></tr><tr><td class="docs"><p>This zero-argument function appears externally as a static method which returns
+           (uk.org.il2ssd Core)))</pre></td></tr><tr><td class="docs"><h3>-getStage</h3>
+
+<p>   This zero-argument function appears externally as a static method which returns
    the javafx.stage.Stage instance for our current stage.</p>
 
 <p>   This was done as a requirement for using the TestFX framework, which requires
@@ -3176,7 +3178,7 @@ update the UI accordingly.</p>
             [clojure.set :refer [map-invert]]
             [clojure.string :as string]
             [uk.org.il2ssd.channel :refer :all]
-            [uk.org.il2ssd.parse :as parse]
+            [uk.org.il2ssd.parse :refer :all]
             [uk.org.il2ssd.server :as server]
             [uk.org.il2ssd.settings :as settings]
             [uk.org.il2ssd.state :as state]
@@ -3193,16 +3195,23 @@ update the UI accordingly.</p>
            (java.io File)
            (javafx.scene.control.cell)
            (java.util List)
-           (java.nio.file LinkOption Paths Path)))</pre></td></tr><tr><td class="docs"><p>This two-argument function returns a relative path for a mission based
-   upon the two input paths.
-   The server path is expected to be the string path to the il2server.exe file.
-   The mission path should be the full canonical path string of the mission file
-   we wish to load.
-   In order to determine the path to send to the server we convert the strings
+           (java.nio.file LinkOption Paths Path)))</pre></td></tr><tr><td class="docs"><h3>get-relative-path</h3>
+
+<p>   This two-argument function returns a relative path for a mission based upon
+   the two input paths.</p>
+
+<p>   The server path is expected to be the string path to the il2server.exe file.</p>
+
+<p>   The mission path should be the full canonical path string of the mission file
+   we wish to load.</p>
+
+<p>   In order to determine the path to send to the server we convert the strings
    to Path objects, get the parent path of the server .exe file (which should be
-   the main server directory), and resolve this against the string "Missions".
-   This Path object should represent the Missions directory of our server.
-   Finally, we relativise the input path against the Missions directory path to
+   the main server directory), and resolve this against the string "Missions".</p>
+
+<p>   This Path object should represent the Missions directory of our server.</p>
+
+<p>   Finally, we relativise the input path against the Missions directory path to
    get a relative path to the mission from the Missions directory.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn get-relative-path
   [server-path mis-path]
@@ -3211,7 +3220,10 @@ update the UI accordingly.</p>
         server-dir (.getParent server-exe)
         mis-dir (.resolve server-dir &quot;Missions&quot;)
         out-path (-&gt;&gt; in-path (.relativize mis-dir) str)]
-    (string/replace out-path &quot;\\&quot; &quot;/&quot;)))</pre></td></tr><tr><td class="docs">
+    (string/replace out-path &quot;\\&quot; &quot;/&quot;)))</pre></td></tr><tr><td class="docs"><h3>mis-selected?</h3>
+
+<p>   This zero argument function is used to determine whether there is a valid
+   mission selection, dependent upon the current UI mission loading mode.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn mis-selected?
   []
   (let [{:keys [single-path-lbl]} @state/controls
@@ -3234,7 +3246,8 @@ update the UI accordingly.</p>
     (server/start-mission)))</pre></td></tr><tr><td class="docs"><h3>load-unload-command</h3>
 
 <p>   This is a zero argument function which unloads the currently loaded mission if
-   it is loaded.</p>
+   it is loaded, and loads the current mission (dependent upon the mission loading
+   mode) if it is not.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn load-unload-command
   []
   (if @state/loaded
@@ -3253,17 +3266,18 @@ update the UI accordingly.</p>
     (server/get-difficulty)))</pre></td></tr><tr><td class="docs"><h3>set-difficulties</h3>
 
 <p>   This is a zero argument function which iterates over the difficulty data list
-   and gets the setting and value for each DifficultySetting instance in the list,
+   and gets the setting and value for each difficulty setting in the list,
    setting each provided setting to the provided value on the server.</p>
 
 <p>   This will update the server with any changes that the user has made to the
-   difficulty settings list</p>
+   difficulty settings list.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn set-difficulties
   []
   (let [{:keys [diff-data]} @state/controls]
     (doseq [item diff-data]
-      (let [setting (:setting (ui/get-item-data item))
-            value (:value (ui/get-item-data item))]
+      (let [item-data (ui/get-item-data item)
+            setting (:setting item-data)
+            value (:value item-data)]
         (server/set-difficulty setting value)))))</pre></td></tr><tr><td class="docs"><h3>console-listener</h3>
 
 <p>   This is a zero argument function which spawns another thread. The process on
@@ -3272,35 +3286,32 @@ update the UI accordingly.</p>
    is printed to the application console.</p>
 
 <p>   Functions which spawn a thread return immediately so that execution can
-   proceed in the other thread. This prevents these functions from blocking
-   the current thread.</p>
+   proceed in the new thread. This prevents these functions from blocking
+   the calling thread.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn console-listener
   []
   (thread (while @state/connected
-            (let [text (&lt;!! print-channel)]
-              (when text
-                (let [{:keys [console]} @state/controls]
-                  (ui/print-console console text)))))))</pre></td></tr><tr><td class="docs"><h3>difficulty-listener</h3>
+            (when-let [text (&lt;!! print-channel)]
+              (let [{:keys [console]} @state/controls]
+                (ui/print-console console text))))))</pre></td></tr><tr><td class="docs"><h3>difficulty-listener</h3>
 
 <p>   This is a zero argument function which spawns another thread. The process on
    this thread listens for non-nil output on the diff-channel for as long as the
    global connection state atom says that we are connected.</p>
 
 <p>   Any text which is read is parsed into a setting-value pair which is used to
-   instantiate a DifficultySetting object in the difficulty settings list.</p>
+   add a new setting-value pair to the difficulty settings list.</p>
 
 <p>   As above, we should note that this function will return immediately and
-   execution will continue on another thread without blocking this one.</p>
+   execution will continue on a new thread without blocking the caller.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn difficulty-listener
   []
   (thread (while @state/connected
-            (let [text (&lt;!! diff-channel)]
-              (when text
-                (let [parsed (parse/difficulty-parser text)
-                      {:keys [diff-data]} @state/controls
-                      setting ((parsed 1) 1)
-                      value ((parsed 2) 1)]
-                  (ui/add-diff-data diff-data setting value)))))))</pre></td></tr><tr><td class="docs"><h3>set-title</h3>
+            (when-let [text (&lt;!! diff-channel)]
+              (let [parsed (parse-text difficulty-parser text)
+                    {:keys [diff-data]} @state/controls
+                    {:keys [setting value]} parsed]
+                (ui/add-diff-data diff-data setting value))))))</pre></td></tr><tr><td class="docs"><h3>set-title</h3>
 
 <p>   This is a multiple-arity function which changes the title of the program
    window.</p>
@@ -3321,64 +3332,57 @@ update the UI accordingly.</p>
    this thread listens for non-nil output on the mis-channel for as long as the
    global connection state atom says that we are connected.</p>
 
-<p>   Any text which is taken from the channel is parsed by the mission parser.</p>
+<p>   Any text which is taken from the channel is parsed into a map of key-value
+   pairs.</p>
 
-<p>   If the parser returns one element we know that a mission and its path were not
-   found. This can only mean that no mission was loaded. In this case we set the
-   global state atoms to false and reset the title to the default.</p>
-
-<p>   If the parser returns three elements we know that a mission is loaded and that
-   we can use the state returned for further processing. We reset the global
-   state atoms depending upon the state returned and add the mission and state
-   to the stage title.</p>
+<p>   If we have a mission key we know that a mission is loaded. We can use this
+   and the value of the mission state key to determine how to set the UI.</p>
 
 <p>   Any text which doesn't match the parser rules does not trigger any further
    processing.</p>
 
 <p>   Functions which spawn a thread return immediately so that execution can
-   proceed in the other thread. This prevents these functions from blocking
-   the current thread.</p>
+   proceed in the new thread. This prevents these functions from blocking
+   the calling thread.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn mission-listener
   []
   (thread (while @state/connected
-            (let [text (&lt;!! mis-channel)]
-              (when text
-                (let [parsed (parse/mission-parser text)]
-                  (when (nil? (get parsed 2))
-                    (let [state (get-in parsed [1 1])]
-                      (when (= state &quot;NOT loaded&quot;)
-                        (reset! state/loaded false)
-                        (reset! state/playing false)
-                        (set-title))))
-                  (when (seq (get parsed 3))
-                    (let [path (get-in parsed [1 1])
-                          mission (get-in parsed [2 1])
-                          state (get-in parsed [3 1])]
-                      (when (= state &quot;Loaded&quot;)
-                        (reset! state/loaded true)
-                        (reset! state/playing false))
-                      (when (= state &quot;Playing&quot;)
-                        (reset! state/loaded true)
-                        (reset! state/playing true))
-                      (set-title mission state)))))))))</pre></td></tr><tr><td class="docs"><h3>err-listener</h3>
+            (when-let [text (&lt;!! mis-channel)]
+              (let [parsed (parse-text mission-parser text)]
+                (if (nil? (:mission parsed))
+                  (let [state (:state parsed)]
+                    (when (= state &quot;NOT loaded&quot;)
+                      (reset! state/loaded false)
+                      (reset! state/playing false)
+                      (set-title)))
+                  (let [{:keys [mission state]} parsed]
+                    (when (= state &quot;Loaded&quot;)
+                      (reset! state/loaded true)
+                      (reset! state/playing false))
+                    (when (= state &quot;Playing&quot;)
+                      (reset! state/loaded true)
+                      (reset! state/playing true))
+                    (set-title mission state))))))))</pre></td></tr><tr><td class="docs"><h3>err-listener</h3>
 
-<p>   This is a zero argument function which listens for text on the error channel.
-   This channel filters for mission loading errors, so when we receive a value
+<p>   This is a zero argument function which listens for text on the error channel.</p>
+
+<p>   This channel filters for mission loading errors, so when we receive a value
    from this channel we know that the requested mission failed to load, and we
    can set the mission state to unloaded.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn err-listener
   []
   (thread (while @state/connected
-            (let [text (&lt;!! err-channel)]
-              (when text
-                (ui/toggle-prog-ind @state/controls false)
-                (reset! state/loaded false)
-                (reset! state/playing false)
-                (set-title))))))</pre></td></tr><tr><td class="docs"><h3>start-listeners</h3>
+            (when-let [text (&lt;!! err-channel)]
+              (ui/toggle-prog-ind @state/controls false)
+              (reset! state/loaded false)
+              (reset! state/playing false)
+              (set-title)))))</pre></td></tr><tr><td class="docs"><h3>start-listeners</h3>
 
 <p>   This is a zero argument convenience function which starts all of the listeners
-   which parse the server console output. They all need to be running and removing
-   puts from the channels or the program will stall.</p>
+   which parse the server console output.</p>
+
+<p>   They all need to be running and removing puts from the channels or the program
+   will stall - every tap must take each value from the mult to stay synchronised.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn start-listeners
   []
   (console-listener)
@@ -3415,9 +3419,10 @@ update the UI accordingly.</p>
   (ui/set-ui-loaded loaded @state/mission-path @state/controls))</pre></td></tr><tr><td class="docs"><h3>enter-command</h3>
 
 <p>   This is zero argument function which checks whether the text in the TextField
-   control is "clear". In that case we clear the application's server console
-   text. For all other text values, we send the entered text as a command to the
-   server.</p>
+   control is "clear".</p>
+
+<p>   In that case we clear the application's server console text. For all other text
+   values, we send the entered text as a command to the server.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn enter-command
   []
   (let [{:keys [cmd-entry
@@ -3468,7 +3473,10 @@ update the UI accordingly.</p>
     (when (= mode &quot;single&quot;)
       (ui/set-mis-pane mission-pane single-mis-pane))
     (when (= mode &quot;cycle&quot;)
-      (ui/set-mis-pane mission-pane cycle-mis-pane))))</pre></td></tr><tr><td class="docs">
+      (ui/set-mis-pane mission-pane cycle-mis-pane))))</pre></td></tr><tr><td class="docs"><h3>server-path-select</h3>
+
+<p>   This zero argument function sets the global server path atom. It is
+   called when the server path label text changes.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn server-path-select
   []
   (let [{:keys [server-path-lbl]} @state/controls
@@ -3485,14 +3493,28 @@ update the UI accordingly.</p>
                 server-path-lbl]} @state/controls
         file (ui/show-chooser server-chooser)]
     (when file
-      (ui/set-label server-path-lbl (.getCanonicalPath file)))))</pre></td></tr><tr><td class="docs">
+      (ui/set-label server-path-lbl (.getCanonicalPath file)))))</pre></td></tr><tr><td class="docs"><h3>set-single-remote</h3>
+
+<p>   This zero argument function sets the UI label which defines the mission
+   to load based upon the content of the remote single mission text field.</p>
+
+<p>   This is used when the user does not have local access to the server
+   mission files.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn set-single-remote
   []
   (let [{:keys [single-path-fld
                 single-path-lbl]} @state/controls
         mission-path (ui/get-text single-path-fld)]
     (when (not (string/blank? mission-path))
-      (ui/set-label single-path-lbl mission-path))))</pre></td></tr><tr><td class="docs">
+      (ui/set-label single-path-lbl mission-path))))</pre></td></tr><tr><td class="docs"><h3>single-choose-command</h3>
+
+<p>   This zero argument function gets the mission file selected by the user
+   after displaying a mission file chooser. This value is relativised
+   against the Missions directory so that it is in the format expected
+   by the server in LOAD commands.</p>
+
+<p>   This value is loaded into the single mission path label as the active
+   mission to load.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn single-choose-command
   []
   (let [{:keys [mis-chooser
@@ -3500,21 +3522,33 @@ update the UI accordingly.</p>
         file (ui/show-chooser mis-chooser)]
     (when file
       (ui/set-label single-path-lbl
-                    (get-relative-path @state/server-path (.getCanonicalPath file))))))</pre></td></tr><tr><td class="docs">
+                    (get-relative-path @state/server-path (.getCanonicalPath file))))))</pre></td></tr><tr><td class="docs"><h3>server-path-select</h3>
+
+<p>   This zero argument function sets the global single mission path atom.
+   It is called when the single mission path label text changes.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn single-path-select
   []
   (let [{:keys [single-path-lbl]} @state/controls
         single-path (ui/get-text single-path-lbl)]
     (if (= single-path &quot;...&quot;)
       (reset! state/mission-path nil)
-      (reset! state/mission-path single-path))))</pre></td></tr><tr><td class="docs">
+      (reset! state/mission-path single-path))))</pre></td></tr><tr><td class="docs"><h3>set-server-selected</h3>
+
+<p>   This watch function sets the UI accordingly when a path to the server
+   .exe has been defined.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn set-server-selected
   [_ _ _ path]
   (ui/set-ui-server path @state/controls)
-  (ui/set-mis-dir path @state/controls))</pre></td></tr><tr><td class="docs">
+  (ui/set-mis-dir path @state/controls))</pre></td></tr><tr><td class="docs"><h3>set-mis-selected</h3>
+
+<p>   This watch function sets the UI accordingly when a single mission has
+   been selected.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn set-mis-selected
   [_ _ _ selected]
-  (ui/set-ui-mis selected @state/connected @state/loaded @state/controls))</pre></td></tr><tr><td class="docs">
+  (ui/set-ui-mis selected @state/connected @state/loaded @state/controls))</pre></td></tr><tr><td class="docs"><h3>save-ui-state</h3>
+
+<p>   This zero argument function saves the text values from various UI
+   controls into settings atoms.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn save-ui-state
   []
   (let [{:keys [mode-choice
@@ -3579,9 +3613,8 @@ structures which we can more easily manipulate in Clojure.</p>
    which contains the main view and defines the stage as non-resizable before
    showing the stage.</p>
 
-<p>   It also loads the icon font that we will use for the UI, sets an event
-   handler function to run when the user requests to close the stage and
-   defines the stage as non-resizable.</p>
+<p>   It also loads the icon font that we will use for the UI and sets an event
+   handler function to run when the user requests to close the stage.</p>
 
 <p>   Finally, it gets the presenter instance for each of these views and loads
    them into a map atom.</p>
@@ -3604,13 +3637,13 @@ structures which we can more easily manipulate in Clojure.</p>
       (.toExternalForm ^URL (resource &quot;fontawesome-webfont.ttf&quot;)) 12.0)
     (util/close-handler stage event/close)
     (reset! state/presenters
-            {:main-presenter main-presenter
+            {:main-presenter   main-presenter
              :single-presenter single-presenter
-             :cycle-presenter cycle-presenter})))</pre></td></tr><tr><td class="docs"><h3>init-objects</h3>
+             :cycle-presenter  cycle-presenter})))</pre></td></tr><tr><td class="docs"><h3>init-objects</h3>
 
-<p>   This one argument function accepts a main presenter instance and instantiates
-   any subsidiary presenter classes before loading all of the objects which we
-   want to use into a map which we put into a global state atom.</p>
+<p>   This one argument function retrieves the presenter instances from our presenter
+   atom before retrieving the objects from these presenters and loading them into
+   a map which we put into a global state atom.</p>
 
 <p>   By doing this, we can refer to an object instance in any namespace by using the
    following syntax:</p>
@@ -3621,7 +3654,8 @@ structures which we can more easily manipulate in Clojure.</p>
 </code></pre>
 
 <p>   It may be necessary to use type hinting to limit uses of the Reflection API at
-   runtime for performance reasons.</p>
+   runtime for performance reasons; Clojure can't simply infer what you're going
+   to hold in an atom at runtime.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn init-objects
   []
   (let [{:keys [^MainPresenter main-presenter
@@ -3861,7 +3895,17 @@ structures which we can more easily manipulate in Clojure.</p>
     (doto cycle-table
       (-&gt; .getSortOrder (.add cycle-idx-col))
       (.setColumnResizePolicy TableView/CONSTRAINED_RESIZE_POLICY)
-      (.setItems cycle-data))))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#uk.org.il2ssd.jfx.ui" name="uk.org.il2ssd.jfx.ui"><h1 class="project-name">uk.org.il2ssd.jfx.ui</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
+      (.setItems cycle-data))))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#uk.org.il2ssd.jfx.ui" name="uk.org.il2ssd.jfx.ui"><h1 class="project-name">uk.org.il2ssd.jfx.ui</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><h2>UI manipulation functions</h2>
+
+<p>In this namespace we define all the functions which will be used to update
+the UI. The objective is to keep all of the JavaFX-specific logic (other
+than initialisation) within this namespace, so that the application logic
+is independent of the UI logic.</p>
+
+<p>This namespace wraps UI update functions that will be called from other
+threads in util/run-later calls so that all handling of the JavaFX
+Application Thread is kept within this namespace and the main application
+logic doesn't need to know about it.</p>
 </td><td class="codes"><pre class="brush: clojure">(ns uk.org.il2ssd.jfx.ui
   (:import (uk.org.il2ssd.jfx DifficultySetting CycleMission)
            (javafx.scene.control Labeled))
@@ -3912,7 +3956,10 @@ structures which we can more easily manipulate in Clojure.</p>
    supplied text value.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn set-title
   [^Stage stage title]
-  (util/run-later (.setTitle stage title)))</pre></td></tr><tr><td class="docs">
+  (util/run-later (.setTitle stage title)))</pre></td></tr><tr><td class="docs"><h3>toggle-prog-ind</h3>
+
+<p>   This two argument function toggles display for the ProgressIndicator instance
+   in the supplied controls map according to the show parameter.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn toggle-prog-ind
   [controls show]
   (let [{:keys [^ProgressIndicator prog-ind]} controls]
@@ -3979,7 +4026,12 @@ structures which we can more easily manipulate in Clojure.</p>
                             (.setDisable load-btn false)
                             (.setDisable load-btn true)))))))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defprotocol GetText
-  (get-text [control]))</pre></td></tr><tr><td class="docs">
+  (get-text [control]))</pre></td></tr><tr><td class="docs"><h3>GetText</h3>
+
+<p>This protocol is simply used to eliminate calls to the Reflection API when
+calling the .getText method. This method is part of two very different
+interfaces in JavaFX, so each has been extended for type-based dispatch
+here.</p>
 </td><td class="codes"><pre class="brush: clojure">(extend-protocol GetText
 
   TextInputControl
@@ -3988,7 +4040,10 @@ structures which we can more easily manipulate in Clojure.</p>
 
   Labeled
   (get-text [control]
-    (.getText control)))</pre></td></tr><tr><td class="docs">
+    (.getText control)))</pre></td></tr><tr><td class="docs"><h3>get-item-data</h3>
+
+<p>   This one argument function returns a map containing the setting and value
+   for the supplied DifficultySetting instance.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn get-item-data
   [^DifficultySetting data-item]
   (-&gt; {}
@@ -4083,7 +4138,10 @@ structures which we can more easily manipulate in Clojure.</p>
       (if (cycle-validator newval)
         (.setTimer current newval)
         (doto col (.setVisible false)
-                  (.setVisible true))))))</pre></td></tr><tr><td class="docs">
+                  (.setVisible true))))))</pre></td></tr><tr><td class="docs"><h3>set-ui-server</h3>
+
+<p>   This two argument function sets the UI state accordingly depending upon whether
+   the server path has been set.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn set-ui-server
   [path controls]
   (let [{:keys [^Button single-path-btn
@@ -4092,7 +4150,10 @@ structures which we can more easily manipulate in Clojure.</p>
       (do (.setDisable single-path-btn false)
           (.setDisable cycle-path-btn false))
       (do (.setDisable single-path-btn true)
-          (.setDisable cycle-path-btn true)))))</pre></td></tr><tr><td class="docs">
+          (.setDisable cycle-path-btn true)))))</pre></td></tr><tr><td class="docs"><h3>set-mis-dir</h3>
+
+<p>   This two argument function sets the initial directory for the single mission
+   chooser to the Missions directory of the server whose .exe is selected.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn set-mis-dir
   [path controls]
   (let [{:keys [^FileChooser mis-chooser]} controls]
@@ -4100,7 +4161,10 @@ structures which we can more easily manipulate in Clojure.</p>
                           (-&gt; (Paths/get path (into-array String []))
                               .getParent
                               (.resolve &quot;Missions&quot;)
-                              .toFile))))</pre></td></tr><tr><td class="docs">
+                              .toFile))))</pre></td></tr><tr><td class="docs"><h3>set-ui-mis</h3>
+
+<p>   This four argument function enables the load button when connected to the server,
+   with a mission selected but not loaded.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn set-ui-mis
   [selected connected loaded controls]
   (let [{:keys [^Button load-btn]} controls]
@@ -4286,7 +4350,7 @@ on our tapped channels.</p>
 
 <p>   This parser returns a vector in the format:</p>
 
-<pre><code>   [:difficulty-rec [:setting setting :value value]]
+<pre><code>   [:difficulty-rec [:setting setting] [:value value]]
 </code></pre>
 
 <p>   for each line passed into the parser. This is used to extract the difficulty settings from
@@ -4307,7 +4371,7 @@ on our tapped channels.</p>
 
 <p>   or:</p>
 
-<pre><code>   [:line [:path path :mission mission :state state]]
+<pre><code>   [:line [:path path] [:mission mission] [:state state]]
 </code></pre>
 
 <p>   for each line passed into the parser. This is used to extract the mission state from
@@ -4319,7 +4383,29 @@ on our tapped channels.</p>
      &lt;nl&gt; = '\n'
      path = #'.+/'
      mission = #'.+\\.mis'
-     state = 'Playing' | 'Loaded' | 'NOT loaded'&quot;))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#uk.org.il2ssd.server" name="uk.org.il2ssd.server"><h1 class="project-name">uk.org.il2ssd.server</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><h2>Server connection and I/O functions</h2>
+     state = 'Playing' | 'Loaded' | 'NOT loaded'&quot;))</pre></td></tr><tr><td class="docs"><h3>parse-text</h3>
+
+<p>   This two argument function passes the input text through the input parser.
+   After receiving this text, the output is stripped of the redundant root element,
+   flattened into a sequence of key-value pairs, then loaded into a map for easy
+   keyed access.</p>
+
+<p>   For example, the mission state map returned by the mission parser:</p>
+
+<pre><code>   [:line [:path path] [:mission mission] [:state state]]
+</code></pre>
+
+<p>   ...will be transformed into this:</p>
+
+<pre><code>   {:path path, :mission mission, :state state}
+</code></pre>
+</td><td class="codes"><pre class="brush: clojure">(defn parse-text
+  [parser text]
+  (-&gt;&gt; text
+       parser
+       rest
+       flatten
+       (apply hash-map)))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#uk.org.il2ssd.server" name="uk.org.il2ssd.server"><h1 class="project-name">uk.org.il2ssd.server</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><h2>Server connection and I/O functions</h2>
 
 <p>Here we define functions to interact with the Il-2 server console socket. This
 includes functions to write to and read from the socket, along with a socket
@@ -4355,16 +4441,19 @@ of the initial connection function.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn socket-listener
   []
   (thread (while @state/connected
-            (let [text (.readLine ^BufferedReader @socket-in)]
-              (when text
-                (-&gt;&gt; text
-                     (StringEscapeUtils/unescapeJava)
-                     (&gt;!! in-channel)))))))</pre></td></tr><tr><td class="docs"><h3>write-socket</h3>
+            (when-let [text (.readLine ^BufferedReader @socket-in)]
+              (-&gt;&gt; text
+                   (StringEscapeUtils/unescapeJava)
+                   (&gt;!! in-channel))))))</pre></td></tr><tr><td class="docs"><h3>write-socket</h3>
 
-<p>   This is a single argument function that simply calls the println method of the
+<p>   This is a one argument function that simply calls the print method of the
    object that is stored in the socket-out atom using the argument that we
-   provide.
-   This atom should contain the instance of the PrintWriter object that is
+   provide.</p>
+
+<p>   The argument is coerced to a String and a newline character is
+   appended before printing. The output stream is then flushed.</p>
+
+<p>   This atom should contain the instance of the PrintWriter object that is
    instantiated when we successfully connect to the server.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn write-socket
   [text]
@@ -4397,9 +4486,11 @@ of the initial connection function.</p>
   (write-socket (str &quot;mission LOAD &quot; path-to-mission)))</pre></td></tr><tr><td class="docs"><h3>unload-mission</h3>
 
 <p>   This is a zero argument function which sends the command to the server console
-   which unloads the current mission. Because the unload command doesn't return
-   any output on completion, we also request the mission state so that the state
-   parsers can register the change in mission status.</p>
+   which unloads the current mission.</p>
+
+<p>   Because the unload command doesn't return any output on completion, we also
+   request the mission state so that the state parsers can register the change in
+   mission status.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn unload-mission
   []
   (write-socket &quot;mission DESTROY&quot;)
@@ -4412,9 +4503,11 @@ of the initial connection function.</p>
   (write-socket &quot;mission BEGIN&quot;))</pre></td></tr><tr><td class="docs"><h3>unload-mission</h3>
 
 <p>   This is a zero argument function which sends the command to the server console
-   which ends the current mission. Because the end command doesn't return any
-   output on completion, we also request the mission state so that the state
-   parsers can register the change in mission status.</p>
+   which ends the current mission.</p>
+
+<p>   Because the end command doesn't return any output on completion, we also request
+   the mission state so that the state parsers can register the change in mission
+   status.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn end-mission
   []
   (write-socket &quot;mission END&quot;)
@@ -4446,32 +4539,35 @@ of the initial connection function.</p>
    reader/writer instantiation attempts in a try/catch block to catch any I/O
    exceptions which result.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn connect
-  [host port] (let [address (InetSocketAddress. ^String host ^int port)]
-                (reset! socket (Socket.))
-                (try (.connect ^Socket @socket address 10000)
-                     (reset! socket-in (BufferedReader.
-                                         (InputStreamReader.
-                                           (.getInputStream ^Socket @socket)
-                                           (Charset/forName &quot;UTF-8&quot;))))
-                     (reset! socket-out (PrintWriter.
-                                          (BufferedWriter.
-                                            (OutputStreamWriter.
-                                              (.getOutputStream ^Socket @socket)
-                                              (Charset/forName &quot;UTF-8&quot;)))
-                                          true))
-                     (reset! state/connected true)
-                     (socket-listener)
-                     (get-server-text)
-                     (get-mission-state)
-                     (catch ConnectException e nil)
-                     (catch SocketTimeoutException e nil))))</pre></td></tr><tr><td class="docs"><h3>disconnect</h3>
+  [host port]
+  (let [address (InetSocketAddress. ^String host ^int port)]
+    (reset! socket (Socket.))
+    (try (.connect ^Socket @socket address 10000)
+         (reset! socket-in (BufferedReader.
+                             (InputStreamReader.
+                               (.getInputStream ^Socket @socket)
+                               (Charset/forName &quot;UTF-8&quot;))))
+         (reset! socket-out (PrintWriter.
+                              (BufferedWriter.
+                                (OutputStreamWriter.
+                                  (.getOutputStream ^Socket @socket)
+                                  (Charset/forName &quot;UTF-8&quot;)))
+                              true))
+         (reset! state/connected true)
+         (socket-listener)
+         (get-server-text)
+         (get-mission-state)
+         (catch ConnectException e nil)
+         (catch SocketTimeoutException e nil))))</pre></td></tr><tr><td class="docs"><h3>disconnect</h3>
 
 <p>   This is a zero argument function, which simply resets all of the global state
    values to their initial values and closes our socket.</p>
 
 <p>   We are forced to call the shutdownInput method on the socket so that read
    attempts return nil and any reads that are currently blocking return this
-   nil value. This allows the socket-listener thread to get to the connected
+   nil value.</p>
+
+<p>   This allows the socket-listener thread to get to the connected
    state evaluation and end rather than staying at a running, blocked state.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn disconnect
   []
@@ -4516,7 +4612,23 @@ files.</p>
 </td><td class="codes"><pre class="brush: clojure">(def saved-difficulties
   (atom nil))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defprotocol BuildSettings
-  (build-conf [this file] [this newln? file]))</pre></td></tr><tr><td class="docs">
+  (build-conf [this file] [this newln? file]))</pre></td></tr><tr><td class="docs"><h3>BuildSettings</h3>
+
+<p>Here we extend the protocol defined above to handle building a config file vector
+using type-based dispatch to handle each data structure.</p>
+
+<p>Strings can be passed with an extra parameter which determines whether they are
+preceded by a newline character.</p>
+
+<p>Maps are used to produce simple key-value pairs in the file.</p>
+
+<p>Vectors are reserved for saving mission cycle data. In this case we create
+key-value pairs keyed by the index of the mission in the vector (incremented by
+one). The value is taken from the vector nested within the main vector at this
+index. The output takes the following form:</p>
+
+<pre><code>1 = ["mission path" "timer"]
+</code></pre>
 </td><td class="codes"><pre class="brush: clojure">(extend-protocol BuildSettings
 
   nil
@@ -4525,11 +4637,14 @@ files.</p>
     ([this newln? file] file))
 
   String
-  (build-conf [this newln? file]
-    (let [newln (System/lineSeparator)]
-      (if newln?
-        (conj file (str newln this))
-        (conj file this))))
+  (build-conf
+    ([this file]
+     (conj file this))
+    ([this newln? file]
+     (let [newln (System/lineSeparator)]
+       (if newln?
+         (conj file (str newln this))
+         (conj file this)))))
 
   PersistentArrayMap
   (build-conf [this file]
@@ -4554,58 +4669,62 @@ files.</p>
    the path is valid before saving the path.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn save-server
   ([path]
-   (if (.isFile (File. ^String path))
+   (when (.isFile (File. ^String path))
      (swap! server-settings assoc &quot;Path&quot; path)))
   ([ip port]
-   (swap! server-settings assoc &quot;IP&quot; ip)
-   (swap! server-settings assoc &quot;Port&quot; port))
+   (when (not (string/blank? ip))
+     (swap! server-settings assoc &quot;IP&quot; ip))
+   (when (not (string/blank? port))
+     (swap! server-settings assoc &quot;Port&quot; port)))
   ([ip port path]
-   (swap! server-settings assoc &quot;IP&quot; ip)
-   (swap! server-settings assoc &quot;Port&quot; port)
+   (when (not (string/blank? ip))
+     (swap! server-settings assoc &quot;IP&quot; ip))
+   (when (not (string/blank? port))
+     (swap! server-settings assoc &quot;Port&quot; port))
    (when (.isFile (File. ^String path))
      (swap! server-settings assoc &quot;Path&quot; path))))</pre></td></tr><tr><td class="docs"><h3>save-mission</h3>
 
 <p>   This is a multiple-arity function to save the provided arguments into the
-   mission-settings atom. If one or two arguments is provided the mode and
-   mission status can be saved.</p>
+   mission-settings atom. If one argument is provided the mode can be saved.
+   Passing two arguments allows both mode and single mission path to be saved.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn save-mission
   ([mode]
    (swap! mission-settings assoc &quot;Mode&quot; mode))
   ([mode mission]
    (swap! mission-settings assoc &quot;Mode&quot; mode)
-   (swap! mission-settings assoc &quot;Single Mission&quot; mission)))</pre></td></tr><tr><td class="docs"><h3>save-cycle</h3>
+   (when (not= mission &quot;...&quot;)
+     (swap! mission-settings assoc &quot;Single Mission&quot; mission))))</pre></td></tr><tr><td class="docs"><h3>save-cycle</h3>
 
-<p>   This is a multiple-arity function to save mission cycle data. When no arguments
-   are provided it is assumed that the mission cycle has been saved in the mission
-   cycle atom and should be added to the mission settings atom.</p>
-
-<p>   When three arguments are provided it is assumed that a mission cycle is being
-   saved and the three arguments define the index that is assigned to the mission
-   in the mission-cycle vector, the mission path that is to be saved and the
-   timer that is applied to the mission.</p>
+<p>   This is a three argument function to save mission cycle data. The three
+   arguments define the index that is assigned to the mission in the mission
+   cycle vector, the mission path that is to be saved and the timer that is
+   applied to the mission.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn save-cycle
-  ([]
-   (swap! mission-settings assoc &quot;Cycle&quot; @mission-cycle))
-  ([index mission timer]
-   (swap! mission-cycle assoc-in [index] [mission timer])))</pre></td></tr><tr><td class="docs"><h3>build-config-file</h3>
+  [index mission timer]
+  (swap! mission-cycle assoc-in [index] [mission timer]))</pre></td></tr><tr><td class="docs"><h3>build-config-file</h3>
 
 <p>   This is a zero argument function which builds a config file for the program.
-   It first defines an empty vector atom and retrieves the system default line
-   separator.</p>
+   It first retrieves the system default line separator.</p>
 
-<p>   Then the file is built by using conj to add strings to the end of the vector.
-   First, a header comment is added. Then, a section header is written. We doseq
-   over the atom which contains the settings for this section, destructuring the
-   contents of each setting into a key-value pair to be saved into the file.</p>
+<p>   Then the file is built by using conj to add strings to an empty vector,
+   which is passed through a series of appending calls to build-conf.</p>
+
+<p>   These calls will build the config file accordingly based upon the type of the
+   value passed.</p>
+
+<p>   First, a header comment is added. Then, a section header is written.</p>
+
+<p>   For each section, we call build-conf, passing the contents of the settings
+   atom for this section.</p>
 
 <p>   Whenever we wish to add a blank line to the output (e.g. before section
-   headers), we simply add the system default line separator to the start of the
-   string that will follow this blank line in the file.</p>
+   headers), we simply pass an extra parameter to build-conf with the header
+   to prepend the string values with a newline character.</p>
 
 <p>   We repeat this process for each section in the file.</p>
 
 <p>   At the end, we use join from clojure.string to join the vector into a single
-   string using the system default line separator.</p>
+   string using the system default line separator as a separator character.</p>
 
 <p>   We then return this string to the calling function.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn build-config-file
@@ -4644,12 +4763,17 @@ files.</p>
   []
   (try
     (iniconfig/read-ini &quot;il2ssd.ini&quot;)
-    (catch FileNotFoundException e nil)))</pre></td></tr><tr><td class="docs">
+    (catch FileNotFoundException e nil)))</pre></td></tr><tr><td class="docs"><h3>get-configuration</h3>
+
+<p>   This one argument function takes values from the nested data structure
+   retrieved from the config file and binds them to keys which name the
+   controls which will receive these values. This data structure is the
+   only required parameter.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn get-configuration
   [file]
   (hash-map
-    :ip-field (get-in file [&quot;Server&quot; &quot;IP&quot;] )
-    :port-field (get-in file [&quot;Server&quot; &quot;Port&quot;] )
+    :ip-field (get-in file [&quot;Server&quot; &quot;IP&quot;] &quot;&quot;)
+    :port-field (get-in file [&quot;Server&quot; &quot;Port&quot;] &quot;&quot;)
     :server-path-lbl (get-in file [&quot;Server&quot; &quot;Path&quot;] &quot;...&quot;)
     :mode-choice (get-in file [&quot;Mission&quot; &quot;Mode&quot;] &quot;single&quot;)
     :single-path-lbl (get-in file [&quot;Mission&quot; &quot;Single Mission&quot;] &quot;...&quot;)))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#uk.org.il2ssd.state" name="uk.org.il2ssd.state"><h1 class="project-name">uk.org.il2ssd.state</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><h2>Global state atoms</h2>
@@ -4665,7 +4789,8 @@ necessary to initialise these atoms.</p>
 </td><td class="codes"><pre class="brush: clojure">(ns uk.org.il2ssd.state)</pre></td></tr><tr><td class="docs"><h3>stage</h3>
 
 <p>   This atom will store the JavaFX Stage instance so that we can set the stage
-   title during the execution of the program.</p>
+   title during the execution of the program and return the instance for testing
+   using the TestFX library.</p>
 </td><td class="codes"><pre class="brush: clojure">(def stage
   (atom nil))</pre></td></tr><tr><td class="docs"><h3>presenters</h3>
 
@@ -4674,7 +4799,7 @@ necessary to initialise these atoms.</p>
   (atom nil))</pre></td></tr><tr><td class="docs"><h3>controls</h3>
 
 <p>   This atom will store a map of the control object instances which are returned
-   by the afterburner.fx presenter class for each fxml file.</p>
+   by the afterburner.fx Presenter class for each .fxml file.</p>
 </td><td class="codes"><pre class="brush: clojure">(def controls
   (atom nil))</pre></td></tr><tr><td class="docs"><h3>connected</h3>
 
@@ -4705,9 +4830,15 @@ necessary to initialise these atoms.</p>
 
 <p>   This atom stores the server path for global use in the program.</p>
 </td><td class="codes"><pre class="brush: clojure">(def server-path
-  (atom nil))</pre></td></tr><tr><td class="docs">
+  (atom nil))</pre></td></tr><tr><td class="docs"><h3>mission-path</h3>
+
+<p>   This atom stores the current mission path for global use in the
+   program.</p>
 </td><td class="codes"><pre class="brush: clojure">(def mission-path
-  (atom nil))</pre></td></tr><tr><td class="docs">
+  (atom nil))</pre></td></tr><tr><td class="docs"><h3>mode</h3>
+
+<p>   This atom stores the current mission loading mode for global use
+   in the program.</p>
 </td><td class="codes"><pre class="brush: clojure">(def mode
   (atom nil))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr></table><div class="footer">Generated by <a href="https://github.com/fogus/marginalia">Marginalia</a>.&nbsp;&nbsp;Syntax highlighting provided by Alex Gorbatchev's <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a></div><script type="text/javascript">SyntaxHighlighter.defaults['gutter'] = false;
        SyntaxHighlighter.all()</script></body></html>

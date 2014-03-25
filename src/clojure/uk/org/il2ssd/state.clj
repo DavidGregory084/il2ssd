@@ -14,7 +14,8 @@
 (def stage
   "### stage
    This atom will store the JavaFX Stage instance so that we can set the stage
-   title during the execution of the program."
+   title during the execution of the program and return the instance for testing
+   using the TestFX library."
   (atom nil))
 
 (def presenters
@@ -25,7 +26,7 @@
 (def controls
   "### controls
    This atom will store a map of the control object instances which are returned
-   by the afterburner.fx presenter class for each fxml file."
+   by the afterburner.fx Presenter class for each .fxml file."
   (atom nil))
 
 (def connected
@@ -64,7 +65,13 @@
   (atom nil))
 
 (def mission-path
+  "### mission-path
+   This atom stores the current mission path for global use in the
+   program."
   (atom nil))
 
 (def mode
+  "### mode
+   This atom stores the current mission loading mode for global use
+   in the program."
   (atom nil))

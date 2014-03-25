@@ -44,9 +44,8 @@
    which contains the main view and defines the stage as non-resizable before
    showing the stage.
 
-   It also loads the icon font that we will use for the UI, sets an event
-   handler function to run when the user requests to close the stage and
-   defines the stage as non-resizable.
+   It also loads the icon font that we will use for the UI and sets an event
+   handler function to run when the user requests to close the stage.
 
    Finally, it gets the presenter instance for each of these views and loads
    them into a map atom."
@@ -68,15 +67,15 @@
       (.toExternalForm ^URL (resource "fontawesome-webfont.ttf")) 12.0)
     (util/close-handler stage event/close)
     (reset! state/presenters
-            {:main-presenter main-presenter
+            {:main-presenter   main-presenter
              :single-presenter single-presenter
-             :cycle-presenter cycle-presenter})))
+             :cycle-presenter  cycle-presenter})))
 
 (defn init-objects
   "### init-objects
-   This one argument function accepts a main presenter instance and instantiates
-   any subsidiary presenter classes before loading all of the objects which we
-   want to use into a map which we put into a global state atom.
+   This one argument function retrieves the presenter instances from our presenter
+   atom before retrieving the objects from these presenters and loading them into
+   a map which we put into a global state atom.
 
    By doing this, we can refer to an object instance in any namespace by using the
    following syntax:
@@ -86,7 +85,8 @@
          (<function body>))
 
    It may be necessary to use type hinting to limit uses of the Reflection API at
-   runtime for performance reasons."
+   runtime for performance reasons; Clojure can't simply infer what you're going
+   to hold in an atom at runtime."
   []
   (let [{:keys [^MainPresenter main-presenter
                 ^SinglePresenter single-presenter

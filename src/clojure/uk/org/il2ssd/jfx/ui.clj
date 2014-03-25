@@ -1,5 +1,15 @@
 ;; 
+;; ## UI manipulation functions
 ;;
+;; In this namespace we define all the functions which will be used to update
+;; the UI. The objective is to keep all of the JavaFX-specific logic (other
+;; than initialisation) within this namespace, so that the application logic
+;; is independent of the UI logic.
+;;
+;; This namespace wraps UI update functions that will be called from other
+;; threads in util/run-later calls so that all handling of the JavaFX
+;; Application Thread is kept within this namespace and the main application
+;; logic doesn't need to know about it.
 (ns uk.org.il2ssd.jfx.ui
   (:import (uk.org.il2ssd.jfx DifficultySetting CycleMission)
            (javafx.scene.control Labeled))
@@ -61,6 +71,9 @@
   (util/run-later (.setTitle stage title)))
 
 (defn toggle-prog-ind
+  "### toggle-prog-ind
+   This two argument function toggles display for the ProgressIndicator instance
+   in the supplied controls map according to the show parameter."
   [controls show]
   (let [{:keys [^ProgressIndicator prog-ind]} controls]
     (if show
@@ -132,6 +145,11 @@
 (defprotocol GetText
   (get-text [control]))
 
+;; ### GetText
+;; This protocol is simply used to eliminate calls to the Reflection API when
+;; calling the .getText method. This method is part of two very different
+;; interfaces in JavaFX, so each has been extended for type-based dispatch
+;; here.
 (extend-protocol GetText
 
   TextInputControl
@@ -143,6 +161,9 @@
     (.getText control)))
 
 (defn get-item-data
+  "### get-item-data
+   This one argument function returns a map containing the setting and value
+   for the supplied DifficultySetting instance."
   [^DifficultySetting data-item]
   (-> {}
       (assoc :setting (.getSetting data-item))
@@ -247,6 +268,9 @@
                   (.setVisible true))))))
 
 (defn set-ui-server
+  "### set-ui-server
+   This two argument function sets the UI state accordingly depending upon whether
+   the server path has been set."
   [path controls]
   (let [{:keys [^Button single-path-btn
                 ^Button cycle-path-btn]} controls]
@@ -257,6 +281,9 @@
           (.setDisable cycle-path-btn true)))))
 
 (defn set-mis-dir
+  "### set-mis-dir
+   This two argument function sets the initial directory for the single mission
+   chooser to the Missions directory of the server whose .exe is selected."
   [path controls]
   (let [{:keys [^FileChooser mis-chooser]} controls]
     (.setInitialDirectory mis-chooser
@@ -266,6 +293,9 @@
                               .toFile))))
 
 (defn set-ui-mis
+  "### set-ui-mis
+   This four argument function enables the load button when connected to the server,
+   with a mission selected but not loaded."
   [selected connected loaded controls]
   (let [{:keys [^Button load-btn]} controls]
     (when (and selected connected (not loaded))

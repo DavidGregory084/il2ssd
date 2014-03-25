@@ -53,7 +53,7 @@
 
         <fx:application id="il2ssd"
                         name="Il-2 Simple Server Daemon"
-                        mainclass="uk.org.il2ssd.core"/>
+                        mainclass="uk.org.il2ssd.Core"/>
 
         <fx:resources id="resources">
             <fx:fileset dir="${project.outdir}" includes="lib/*.jar"/>

@@ -19,7 +19,8 @@
            (uk.org.il2ssd Core)))
 
 (defn -getStage
-  "This zero-argument function appears externally as a static method which returns
+  "### -getStage
+   This zero-argument function appears externally as a static method which returns
    the javafx.stage.Stage instance for our current stage.
 
    This was done as a requirement for using the TestFX framework, which requires

@@ -9,7 +9,7 @@
   "### difficulty-parser
    This parser returns a vector in the format:
 
-       [:difficulty-rec [:setting setting :value value]]
+       [:difficulty-rec [:setting setting] [:value value]]
 
    for each line passed into the parser. This is used to extract the difficulty settings from
    the server console output."
@@ -29,7 +29,7 @@
 
    or:
 
-       [:line [:path path :mission mission :state state]]
+       [:line [:path path] [:mission mission] [:state state]]
 
    for each line passed into the parser. This is used to extract the mission state from
    the server console output, and the mission and path if these are available."
@@ -40,3 +40,24 @@
      path = #'.+/'
      mission = #'.+\\.mis'
      state = 'Playing' | 'Loaded' | 'NOT loaded'"))
+
+(defn parse-text
+  "### parse-text
+   This two argument function passes the input text through the input parser.
+   After receiving this text, the output is stripped of the redundant root element,
+   flattened into a sequence of key-value pairs, then loaded into a map for easy
+   keyed access.
+
+   For example, the mission state map returned by the mission parser:
+
+       [:line [:path path] [:mission mission] [:state state]]
+
+   ...will be transformed into this:
+
+       {:path path, :mission mission, :state state}"
+  [parser text]
+  (->> text
+       parser
+       rest
+       flatten
+       (apply hash-map)))

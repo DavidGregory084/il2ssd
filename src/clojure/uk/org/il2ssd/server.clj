@@ -39,17 +39,20 @@
    all server state parsing."
   []
   (thread (while @state/connected
-            (let [text (.readLine ^BufferedReader @socket-in)]
-              (when text
-                (->> text
-                     (StringEscapeUtils/unescapeJava)
-                     (>!! in-channel)))))))
+            (when-let [text (.readLine ^BufferedReader @socket-in)]
+              (->> text
+                   (StringEscapeUtils/unescapeJava)
+                   (>!! in-channel))))))
 
 (defn write-socket
   "### write-socket
-   This is a single argument function that simply calls the println method of the
+   This is a one argument function that simply calls the print method of the
    object that is stored in the socket-out atom using the argument that we
    provide.
+
+   The argument is coerced to a String and a newline character is
+   appended before printing. The output stream is then flushed.
+
    This atom should contain the instance of the PrintWriter object that is
    instantiated when we successfully connect to the server."
   [text]
@@ -88,9 +91,11 @@
 (defn unload-mission
   "### unload-mission
    This is a zero argument function which sends the command to the server console
-   which unloads the current mission. Because the unload command doesn't return
-   any output on completion, we also request the mission state so that the state
-   parsers can register the change in mission status."
+   which unloads the current mission.
+
+   Because the unload command doesn't return any output on completion, we also
+   request the mission state so that the state parsers can register the change in
+   mission status."
   []
   (write-socket "mission DESTROY")
   (get-mission-state))
@@ -105,9 +110,11 @@
 (defn end-mission
   "### unload-mission
    This is a zero argument function which sends the command to the server console
-   which ends the current mission. Because the end command doesn't return any
-   output on completion, we also request the mission state so that the state
-   parsers can register the change in mission status."
+   which ends the current mission.
+
+   Because the end command doesn't return any output on completion, we also request
+   the mission state so that the state parsers can register the change in mission
+   status."
   []
   (write-socket "mission END")
   (get-mission-state))
@@ -140,25 +147,26 @@
    We use a timeout on the socket connect attempt and wrap the connection and
    reader/writer instantiation attempts in a try/catch block to catch any I/O
    exceptions which result."
-  [host port] (let [address (InetSocketAddress. ^String host ^int port)]
-                (reset! socket (Socket.))
-                (try (.connect ^Socket @socket address 10000)
-                     (reset! socket-in (BufferedReader.
-                                         (InputStreamReader.
-                                           (.getInputStream ^Socket @socket)
-                                           (Charset/forName "UTF-8"))))
-                     (reset! socket-out (PrintWriter.
-                                          (BufferedWriter.
-                                            (OutputStreamWriter.
-                                              (.getOutputStream ^Socket @socket)
-                                              (Charset/forName "UTF-8")))
-                                          true))
-                     (reset! state/connected true)
-                     (socket-listener)
-                     (get-server-text)
-                     (get-mission-state)
-                     (catch ConnectException e nil)
-                     (catch SocketTimeoutException e nil))))
+  [host port]
+  (let [address (InetSocketAddress. ^String host ^int port)]
+    (reset! socket (Socket.))
+    (try (.connect ^Socket @socket address 10000)
+         (reset! socket-in (BufferedReader.
+                             (InputStreamReader.
+                               (.getInputStream ^Socket @socket)
+                               (Charset/forName "UTF-8"))))
+         (reset! socket-out (PrintWriter.
+                              (BufferedWriter.
+                                (OutputStreamWriter.
+                                  (.getOutputStream ^Socket @socket)
+                                  (Charset/forName "UTF-8")))
+                              true))
+         (reset! state/connected true)
+         (socket-listener)
+         (get-server-text)
+         (get-mission-state)
+         (catch ConnectException e nil)
+         (catch SocketTimeoutException e nil))))
 
 (defn disconnect
   "### disconnect
@@ -167,7 +175,9 @@
 
    We are forced to call the shutdownInput method on the socket so that read
    attempts return nil and any reads that are currently blocking return this
-   nil value. This allows the socket-listener thread to get to the connected
+   nil value.
+
+   This allows the socket-listener thread to get to the connected
    state evaluation and end rather than staying at a running, blocked state."
   []
   (reset! state/loaded false)
