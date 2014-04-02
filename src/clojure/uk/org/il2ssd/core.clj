@@ -14,7 +14,7 @@
   (:gen-class :name uk.org.il2ssd.Core
               :extends javafx.application.Application
               :main true
-              :methods[[getStage [] javafx.stage.Stage]]))
+              :methods [#^{:static true} [getStage [] javafx.stage.Stage]]))
 
 (defn -getStage
   "### -getStage
