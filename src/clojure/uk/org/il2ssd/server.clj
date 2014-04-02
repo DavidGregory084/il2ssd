@@ -6,18 +6,15 @@
 ;; listener function to put all non-nil values into the channel from which all
 ;; server state processing in the UI is driven.
 (ns uk.org.il2ssd.server
-
-  (:require [clojure.core.async :refer [thread >!!]]
+  (:require [clojure.core.async :refer [>!! thread]]
             [uk.org.il2ssd.channel :refer :all]
-            [uk.org.il2ssd.parse :as parse]
-            [uk.org.il2ssd.settings :as settings]
             [uk.org.il2ssd.state :as state])
-
-  (:import (org.apache.commons.lang StringEscapeUtils)
-           (java.net InetSocketAddress Socket SocketTimeoutException ConnectException)
-           (java.io BufferedReader InputStreamReader PrintWriter BufferedWriter OutputStreamWriter)
+  (:import (java.io BufferedReader BufferedWriter InputStreamReader
+                    OutputStreamWriter PrintWriter)
+           (java.net ConnectException InetSocketAddress Socket
+                     SocketTimeoutException)
            (java.nio.charset Charset)
-           (java.nio.file Path Paths)))
+           (org.apache.commons.lang StringEscapeUtils)))
 
 ;; ### Socket atoms
 ;; Here we define atoms to access the specific instances of the Socket, PrintWriter

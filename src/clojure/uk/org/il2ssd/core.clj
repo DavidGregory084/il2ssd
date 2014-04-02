@@ -6,17 +6,15 @@
 ;; Here we call all of our main initialisation methods after launching the application
 ;; on the JavaFX Application thread.
 (ns uk.org.il2ssd.core
+  (:require [uk.org.il2ssd.jfx.init :as jfx]
+            [uk.org.il2ssd.state :as state])
+  (:import (com.airhacks.afterburner.injection InjectionProvider)
+           (javafx.application Application)
+           (uk.org.il2ssd Core))
   (:gen-class :name uk.org.il2ssd.Core
               :extends javafx.application.Application
               :main true
-              :methods [#^{:static true} [getStage [] javafx.stage.Stage]])
-
-  (:require [uk.org.il2ssd.jfx.init :as jfx]
-            [uk.org.il2ssd.state :as state])
-
-  (:import (javafx.application Application)
-           (com.airhacks.afterburner.injection InjectionProvider)
-           (uk.org.il2ssd Core)))
+              :methods[[getStage [] javafx.stage.Stage]]))
 
 (defn -getStage
   "### -getStage

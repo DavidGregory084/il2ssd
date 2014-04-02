@@ -5,30 +5,26 @@
 ;; we need and initialise the objects we receive by dependency injection into data
 ;; structures which we can more easily manipulate in Clojure.
 (ns uk.org.il2ssd.jfx.init
-
-  (:require [uk.org.il2ssd.channel :refer :all]
-            [uk.org.il2ssd.settings :refer :all]
-            [uk.org.il2ssd.server :as server]
-            [uk.org.il2ssd.state :as state]
+  (:require [clojure.java.io :refer [resource]]
             [uk.org.il2ssd.event :as event]
             [uk.org.il2ssd.jfx.ui :as ui]
             [uk.org.il2ssd.jfx.util :as util]
-            [clojure.java.io :refer [resource]])
-
+            [uk.org.il2ssd.settings :refer :all]
+            [uk.org.il2ssd.state :as state])
   (:import (java.net URL)
-           (java.nio.file Paths Path)
-           (javafx.event Event)
+           (java.nio.file Paths)
+           (java.util List)
+           (javafx.collections FXCollections)
            (javafx.scene Scene)
-           (javafx.scene.layout HBox Priority StackPane Region)
+           (javafx.scene.control ChoiceBox Label TableColumn TableView
+                                 TextField)
+           (javafx.scene.control.cell PropertyValueFactory
+                                      TextFieldTableCell)
+           (javafx.scene.layout HBox Priority)
            (javafx.scene.text Font)
            (javafx.stage FileChooser FileChooser$ExtensionFilter Stage)
-           (uk.org.il2ssd.jfx MainView MainPresenter SingleView SinglePresenter CycleView CyclePresenter)
-           (javafx.scene.control Button TextField ChoiceBox MenuItem Label SelectionModel TableView TableColumn)
-           (javafx.beans Observable)
-           (javafx.collections FXCollections)
-           (java.io File)
-           (java.util List)
-           (javafx.scene.control.cell PropertyValueFactory TextFieldTableCell)))
+           (uk.org.il2ssd.jfx CyclePresenter CycleView MainPresenter
+                              MainView SinglePresenter SingleView)))
 
 (def modes
   "### modes

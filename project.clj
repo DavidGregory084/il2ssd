@@ -2,8 +2,8 @@
   :description "Il-2 Simple Server Daemon is a very simple server controller for the Il-2 Sturmovik 1946 dedicated server. It aims to be an easy-to-use tool with IL-2 DCG integration."
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [[org.clojure/clojure "1.5.1"]
-                 [org.clojure/core.async "0.1.267.0-0d7780-alpha"]
+  :dependencies [[org.clojure/clojure "1.6.0"]
+                 [org.clojure/core.async "0.1.278.0-76b25b-alpha"]
                  [com.airhacks/afterburner.fx "1.4.4"]
                  [commons-lang/commons-lang "2.6"]
                  [instaparse/instaparse "1.3.0"]

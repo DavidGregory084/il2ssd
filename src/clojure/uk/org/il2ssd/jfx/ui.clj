@@ -11,23 +11,19 @@
 ;; Application Thread is kept within this namespace and the main application
 ;; logic doesn't need to know about it.
 (ns uk.org.il2ssd.jfx.ui
-  (:import (uk.org.il2ssd.jfx DifficultySetting CycleMission)
-           (javafx.scene.control Labeled))
-
-  (:import (javafx.application Platform)
-           (javafx.scene.control TextArea Button TextField TextInputControl ChoiceBox TableColumn$CellEditEvent
-                                 TableColumn TablePosition Label TableView ProgressIndicator)
+  (:require [uk.org.il2ssd.jfx.util :as util])
+  (:import (java.io File)
+           (java.nio.file Paths)
            (java.util List)
-           (javafx.stage Stage FileChooser)
-           (javafx.scene.layout BorderPane)
-           (javafx.scene.input KeyEvent)
-           (uk.org.il2ssd.jfx DifficultySetting CycleMission)
-           (java.io File)
+           (javafx.application Platform)
            (javafx.event EventHandler)
-           (java.nio.file Paths Path))
-
-  (:require [uk.org.il2ssd.state :as state]
-            [uk.org.il2ssd.jfx.util :as util]))
+           (javafx.scene.control Button ChoiceBox Label Labeled
+                                 ProgressIndicator TableColumn
+                                 TableColumn$CellEditEvent TableView
+                                 TextArea TextField TextInputControl)
+           (javafx.scene.layout BorderPane)
+           (javafx.stage FileChooser Stage)
+           (uk.org.il2ssd.jfx CycleMission DifficultySetting)))
 
 (defn exit
   "### exit

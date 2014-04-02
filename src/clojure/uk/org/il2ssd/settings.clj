@@ -4,12 +4,10 @@
 ;; Here we define functions to build config files and to save and load these
 ;; files.
 (ns uk.org.il2ssd.settings
-
-  (:import [java.io FileNotFoundException File]
-           (clojure.lang PersistentArrayMap PersistentVector))
-
   (:require [clojure.string :as string]
-            [com.brainbot.iniconfig :as iniconfig]))
+            [com.brainbot.iniconfig :as iniconfig])
+  (:import (clojure.lang PersistentArrayMap PersistentVector)
+           (java.io File FileNotFoundException)))
 
 (def difficulty-settings
   "### difficulty-settings

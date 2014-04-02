@@ -6,31 +6,17 @@
 ;; We also define channel listeners which parse the server console output and
 ;; update the UI accordingly.
 (ns uk.org.il2ssd.event
-
-  (:require [clojure.core.async :refer [go thread <!!]]
-            [clojure.data :refer [diff]]
+  (:require [clojure.core.async :refer [<!! go thread]]
             [clojure.set :refer [map-invert]]
             [clojure.string :as string]
             [uk.org.il2ssd.channel :refer :all]
+            [uk.org.il2ssd.jfx.ui :as ui]
             [uk.org.il2ssd.parse :refer :all]
             [uk.org.il2ssd.server :as server]
             [uk.org.il2ssd.settings :as settings]
-            [uk.org.il2ssd.state :as state]
-            [uk.org.il2ssd.jfx.ui :as ui])
-
-  (:import (javafx.application Platform)
-           (javafx.stage Stage FileChooser)
-           (javafx.scene.control TextArea Button TextField TableView Label ChoiceBox TableColumn$CellEditEvent
-                                 TableColumn TablePosition)
-           (javafx.scene.input KeyEvent)
-           (javafx.scene.layout BorderPane)
-           (javafx.beans InvalidationListener)
-           (javafx.beans.value ChangeListener)
-           (javafx.event EventHandler)
-           (java.io File)
-           (javafx.scene.control.cell)
-           (java.util List)
-           (java.nio.file LinkOption Paths Path)))
+            [uk.org.il2ssd.state :as state])
+  (:import (java.io File)
+           (java.nio.file Paths)))
 
 (defn get-relative-path
   "### get-relative-path

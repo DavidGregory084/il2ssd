@@ -21,7 +21,7 @@
 ;; Because we are using unbuffered channels, further puts onto the mult will block
 ;; until every tap is empty.
 (ns uk.org.il2ssd.channel
-  (:require [clojure.core.async :refer [chan filter< mult tap remove<]]))
+  (:require [clojure.core.async :refer [chan filter< mult remove< tap]]))
 
 (def in-channel
   "### in-channel
