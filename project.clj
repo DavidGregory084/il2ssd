@@ -20,6 +20,6 @@
   :test-paths ["test/clojure" "test/java"]
   :resource-paths ["resources" "src/java"]
   :global-vars {*warn-on-reflection* true}
-  :scm {:name "hg"
-        :developerConnection "scm:hg:ssh://hg@bitbucket.org/dgregory084/il-2-simple-server-daemon"
-        :url "https://bitbucket.org/dgregory084/il-2-simple-server-daemon"})
+  :scm {:name "git"
+        :developerConnection "scm:git:https://github.com/DavidGregory084/il2ssd.git"
+        :url "https://github.com/DavidGregory084/il2ssd.git"})

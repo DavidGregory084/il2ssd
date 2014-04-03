@@ -13,18 +13,18 @@
     </license>
   </licenses>
   <scm>
-    <developerConnection>scm:hg:ssh://hg@bitbucket.org/dgregory084/il-2-simple-server-daemon</developerConnection>
-    <url>https://bitbucket.org/dgregory084/il-2-simple-server-daemon</url>
+    <developerConnection>scm:git:https://github.com/DavidGregory084/il2ssd.git</developerConnection>
+    <url>https://github.com/DavidGregory084/il2ssd.git</url>
   </scm>
   <build>
-    <sourceDirectory>src\clojure</sourceDirectory>
-    <testSourceDirectory>test\clojure</testSourceDirectory>
+    <sourceDirectory>src/clojure</sourceDirectory>
+    <testSourceDirectory>test/clojure</testSourceDirectory>
     <resources>
       <resource>
         <directory>resources</directory>
       </resource>
       <resource>
-        <directory>src\java</directory>
+        <directory>src/java</directory>
       </resource>
     </resources>
     <testResources>
@@ -35,11 +35,11 @@
         <directory>resources</directory>
       </testResource>
       <testResource>
-        <directory>src\java</directory>
+        <directory>src/java</directory>
       </testResource>
     </testResources>
     <directory>target</directory>
-    <outputDirectory>target\classes</outputDirectory>
+    <outputDirectory>target/classes</outputDirectory>
     <plugins>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
@@ -54,7 +54,7 @@
             </goals>
             <configuration>
               <sources>
-                <source>src\java</source>
+                <source>src/java</source>
               </sources>
             </configuration>
           </execution>
@@ -66,7 +66,7 @@
             </goals>
             <configuration>
               <sources>
-                <source>test\java</source>
+                <source>test/java</source>
               </sources>
             </configuration>
           </execution>
@@ -100,12 +100,12 @@
     <dependency>
       <groupId>org.clojure</groupId>
       <artifactId>clojure</artifactId>
-      <version>1.5.1</version>
+      <version>1.6.0</version>
     </dependency>
     <dependency>
       <groupId>org.clojure</groupId>
       <artifactId>core.async</artifactId>
-      <version>0.1.267.0-0d7780-alpha</version>
+      <version>0.1.278.0-76b25b-alpha</version>
     </dependency>
     <dependency>
       <groupId>com.airhacks</groupId>
