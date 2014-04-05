@@ -1,5 +1,6 @@
 (defproject uk.org.il2ssd/il2ssd "0.1.0-SNAPSHOT"
   :description "Il-2 Simple Server Daemon is a very simple server controller for the Il-2 Sturmovik 1946 dedicated server. It aims to be an easy-to-use tool with IL-2 DCG integration."
+  :url "https://github.com/DavidGregory084/il2ssd"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.6.0"]
@@ -22,4 +23,8 @@
   :global-vars {*warn-on-reflection* true}
   :scm {:name "git"
         :developerConnection "scm:git:https://github.com/DavidGregory084/il2ssd.git"
-        :url "https://github.com/DavidGregory084/il2ssd.git"})
+        :url "https://github.com/DavidGregory084/il2ssd.git"}
+  :pom-addition [:developers [:developer
+                              [:name "David Gregory"]
+                              [:email "davidgregory084@gmail.com"]
+                              [:timezone "0"]]])
