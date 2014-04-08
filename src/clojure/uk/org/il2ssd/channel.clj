@@ -4,9 +4,9 @@
 ;; output concurrently. The initial input channel will receive one line at a time from
 ;; the server socket.
 ;;
-;; We are using unbuffered channels. This means that once a value is placed onto the
-;; channel, further puts onto the channel block until this value is taken from the
-;; channel.
+;; We are using channels with a buffer of ten values. This means that once ten values
+;; are placed on a channel, further puts onto that channel block until a value is
+;; taken from the channel.
 ;;
 ;; To route console output to various different processes we define a "mult".
 ;; This is a channel which may be tapped by a number of other channels so that each
@@ -18,8 +18,12 @@
 ;; Various "taps" are then defined. These are the channels which each receive a copy
 ;; of every input onto the mult.
 ;;
-;; Because we are using unbuffered channels, further puts onto the mult will block
-;; until every tap is empty.
+;; Each put onto the mult must be taken by every tap before the next put can be taken.
+;; This means that slow or unresponsive tapping processes can slow or even halt the
+;; program.
+;;
+;; Because we are using buffered channels, up to ten items can be put onto the mult
+;; before further puts will block until every channel has taken the oldest put.
 (ns uk.org.il2ssd.channel
   (:require [clojure.core.async :refer [chan filter< mult remove< tap]]))
 
