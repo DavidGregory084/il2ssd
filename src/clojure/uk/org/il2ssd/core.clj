@@ -9,7 +9,7 @@
   (:require [uk.org.il2ssd.jfx.init :as jfx]
             [uk.org.il2ssd.state :as state])
   (:import (com.airhacks.afterburner.injection InjectionProvider)
-           (javafx.application Application)
+           (javafx.application Application Application$Parameters)
            (uk.org.il2ssd Core))
   (:gen-class :name uk.org.il2ssd.Core
               :extends javafx.application.Application
@@ -34,8 +34,8 @@
    static method.
 
    The file Core.class will be generated when this namespace is AOT compiled."
-  [& args]
-  (Application/launch Core (into-array String [args])))
+  [args]
+  (Application/launch Core args))
 
 (defn -start
   "### -start
@@ -51,8 +51,9 @@
 
    Finally the tables and file choosers are instantiated, which requires some extra
    configuration."
-  [this primaryStage]
-  (reset! state/stage primaryStage)
+  [this stage]
+  (reset! state/params (-> this .getParameters .getRaw))
+  (reset! state/stage stage)
   (jfx/init-stage)
   (jfx/init-objects)
   (jfx/init-handlers)

@@ -7,7 +7,7 @@
                  [org.clojure/core.async "0.1.278.0-76b25b-alpha"]
                  [com.airhacks/afterburner.fx "1.4.4"]
                  [commons-lang/commons-lang "2.6"]
-                 [instaparse/instaparse "1.3.0"]
+                 [instaparse/instaparse "1.3.1"]
                  [com.brainbot/iniconfig "0.2.0"]
                  [overtone/at-at "1.2.0"]]
   :profiles {:dev {:dependencies [[org.apache.maven/maven-ant-tasks "2.1.3"]

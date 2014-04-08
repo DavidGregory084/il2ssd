@@ -11,6 +11,11 @@
 ;; necessary to initialise these atoms.
 (ns uk.org.il2ssd.state)
 
+(def params
+  "### params
+   This atom will store the application parameters for testing purposes."
+  (atom nil))
+
 (def stage
   "### stage
    This atom will store the JavaFX Stage instance so that we can set the stage
