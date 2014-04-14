@@ -24,9 +24,9 @@ public class MainPresenter {
     @FXML
     Button nextButton;
     @FXML
-    TextField commandEntryField;
+    Tab consoleTab;
     @FXML
-    TextArea consoleTextArea;
+    Tab settingsTab;
     @FXML
     BorderPane missionPane;
     @FXML
@@ -36,38 +36,12 @@ public class MainPresenter {
     @FXML
     Button missionLoadButton;
     @FXML
-    TextField ipAddressField;
-    @FXML
-    TextField portField;
-    @FXML
-    Label serverPathLabel;
-    @FXML
-    Button serverPathButton;
-    @FXML
-    Button getDifficultyButton;
-    @FXML
-    Button setDifficultyButton;
-    @FXML
-    TableView<DifficultySetting> difficultyTable;
-    @FXML
-    TableColumn<DifficultySetting, String> diffSettingColumn;
-    @FXML
-    TableColumn<DifficultySetting, String> diffValueColumn;
-    @FXML
     MenuItem exitItem;
     @FXML
     MenuItem aboutItem;
 
     public BorderPane getMissionPane() {
         return missionPane;
-    }
-
-    public Label getServerPathLabel() {
-        return serverPathLabel;
-    }
-
-    public Button getServerPathButton() {
-        return serverPathButton;
     }
 
     public Button getMissionLoadButton() {
@@ -80,34 +54,6 @@ public class MainPresenter {
 
     public Region getMissionBarSpring() {
         return missionBarSpring;
-    }
-
-    public TableColumn getDiffSettingColumn() {
-        return diffSettingColumn;
-    }
-
-    public TableColumn getDiffValueColumn() {
-        return diffValueColumn;
-    }
-
-    public TableView<DifficultySetting> getDifficultyTable() {
-        return difficultyTable;
-    }
-
-    public Button getGetDifficultyButton() {
-        return getDifficultyButton;
-    }
-
-    public Button getSetDifficultyButton() {
-        return setDifficultyButton;
-    }
-
-    public TextField getIpAddressField() {
-        return ipAddressField;
-    }
-
-    public TextField getPortField() {
-        return portField;
     }
 
     public Button getConnectButton() {
@@ -130,12 +76,12 @@ public class MainPresenter {
         return nextButton;
     }
 
-    public TextField getCommandEntryField() {
-        return commandEntryField;
+    public Tab getConsoleTab() {
+        return consoleTab;
     }
 
-    public TextArea getConsoleTextArea() {
-        return consoleTextArea;
+    public Tab getSettingsTab() {
+        return settingsTab;
     }
 
     public ChoiceBox<String> getMissionModeChoice() {

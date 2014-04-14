@@ -13,14 +13,14 @@
 (ns uk.org.il2ssd.jfx.ui
   (:require [uk.org.il2ssd.jfx.util :as util])
   (:import (java.io File)
-           (java.nio.file Paths)
+           (java.nio.file Path Paths)
            (java.util List)
            (javafx.application Platform)
            (javafx.event EventHandler)
            (javafx.scene.control Button ChoiceBox Label Labeled
                                  ProgressIndicator TableColumn
                                  TableColumn$CellEditEvent TableView
-                                 TextArea TextField TextInputControl)
+                                 TextArea TextField TextInputControl TablePosition)
            (javafx.scene.layout BorderPane)
            (javafx.stage FileChooser Stage)
            (uk.org.il2ssd.jfx CycleMission DifficultySetting)))

@@ -10,7 +10,7 @@
 (defn main-fixture
   "Launches the application on the JavaFX Application Thread before testing."
   [f]
-  (go (-main (into-array String ["args" "go" "here"])))
+  (go (-main "args" "go" "here"))
   (while (nil? @state/stage)
     nil)
   (f)

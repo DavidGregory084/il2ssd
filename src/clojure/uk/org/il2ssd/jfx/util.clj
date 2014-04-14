@@ -7,7 +7,7 @@
 ;; Dave Ray, originator of the excellent Seesaw, a Clojure wrapper for the Swing toolkit.
 (ns uk.org.il2ssd.jfx.util
   (:import (javafx.application Platform)
-           (javafx.event EventHandler)
+           (javafx.event EventHandler Event)
            (javafx.beans InvalidationListener)
            (javafx.beans.value ChangeListener ObservableValue)
            (javafx.scene.control ButtonBase ChoiceBox Labeled)
@@ -67,7 +67,7 @@
    This function accepts a function f, and returns an instance of an anonymous class
    which overrides the handle method of javafx.event.EventHandler using f.
    This allows event handlers to be defined for JavaFX controls as Clojure functions."
-  [f]
+  ^EventHandler [f]
   (reify EventHandler
     (handle [this e] (f e))))
 
@@ -109,7 +109,7 @@
 
    ChangeListeners use eager evaluation, so the old and new value of the
    ObservableValue can be used in the function."
-  [f]
+  ^ChangeListener [f]
   (reify ChangeListener
     (changed [this observable old new]
       (f observable old new))))

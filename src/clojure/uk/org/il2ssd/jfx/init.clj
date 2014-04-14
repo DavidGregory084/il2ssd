@@ -12,19 +12,21 @@
             [uk.org.il2ssd.settings :refer :all]
             [uk.org.il2ssd.state :as state])
   (:import (java.net URL)
-           (java.nio.file Paths)
+           (java.nio.file Path Paths)
            (java.util List)
            (javafx.collections FXCollections)
            (javafx.scene Scene)
-           (javafx.scene.control ChoiceBox Label TableColumn TableView
-                                 TextField)
+           (javafx.scene.control Button ChoiceBox Label MenuItem SelectionModel
+                                 TableColumn TableView Tab TextField)
            (javafx.scene.control.cell PropertyValueFactory
                                       TextFieldTableCell)
-           (javafx.scene.layout HBox Priority)
+           (javafx.scene.layout BorderPane HBox Priority Region StackPane)
            (javafx.scene.text Font)
            (javafx.stage FileChooser FileChooser$ExtensionFilter Stage)
-           (uk.org.il2ssd.jfx CyclePresenter CycleView MainPresenter
-                              MainView SinglePresenter SingleView)))
+           (uk.org.il2ssd.jfx ConsolePresenter ConsoleView CyclePresenter
+                              CycleView MainPresenter MainView
+                              SettingsPresenter SettingsView
+                              SinglePresenter SingleView)))
 
 (def modes
   "### modes
@@ -48,13 +50,18 @@
   []
   (let [^Stage stage @state/stage
         main-view (MainView.)
+        console-view (ConsoleView.)
         single-view (SingleView.)
         cycle-view (CycleView.)
+        settings-view (SettingsView.)
         scene (Scene. (.getView main-view))
         main-presenter (.getPresenter main-view)
+        console-presenter (.getPresenter console-view)
         single-presenter (.getPresenter single-view)
-        cycle-presenter (.getPresenter cycle-view)]
+        cycle-presenter (.getPresenter cycle-view)
+        settings-presenter (.getPresenter settings-view)]
     (event/set-title)
+    (-> scene .getStylesheets (.add "jfx/main.css"))
     (doto stage
       (.setScene scene)
       (.setResizable false)
@@ -63,9 +70,11 @@
       (.toExternalForm ^URL (resource "fontawesome-webfont.ttf")) 12.0)
     (util/close-handler stage event/close)
     (reset! state/presenters
-            {:main-presenter   main-presenter
-             :single-presenter single-presenter
-             :cycle-presenter  cycle-presenter})))
+            {:main-presenter     main-presenter
+             :console-presenter  console-presenter
+             :single-presenter   single-presenter
+             :cycle-presenter    cycle-presenter
+             :settings-presenter settings-presenter})))
 
 (defn init-objects
   "### init-objects
@@ -85,57 +94,64 @@
    to hold in an atom at runtime."
   []
   (let [{:keys [^MainPresenter main-presenter
+                ^ConsolePresenter console-presenter
                 ^SinglePresenter single-presenter
-                ^CyclePresenter cycle-presenter]} @state/presenters]
+                ^CyclePresenter cycle-presenter
+                ^SettingsPresenter settings-presenter]} @state/presenters]
     (reset! state/controls
-            (hash-map
-              ;Main FXML file controls
-              :connect-btn (.getConnectButton main-presenter)
-              :disconn-btn (.getDisconnectButton main-presenter)
-              :prog-stack (.getProgressStack main-presenter)
-              :prog-ind (.getProgressIndicator main-presenter)
-              :start-btn (.getStartStopButton main-presenter)
-              :next-btn (.getNextButton main-presenter)
-              :cmd-entry (.getCommandEntryField main-presenter)
-              :console (.getConsoleTextArea main-presenter)
-              :mission-pane (.getMissionPane main-presenter)
-              :mode-choice (.getMissionModeChoice main-presenter)
-              :mission-spring (.getMissionBarSpring main-presenter)
-              :load-btn (.getMissionLoadButton main-presenter)
-              :ip-field (.getIpAddressField main-presenter)
-              :port-field (.getPortField main-presenter)
-              :exit-btn (.getExitItem main-presenter)
-              :about-btn (.getAboutItem main-presenter)
-              :server-path-lbl (.getServerPathLabel main-presenter)
-              :server-path-btn (.getServerPathButton main-presenter)
-              :get-diff-btn (.getGetDifficultyButton main-presenter)
-              :set-diff-btn (.getSetDifficultyButton main-presenter)
-              :diff-table (.getDifficultyTable main-presenter)
-              :diff-data (FXCollections/synchronizedObservableList (FXCollections/observableArrayList))
-              :diff-set-col (.getDiffSettingColumn main-presenter)
-              :diff-val-col (.getDiffValueColumn main-presenter)
-              :server-chooser (FileChooser.)
-              :mis-chooser (FileChooser.)
-              :dcg-chooser (FileChooser.)
-              ;Single Mission FXML file controls
-              :single-mis-pane (.getSingleMisPane single-presenter)
-              :single-path-btn (.getChooseSingleMisButton single-presenter)
-              :single-path-fld (.getSingleMisPathField single-presenter)
+            {;Main FXML file controls
+              :connect-btn       (.getConnectButton main-presenter)
+              :disconn-btn       (.getDisconnectButton main-presenter)
+              :prog-stack        (.getProgressStack main-presenter)
+              :prog-ind          (.getProgressIndicator main-presenter)
+              :start-btn         (.getStartStopButton main-presenter)
+              :next-btn          (.getNextButton main-presenter)
+              :console-tab       (.getConsoleTab main-presenter)
+              :settings-tab      (.getSettingsTab main-presenter)
+              :mission-pane      (.getMissionPane main-presenter)
+              :mode-choice       (.getMissionModeChoice main-presenter)
+              :mission-spring    (.getMissionBarSpring main-presenter)
+              :load-btn          (.getMissionLoadButton main-presenter)
+              :exit-btn          (.getExitItem main-presenter)
+              :about-btn         (.getAboutItem main-presenter)
+              :mis-chooser       (FileChooser.)
+              :dcg-chooser       (FileChooser.)
+             ;Console Tab FXML file controls
+              :console-pane      (.getConsolePane console-presenter)
+              :cmd-entry         (.getCommandEntryField console-presenter)
+              :console           (.getConsoleTextArea console-presenter)
+             ;Single Mission FXML file controls
+              :single-mis-pane   (.getSingleMisPane single-presenter)
+              :single-path-btn   (.getChooseSingleMisButton single-presenter)
+              :single-path-fld   (.getSingleMisPathField single-presenter)
               :single-remote-btn (.getRemoteSelectButton single-presenter)
-              :single-path-lbl (.getSingleMisPathLabel single-presenter)
-              ;Mission Cycle FXML file controls
-              :cycle-mis-pane (.getCycleMisPane cycle-presenter)
-              :cycle-table (.getCycleMissionTable cycle-presenter)
-              :cycle-data (FXCollections/synchronizedObservableList (FXCollections/observableArrayList))
-              :cycle-idx-col (.getCycleIndexColumn cycle-presenter)
-              :cycle-mis-col (.getCycleMissionColumn cycle-presenter)
-              :cycle-tim-col (.getCycleTimerColumn cycle-presenter)
-              :cycle-mis-upbtn (.getMissionUpButton cycle-presenter)
-              :cycle-mis-delbtn (.getMissionDeleteButton cycle-presenter)
-              :cycle-mis-dwnbtn (.getMissionDownButton cycle-presenter)
-              :cycle-path-fld (.getCycleMisPathField cycle-presenter)
-              :cycle-path-btn (.getChooseCycleMisButton cycle-presenter)
-              :cycle-mis-addbtn (.getAddMissionButton cycle-presenter)))))
+              :single-path-lbl   (.getSingleMisPathLabel single-presenter)
+             ;Mission Cycle FXML file controls
+              :cycle-mis-pane    (.getCycleMisPane cycle-presenter)
+              :cycle-table       (.getCycleMissionTable cycle-presenter)
+              :cycle-data        (FXCollections/synchronizedObservableList (FXCollections/observableArrayList))
+              :cycle-idx-col     (.getCycleIndexColumn cycle-presenter)
+              :cycle-mis-col     (.getCycleMissionColumn cycle-presenter)
+              :cycle-tim-col     (.getCycleTimerColumn cycle-presenter)
+              :cycle-mis-upbtn   (.getMissionUpButton cycle-presenter)
+              :cycle-mis-delbtn  (.getMissionDeleteButton cycle-presenter)
+              :cycle-mis-dwnbtn  (.getMissionDownButton cycle-presenter)
+              :cycle-path-fld    (.getCycleMisPathField cycle-presenter)
+              :cycle-path-btn    (.getChooseCycleMisButton cycle-presenter)
+              :cycle-mis-addbtn  (.getAddMissionButton cycle-presenter)
+             ;Settings Tab FXML file controls
+              :settings-pane     (.getSettingsPane settings-presenter)
+              :ip-field          (.getIpAddressField settings-presenter)
+              :port-field        (.getPortField settings-presenter)
+              :server-path-lbl   (.getServerPathLabel settings-presenter)
+              :server-path-btn   (.getServerPathButton settings-presenter)
+              :server-chooser    (FileChooser.)
+              :get-diff-btn      (.getGetDifficultyButton settings-presenter)
+              :set-diff-btn      (.getSetDifficultyButton settings-presenter)
+              :diff-table        (.getDifficultyTable settings-presenter)
+              :diff-data         (FXCollections/synchronizedObservableList (FXCollections/observableArrayList))
+              :diff-set-col      (.getDiffSettingColumn settings-presenter)
+              :diff-val-col      (.getDiffValueColumn settings-presenter)})))
 
 (defn init-handlers
   "### init-handlers
@@ -192,11 +208,17 @@
    values. If a configuration file is found, the UI is initialised using the
    values retrieved from this file.
 
+   We also add any content from our subsidiary FXML files.
+
    We also set the HGrow setting for some UI elements because this cannot be set
    within a ToolBar in the JavaFX Scene Builder (even though a ToolBar is a
    subclass of HBox)."
   []
-  (let [{:keys [^TextField ip-field
+  (let [{:keys [^Tab console-tab
+                ^Tab settings-tab
+                ^BorderPane console-pane
+                ^BorderPane settings-pane
+                ^TextField ip-field
                 ^TextField port-field
                 ^Label server-path-lbl
                 ^Label single-path-lbl
@@ -211,6 +233,8 @@
         single-mis (:single-path-lbl config)]
     (HBox/setHgrow prog-stack Priority/ALWAYS)
     (HBox/setHgrow mission-spring Priority/ALWAYS)
+    (.setContent console-tab console-pane)
+    (.setContent settings-tab settings-pane)
     (-> mode-choice .getItems (.addAll ^List (map modes [:single :cycle])))
     (if config
       (do (-> mode-choice .getSelectionModel (.select mode))

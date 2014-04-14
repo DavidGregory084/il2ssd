@@ -34,8 +34,8 @@
    static method.
 
    The file Core.class will be generated when this namespace is AOT compiled."
-  [args]
-  (Application/launch Core args))
+  [& args]
+  (Application/launch Core (into-array String args)))
 
 (defn -start
   "### -start
@@ -51,7 +51,7 @@
 
    Finally the tables and file choosers are instantiated, which requires some extra
    configuration."
-  [this stage]
+  [^Core this stage]
   (reset! state/params (-> this .getParameters .getRaw))
   (reset! state/stage stage)
   (jfx/init-stage)
