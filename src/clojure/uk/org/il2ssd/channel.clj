@@ -67,7 +67,7 @@
    mission status lines. This channel is used to parse mission load, begin, end
    and unload events from the server console output."
   (filter<
-    #(re-matches #"Mission{1}:?+\s.+\w++\n" %)
+    #(re-matches #"(Mission){1}:?+\s.+\w++\n" %)
     (tap mult-channel (chan 10))))
 
 (def err-channel

@@ -1,9 +1,9 @@
 ;;
-;; ## Settings functions
+;; ## Config functions
 ;;
 ;; Here we define functions to build config files and to save and load these
 ;; files.
-(ns uk.org.il2ssd.settings
+(ns uk.org.il2ssd.config
   (:require [clojure.string :as string]
             [com.brainbot.iniconfig :as iniconfig])
   (:import (clojure.lang PersistentArrayMap PersistentVector)

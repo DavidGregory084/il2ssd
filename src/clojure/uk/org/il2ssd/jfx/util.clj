@@ -10,7 +10,7 @@
            (javafx.event EventHandler Event)
            (javafx.beans InvalidationListener)
            (javafx.beans.value ChangeListener ObservableValue)
-           (javafx.scene.control ButtonBase ChoiceBox Labeled)
+           (javafx.scene.control ChoiceBox Labeled Button)
            (javafx.scene.input KeyEvent)
            (javafx.scene Node)
            (javafx.stage Stage)))
@@ -138,8 +138,8 @@
   (.setOnAction control (event-handler [_] (f))))
 
 (defn close-handler
-  [control f]
-  (.setOnCloseRequest control (event-handler [_] (f))))
+  [^Stage stage f]
+  (.setOnCloseRequest stage (event-handler [_] (f))))
 
 (defn keypress-handler
   "### keypress-handler

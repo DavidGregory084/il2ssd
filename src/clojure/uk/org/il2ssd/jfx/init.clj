@@ -6,10 +6,13 @@
 ;; structures which we can more easily manipulate in Clojure.
 (ns uk.org.il2ssd.jfx.init
   (:require [clojure.java.io :refer [resource]]
-            [uk.org.il2ssd.event :as event]
+            [uk.org.il2ssd.event.console :as console]
+            [uk.org.il2ssd.event.main :as main]
+            [uk.org.il2ssd.event.mission :as mission]
+            [uk.org.il2ssd.event.settings :as settings]
             [uk.org.il2ssd.jfx.ui :as ui]
             [uk.org.il2ssd.jfx.util :as util]
-            [uk.org.il2ssd.settings :refer :all]
+            [uk.org.il2ssd.config :refer [get-configuration read-config-file]]
             [uk.org.il2ssd.state :as state])
   (:import (java.net URL)
            (java.nio.file Path Paths)
@@ -60,15 +63,14 @@
         single-presenter (.getPresenter single-view)
         cycle-presenter (.getPresenter cycle-view)
         settings-presenter (.getPresenter settings-view)]
-    (event/set-title)
-    (-> scene .getStylesheets (.add "jfx/main.css"))
+    (main/set-title)
     (doto stage
       (.setScene scene)
       (.setResizable false)
       (.show))
     (Font/loadFont
       (.toExternalForm ^URL (resource "fontawesome-webfont.ttf")) 12.0)
-    (util/close-handler stage event/close)
+    (util/close-handler stage main/close)
     (reset! state/presenters
             {:main-presenter     main-presenter
              :console-presenter  console-presenter
@@ -180,27 +182,29 @@
                 ^Label single-path-lbl]}
         @state/controls]
     ;State atom watch functions
-    (add-watch state/connected :connect event/set-connected)
-    (add-watch state/loaded :load event/set-mission-loaded)
-    (add-watch state/playing :play event/set-mission-playing)
-    (add-watch state/server-path :path event/set-server-selected)
-    (add-watch state/mission-path :mis event/set-mis-selected)
+    (add-watch state/connected :connect main/set-connected)
+    (add-watch state/loaded :load main/set-mission-loaded)
+    (add-watch state/playing :play main/set-mission-playing)
+    (add-watch state/mission-path :mis mission/set-mis-selected)
+    (add-watch state/server-path :path settings/set-server-selected)
     ;Main UI EventHandlers and Listeners
-    (util/button-handler connect-btn event/connect-command)
-    (util/button-handler disconn-btn event/disconnect-command)
-    (util/button-handler start-btn event/start-stop-command)
-    (util/button-handler server-path-btn event/server-choose-command)
-    (util/button-handler get-diff-btn event/get-difficulties)
-    (util/button-handler set-diff-btn event/set-difficulties)
-    (util/button-handler load-btn event/load-unload-command)
-    (util/button-handler exit-btn event/close)
-    (util/keypress-handler cmd-entry "Enter" event/enter-command)
-    (util/value-listener mode-choice event/mode-choice modes)
-    (util/text-listener server-path-lbl event/server-path-select)
-    ;Single Mission pane EventHandlers and Listeners
-    (util/button-handler single-remote-btn event/set-single-remote)
-    (util/button-handler single-path-btn event/single-choose-command)
-    (util/text-listener single-path-lbl event/single-path-select)))
+    (util/button-handler connect-btn main/connect-command)
+    (util/button-handler disconn-btn main/disconnect-command)
+    (util/button-handler start-btn main/start-stop-command)
+    (util/button-handler load-btn main/load-unload-command)
+    (util/button-handler exit-btn main/close)
+    ;Console tab EventHandlers and Listeners
+    (util/keypress-handler cmd-entry "Enter" console/enter-command)
+    ;Mission tab EventHandlers and Listeners
+    (util/value-listener mode-choice mission/mode-choice modes)
+    (util/button-handler single-remote-btn mission/set-single-remote)
+    (util/button-handler single-path-btn mission/single-choose-command)
+    (util/text-listener single-path-lbl mission/single-path-select)
+    ;Settings tab EventHandlers and Listeners
+    (util/button-handler server-path-btn settings/server-choose-command)
+    (util/text-listener server-path-lbl settings/server-path-select)
+    (util/button-handler get-diff-btn settings/get-difficulties)
+    (util/button-handler set-diff-btn settings/set-difficulties)))
 
 (defn init-controls
   "### init-controls

@@ -17,6 +17,7 @@
            (java.util List)
            (javafx.application Platform)
            (javafx.event EventHandler)
+           (javafx.scene Node)
            (javafx.scene.control Button ChoiceBox Label Labeled
                                  ProgressIndicator TableColumn
                                  TableColumn$CellEditEvent TableView
@@ -65,6 +66,15 @@
    supplied text value."
   [^Stage stage title]
   (util/run-later (.setTitle stage title)))
+
+(defn set-visible
+  "### set-visible
+   This two argument function toggles display of the provided control depending
+   upon a boolean parameter."
+  [^Node control show]
+  (if show
+    (util/run-later (.setVisible control true))
+    (util/run-later (.setVisible control false))))
 
 (defn toggle-prog-ind
   "### toggle-prog-ind
@@ -123,7 +133,7 @@
 (defn set-ui-loaded
   "### set-ui-loaded
    This two argument function sets the controls in the supplied map of controls to
-   the correct state for the supplied mission running state."
+   the correct state for the supplied mission loaded state."
   [loaded mission-path controls]
   (let [{:keys [^Button start-btn
                 ^Button load-btn]} controls]
