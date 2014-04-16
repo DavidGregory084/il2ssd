@@ -134,8 +134,10 @@
   "### button-handler
    This two argument function attaches an EventHandler instance to the supplied
    control which calls the supplied function when the OnAction event is triggered."
-  [control f]
-  (.setOnAction control (event-handler [_] (f))))
+  ([control f]
+   (.setOnAction control (event-handler [_] (f))))
+  ([control f arg]
+   (.setOnAction control (event-handler [_] (f arg)))))
 
 (defn close-handler
   [^Stage stage f]

@@ -80,3 +80,6 @@
    This atom stores the current mission loading mode for global use
    in the program."
   (atom nil))
+
+(def cycle-index
+  (atom 0))

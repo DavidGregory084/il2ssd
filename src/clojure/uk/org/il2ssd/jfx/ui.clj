@@ -14,12 +14,12 @@
   (:require [uk.org.il2ssd.jfx.util :as util])
   (:import (java.io File)
            (java.nio.file Path Paths)
-           (java.util List)
+           (java.util List Collections)
            (javafx.application Platform)
            (javafx.event EventHandler)
            (javafx.scene Node)
            (javafx.scene.control Button ChoiceBox Label Labeled
-                                 ProgressIndicator TableColumn
+                                 ProgressIndicator SelectionModel TableColumn
                                  TableColumn$CellEditEvent TableView
                                  TextArea TextField TextInputControl TablePosition)
            (javafx.scene.layout BorderPane)
@@ -166,6 +166,10 @@
   (get-text [control]
     (.getText control)))
 
+(defn set-text
+  [^TextInputControl control text]
+  (.setText control text))
+
 (defn get-item-data
   "### get-item-data
    This one argument function returns a map containing the setting and value
@@ -306,3 +310,40 @@
   (let [{:keys [^Button load-btn]} controls]
     (when (and selected connected (not loaded))
       (.setDisable load-btn false))))
+
+(defn get-list-size
+  [^List list]
+  (.size list))
+
+(defn get-selected-index
+  [^TableView table]
+  (-> table
+      .getSelectionModel
+      .getSelectedIndex))
+
+(defn swap-list-items
+  [list item1 item2]
+  (Collections/swap list item1 item2))
+
+(defn remove-list-item
+  [^List list ^Integer index]
+  (.remove list (int index)))
+
+(defn add-cycle-data
+  "### add-cycle-data
+   This two argument function adds the supplied element to the supplied list
+   object."
+  [^List cycle-data
+   ^String mission
+   ^String timer]
+  (.add cycle-data (CycleMission. mission timer)))
+
+(defn select-table-index
+  [^TableView table index]
+  (-> table
+      .getSelectionModel
+      (.clearAndSelect index)))
+
+(defn style-table-row
+  [^TableView table index]
+  (let []))

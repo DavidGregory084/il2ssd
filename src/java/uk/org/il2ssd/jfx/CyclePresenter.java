@@ -16,8 +16,6 @@ public class CyclePresenter {
     @FXML
     TableView<CycleMission> cycleMissionTable;
     @FXML
-    TableColumn<CycleMission, Integer> cycleIndexColumn;
-    @FXML
     TableColumn<CycleMission, String> cycleMissionColumn;
     @FXML
     TableColumn<CycleMission, String> cycleTimerColumn;
@@ -33,10 +31,6 @@ public class CyclePresenter {
     Button addMissionButton;
     @FXML
     Button chooseCycleMisButton;
-
-    public TableColumn<CycleMission, Integer> getCycleIndexColumn() {
-        return cycleIndexColumn;
-    }
 
     public TableView<CycleMission> getCycleMissionTable() {
         return cycleMissionTable;

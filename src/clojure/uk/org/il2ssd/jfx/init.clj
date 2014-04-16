@@ -7,6 +7,7 @@
 (ns uk.org.il2ssd.jfx.init
   (:require [clojure.java.io :refer [resource]]
             [uk.org.il2ssd.event.console :as console]
+            [uk.org.il2ssd.event.cycle :as cycle]
             [uk.org.il2ssd.event.main :as main]
             [uk.org.il2ssd.event.mission :as mission]
             [uk.org.il2ssd.event.settings :as settings]
@@ -22,7 +23,7 @@
            (javafx.scene.control Button ChoiceBox Label MenuItem SelectionModel
                                  TableColumn TableView Tab TextField)
            (javafx.scene.control.cell PropertyValueFactory
-                                      TextFieldTableCell)
+                                      TextFieldTableCell ChoiceBoxTableCell)
            (javafx.scene.layout BorderPane HBox Priority Region StackPane)
            (javafx.scene.text Font)
            (javafx.stage FileChooser FileChooser$ExtensionFilter Stage)
@@ -132,7 +133,6 @@
               :cycle-mis-pane    (.getCycleMisPane cycle-presenter)
               :cycle-table       (.getCycleMissionTable cycle-presenter)
               :cycle-data        (FXCollections/synchronizedObservableList (FXCollections/observableArrayList))
-              :cycle-idx-col     (.getCycleIndexColumn cycle-presenter)
               :cycle-mis-col     (.getCycleMissionColumn cycle-presenter)
               :cycle-tim-col     (.getCycleTimerColumn cycle-presenter)
               :cycle-mis-upbtn   (.getMissionUpButton cycle-presenter)
@@ -179,7 +179,12 @@
                 ^TextField port-field
                 ^Button single-remote-btn
                 ^Button single-path-btn
-                ^Label single-path-lbl]}
+                ^Label single-path-lbl
+                ^Button cycle-mis-upbtn
+                ^Button cycle-mis-delbtn
+                ^Button cycle-mis-dwnbtn
+                ^Button cycle-mis-addbtn
+                ^Button cycle-path-btn]}
         @state/controls]
     ;State atom watch functions
     (add-watch state/connected :connect main/set-connected)
@@ -193,14 +198,21 @@
     (util/button-handler start-btn main/start-stop-command)
     (util/button-handler load-btn main/load-unload-command)
     (util/button-handler exit-btn main/close)
-    ;Console tab EventHandlers and Listeners
+    ;Console tab
     (util/keypress-handler cmd-entry "Enter" console/enter-command)
-    ;Mission tab EventHandlers and Listeners
+    ;Mission tab
     (util/value-listener mode-choice mission/mode-choice modes)
+    ;Single mission pane
     (util/button-handler single-remote-btn mission/set-single-remote)
     (util/button-handler single-path-btn mission/single-choose-command)
     (util/text-listener single-path-lbl mission/single-path-select)
-    ;Settings tab EventHandlers and Listeners
+    ;Mission cycle pane
+    (util/button-handler cycle-mis-upbtn cycle/mission-swap dec)
+    (util/button-handler cycle-mis-delbtn cycle/mission-delete)
+    (util/button-handler cycle-mis-dwnbtn cycle/mission-swap inc)
+    (util/button-handler cycle-mis-addbtn cycle/mission-add)
+    (util/button-handler cycle-path-btn cycle/cycle-choose-command)
+    ;Settings tab
     (util/button-handler server-path-btn settings/server-choose-command)
     (util/text-listener server-path-lbl settings/server-path-select)
     (util/button-handler get-diff-btn settings/get-difficulties)
@@ -316,7 +328,9 @@
                 ^TableColumn diff-val-col]} @state/controls]
     (.setCellValueFactory diff-set-col (PropertyValueFactory. "setting"))
     (doto diff-val-col
-      (.setCellFactory (TextFieldTableCell/forTableColumn))
+      (.setCellFactory
+        (ChoiceBoxTableCell/forTableColumn
+          (FXCollections/observableArrayList (into-array String ["0" "1"]))))
       (.setCellValueFactory (PropertyValueFactory. "value"))
       (.setOnEditCommit (ui/diff-val-commit)))
     (doto diff-table
@@ -342,16 +356,13 @@
   []
   (let [{:keys [^TableView cycle-table
                 ^List cycle-data
-                ^TableColumn cycle-idx-col
                 ^TableColumn cycle-mis-col
                 ^TableColumn cycle-tim-col]} @state/controls]
-    (.setCellValueFactory cycle-idx-col (PropertyValueFactory. "index"))
     (.setCellValueFactory cycle-mis-col (PropertyValueFactory. "mission"))
     (doto cycle-tim-col
       (.setCellFactory (TextFieldTableCell/forTableColumn))
       (.setCellValueFactory (PropertyValueFactory. "timer"))
       (.setOnEditCommit (ui/cycle-timer-commit)))
     (doto cycle-table
-      (-> .getSortOrder (.add cycle-idx-col))
       (.setColumnResizePolicy TableView/CONSTRAINED_RESIZE_POLICY)
       (.setItems cycle-data))))
