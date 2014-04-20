@@ -21,7 +21,7 @@
            (javafx.scene.control Button ChoiceBox Label Labeled
                                  ProgressIndicator SelectionModel TableColumn
                                  TableColumn$CellEditEvent TableView
-                                 TextArea TextField TextInputControl TablePosition)
+                                 TextArea TextField TextInputControl TablePosition ToolBar)
            (javafx.scene.layout BorderPane)
            (javafx.stage FileChooser Stage)
            (uk.org.il2ssd.jfx CycleMission DifficultySetting)))
@@ -93,8 +93,8 @@
   [connected controls]
   (let [{:keys [^Button connect-btn
                 ^Button disconn-btn
-                ^List diff-data
                 ^Button load-btn
+                ^Button cycle-start-btn
                 ^Button get-diff-btn
                 ^Button set-diff-btn
                 ^TextField cmd-entry
@@ -109,6 +109,7 @@
       (util/run-later (do (.setDisable connect-btn false)
                           (.setDisable disconn-btn true)
                           (.setDisable load-btn true)
+                          (.setDisable cycle-start-btn true)
                           (.setDisable get-diff-btn true)
                           (.setDisable set-diff-btn true)
                           (.setDisable cmd-entry true)
@@ -306,10 +307,18 @@
   "### set-ui-mis
    This four argument function enables the load button when connected to the server,
    with a mission selected but not loaded."
-  [selected connected loaded controls]
-  (let [{:keys [^Button load-btn]} controls]
-    (when (and selected connected (not loaded))
-      (.setDisable load-btn false))))
+  [selected connected loaded mode controls]
+  (let [{:keys [^Button load-btn
+                ^Button cycle-start-btn]} controls]
+    (when (and (= mode "single")
+               selected
+               connected
+               (not loaded))
+      (.setDisable load-btn false))
+    (when (and (= mode "cycle")
+               selected
+               connected)
+      (.setDisable cycle-start-btn false))))
 
 (defn get-list-size
   [^List list]
@@ -320,6 +329,13 @@
   (-> table
       .getSelectionModel
       .getSelectedIndex))
+
+(defn get-cycle-mission
+  [^List cycle-data index]
+  (let [mission (.get cycle-data index)]
+    (-> {}
+        (assoc :mission (.getMission mission))
+        (assoc :timer (.getTimer mission)))))
 
 (defn swap-list-items
   [list item1 item2]
@@ -344,6 +360,25 @@
       .getSelectionModel
       (.clearAndSelect index)))
 
-(defn style-table-row
-  [^TableView table index]
-  (let []))
+(defn set-ui-cycle
+  [running controls]
+  (let [{:keys [cycle-start-btn next-btn]} controls]
+    (if running
+      (util/run-later (do (.setDisable next-btn false)
+                          (.setText cycle-start-btn "\uf04d \uf021 Stop")))
+      (util/run-later (do (.setDisable next-btn true)
+                          (.setText cycle-start-btn "\uf04b \uf021 Start"))))))
+
+(defn swap-start-button
+  [^ToolBar toolbar oldbutton newbutton]
+  (let [items (.getItems toolbar)
+        oldindex (.indexOf items oldbutton)]
+    (when (> oldindex 0)
+      (.remove items (int oldindex)))
+    (let [newindex (.indexOf items newbutton)
+          target (apply min (filter #(> % 0) (list oldindex newindex)))]
+      (when (and (> newindex 0) (not= newindex target))
+        (.remove items (int newindex))
+        (.add items target newbutton))
+      (when (< newindex 0)
+        (.add items target newbutton)))))

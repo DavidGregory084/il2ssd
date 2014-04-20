@@ -85,6 +85,10 @@
   [path-to-mission]
   (write-socket (str "mission LOAD " path-to-mission)))
 
+(defn load-begin-mission
+  [path-to-mission]
+  (write-socket (str "mission LOAD " path-to-mission " BEGIN")))
+
 (defn unload-mission
   "### unload-mission
    This is a zero argument function which sends the command to the server console
@@ -179,6 +183,7 @@
   []
   (reset! state/loaded false)
   (reset! state/playing false)
+  (reset! state/cycle-running false)
   (reset! state/connected false)
   (.shutdownInput ^Socket @socket)
   (.close ^Socket @socket))

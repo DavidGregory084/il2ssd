@@ -2,6 +2,8 @@
   (:require [clojure.core.async :refer [<!! go thread]]
             [clojure.string :as string]
             [uk.org.il2ssd.channel :refer :all]
+            [uk.org.il2ssd.event.cycle :as cycle]
+            [uk.org.il2ssd.event.mission :as mission]
             [uk.org.il2ssd.jfx.ui :as ui]
             [uk.org.il2ssd.parse :refer :all]
             [uk.org.il2ssd.server :as server]
@@ -48,6 +50,8 @@
    This is a zero argument function which calls the server disconnect function
    in a go block so that it doesn't block the calling thread."
   []
+  (when @state/cycle-running
+    (cycle/stop-cycle))
   (go (server/disconnect)))
 
 (defn start-stop-command
@@ -55,10 +59,21 @@
    This is a zero argument function which ends the current mission if is playing,
    or starts the currently loaded mission if it is not."
   []
-  (when (= @state/mode "single")
-    (if @state/playing
-      (server/end-mission)
-      (server/start-mission))))
+  (when @state/cycle-running
+    (cycle/stop-cycle))
+  (if @state/playing
+    (server/end-mission)
+    (server/start-mission)))
+
+(defn start-stop-cycle-command
+  []
+  (if @state/cycle-running
+    (do (cycle/stop-cycle)
+        (when @state/playing
+          (server/unload-mission)))
+    (do (when @state/playing
+          (server/unload-mission))
+        (cycle/start-cycle))))
 
 (defn load-unload-command
   "### load-unload-command
@@ -158,7 +173,9 @@
               (ui/toggle-prog-ind @state/controls false)
               (reset! state/loaded false)
               (reset! state/playing false)
-              (set-title)))))
+              (set-title)
+              (when @state/cycle-running
+                (cycle/next-mission false))))))
 
 (defn start-listeners
   "### start-listeners
@@ -233,3 +250,8 @@
         (save-ui-state)
         (config/save-config-file)
         (ui/exit)))
+
+(defn next-command
+  []
+  (when (= @state/mode "cycle")
+    (cycle/next-mission false)))

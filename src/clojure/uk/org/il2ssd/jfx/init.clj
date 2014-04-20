@@ -23,7 +23,8 @@
            (javafx.scene.control Button ChoiceBox Label MenuItem SelectionModel
                                  TableColumn TableView Tab TextField)
            (javafx.scene.control.cell PropertyValueFactory
-                                      TextFieldTableCell ChoiceBoxTableCell)
+                                      TextFieldTableCell ChoiceBoxTableCell
+                                      ComboBoxTableCell)
            (javafx.scene.layout BorderPane HBox Priority Region StackPane)
            (javafx.scene.text Font)
            (javafx.stage FileChooser FileChooser$ExtensionFilter Stage)
@@ -103,11 +104,13 @@
                 ^SettingsPresenter settings-presenter]} @state/presenters]
     (reset! state/controls
             {;Main FXML file controls
+              :tool-bar          (.getToolBar main-presenter)
               :connect-btn       (.getConnectButton main-presenter)
               :disconn-btn       (.getDisconnectButton main-presenter)
               :prog-stack        (.getProgressStack main-presenter)
               :prog-ind          (.getProgressIndicator main-presenter)
               :start-btn         (.getStartStopButton main-presenter)
+              :cycle-start-btn   (.getCycleStartStopButton main-presenter)
               :next-btn          (.getNextButton main-presenter)
               :console-tab       (.getConsoleTab main-presenter)
               :settings-tab      (.getSettingsTab main-presenter)
@@ -165,6 +168,7 @@
   (let [{:keys [^Button connect-btn
                 ^Button disconn-btn
                 ^Button start-btn
+                ^Button cycle-start-btn
                 ^Button next-btn
                 ^TextField cmd-entry
                 ^ChoiceBox mode-choice
@@ -191,11 +195,14 @@
     (add-watch state/loaded :load main/set-mission-loaded)
     (add-watch state/playing :play main/set-mission-playing)
     (add-watch state/mission-path :mis mission/set-mis-selected)
+    (add-watch state/cycle-running :cycle cycle/set-cycle-running)
     (add-watch state/server-path :path settings/set-server-selected)
     ;Main UI EventHandlers and Listeners
     (util/button-handler connect-btn main/connect-command)
     (util/button-handler disconn-btn main/disconnect-command)
     (util/button-handler start-btn main/start-stop-command)
+    (util/button-handler cycle-start-btn main/start-stop-cycle-command)
+    (util/button-handler next-btn main/next-command)
     (util/button-handler load-btn main/load-unload-command)
     (util/button-handler exit-btn main/close)
     ;Console tab
@@ -329,7 +336,7 @@
     (.setCellValueFactory diff-set-col (PropertyValueFactory. "setting"))
     (doto diff-val-col
       (.setCellFactory
-        (ChoiceBoxTableCell/forTableColumn
+        (ComboBoxTableCell/forTableColumn
           (FXCollections/observableArrayList (into-array String ["0" "1"]))))
       (.setCellValueFactory (PropertyValueFactory. "value"))
       (.setOnEditCommit (ui/diff-val-commit)))

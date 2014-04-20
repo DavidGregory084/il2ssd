@@ -12,6 +12,8 @@ import javafx.scene.layout.StackPane;
 public class MainPresenter {
 
     @FXML
+    ToolBar toolBar;
+    @FXML
     Button connectButton;
     @FXML
     Button disconnectButton;
@@ -21,6 +23,8 @@ public class MainPresenter {
     ProgressIndicator progressIndicator;
     @FXML
     Button startStopButton;
+    @FXML
+    Button cycleStartStopButton;
     @FXML
     Button nextButton;
     @FXML
@@ -39,6 +43,14 @@ public class MainPresenter {
     MenuItem exitItem;
     @FXML
     MenuItem aboutItem;
+
+    public ToolBar getToolBar() {
+        return toolBar;
+    }
+
+    public Button getCycleStartStopButton() {
+        return cycleStartStopButton;
+    }
 
     public BorderPane getMissionPane() {
         return missionPane;

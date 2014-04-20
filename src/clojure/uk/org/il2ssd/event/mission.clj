@@ -12,14 +12,17 @@
    This zero argument function is used to determine whether there is a valid
    mission selection, dependent upon the current UI mission loading mode."
   []
-  (let [{:keys [single-path-lbl]} @state/controls
+  (let [{:keys [single-path-lbl
+                cycle-data]} @state/controls
         single-mis (ui/get-text single-path-lbl)]
     (when (= @state/mode "single")
       (if (not (string/blank? single-mis))
         true
         false))
     (when (= @state/mode "cycle")
-      false)
+      (if (> (ui/get-list-size cycle-data) 0)
+        true
+        false))
     (when (= @state/mode "dcg")
       false)))
 
@@ -61,14 +64,29 @@
                 single-mis-pane
                 cycle-mis-pane
                 mode-choice
-                load-btn]} @state/controls
+                load-btn
+                tool-bar
+                start-btn
+                cycle-start-btn
+                single-path-fld
+                cycle-data]} @state/controls
         mode (name ((map-invert modes) (ui/get-choice mode-choice)))]
     (reset! state/mode mode)
     (when (= mode "single")
+      (if (mis-selected?)
+        (reset! state/mission-path
+                (ui/get-text single-path-fld))
+        (reset! state/mission-path nil))
       (ui/set-visible load-btn true)
+      (ui/swap-start-button tool-bar cycle-start-btn start-btn)
       (ui/set-mis-pane mission-pane single-mis-pane))
     (when (= mode "cycle")
+      (if (mis-selected?)
+        (reset! state/mission-path
+                (:mission (ui/get-cycle-mission cycle-data @state/cycle-index)))
+        (reset! state/mission-path nil))
       (ui/set-visible load-btn false)
+      (ui/swap-start-button tool-bar start-btn cycle-start-btn)
       (ui/set-mis-pane mission-pane cycle-mis-pane))))
 
 (defn set-single-remote
@@ -109,7 +127,7 @@
   []
   (let [{:keys [single-path-lbl]} @state/controls
         single-path (ui/get-text single-path-lbl)]
-    (if (= single-path "...")
+    (if (or (not= @state/mode "single") (= single-path "..."))
       (reset! state/mission-path nil)
       (reset! state/mission-path single-path))))
 
@@ -118,4 +136,8 @@
    This watch function sets the UI accordingly when a single mission has
    been selected."
   [_ _ _ selected]
-  (ui/set-ui-mis selected @state/connected @state/loaded @state/controls))
+  (ui/set-ui-mis selected
+                 @state/connected
+                 @state/loaded
+                 @state/mode
+                 @state/controls))

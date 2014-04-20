@@ -14,7 +14,7 @@
 
 <BorderPane id="borderPane" prefHeight="528.0" prefWidth="500.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="uk.org.il2ssd.jfx.MainPresenter">
   <bottom>
-    <ToolBar>
+    <ToolBar id="toolBAr" fx:id="toolBar">
       <Button fx:id="connectButton" alignment="CENTER" mnemonicParsing="false" prefHeight="30.0" prefWidth="95.0" text="  Connect" textAlignment="CENTER" />
       <Button fx:id="disconnectButton" disable="true" mnemonicParsing="false" prefHeight="30.0" prefWidth="95.0" text="  Disconnect" />
       <StackPane id="StackPane" fx:id="progressStack" maxHeight="39.0" maxWidth="-1.0" prefHeight="39.0" prefWidth="-1.0" visible="true">
@@ -26,6 +26,7 @@
         </padding>
       </StackPane>
       <Button fx:id="startStopButton" disable="true" mnemonicParsing="false" prefHeight="30.0" prefWidth="95.0" text="  Start" />
+      <Button id="startStopButton" fx:id="cycleStartStopButton" disable="true" mnemonicParsing="false" prefHeight="30.0" prefWidth="95.0" text="   Start" visible="true" />
       <Button fx:id="nextButton" alignment="CENTER" disable="true" mnemonicParsing="false" prefHeight="30.0" prefWidth="95.0" text=" Next" />
     </ToolBar>
   </bottom>
