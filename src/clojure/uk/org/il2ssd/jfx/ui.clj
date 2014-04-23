@@ -337,6 +337,6 @@
       (if (and (or (empty? enabled-by)
                    (every? state enabled-by))
                (or (empty? disabled-by)
-                   (not-every? state disabled-by)))
+                   (not-any? state disabled-by)))
         (util/run-later (.setDisable ^Node (:instance control) false))
         (util/run-later (.setDisable ^Node (:instance control) true))))))
