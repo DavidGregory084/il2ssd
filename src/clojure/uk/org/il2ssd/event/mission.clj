@@ -11,20 +11,19 @@
   "### mis-selected?
    This zero argument function is used to determine whether there is a valid
    mission selection, dependent upon the current UI mission loading mode."
-  []
+  [mode]
   (let [{:keys [single-path-lbl
-                cycle-data]} @state/controls
+                cycle-data]} @state/control-instances
         single-mis (ui/get-text single-path-lbl)]
-    (when (= @state/mode "single")
-      (if (not (string/blank? single-mis))
-        true
-        false))
-    (when (= @state/mode "cycle")
-      (if (> (ui/get-list-size cycle-data) 0)
-        true
-        false))
-    (when (= @state/mode "dcg")
-      false)))
+    (case mode
+      "single" (if-not (or (string/blank? single-mis)
+                           (= single-mis "..."))
+                 true
+                 false)
+      "cycle" (if (> (ui/get-list-size cycle-data) 0)
+                true
+                false)
+      "dcg" false)))
 
 (defn get-relative-path
   "### get-relative-path
@@ -68,23 +67,23 @@
                 tool-bar
                 start-btn
                 cycle-start-btn
-                single-path-fld
-                cycle-data]} @state/controls
+                single-path-lbl
+                cycle-data]} @state/control-instances
         mode (name ((map-invert modes) (ui/get-choice mode-choice)))]
     (reset! state/mode mode)
     (when (= mode "single")
-      (if (mis-selected?)
-        (reset! state/mission-path
-                (ui/get-text single-path-fld))
-        (reset! state/mission-path nil))
+      (if (mis-selected? mode)
+        (reset! state/single-mission-path
+                (ui/get-text single-path-lbl))
+        (reset! state/single-mission-path nil))
       (ui/set-visible load-btn true)
       (ui/swap-start-button tool-bar cycle-start-btn start-btn)
       (ui/set-mis-pane mission-pane single-mis-pane))
     (when (= mode "cycle")
-      (if (mis-selected?)
-        (reset! state/mission-path
+      (if (mis-selected? mode)
+        (reset! state/cycle-mission-path
                 (:mission (ui/get-cycle-mission cycle-data @state/cycle-index)))
-        (reset! state/mission-path nil))
+        (reset! state/cycle-mission-path nil))
       (ui/set-visible load-btn false)
       (ui/swap-start-button tool-bar start-btn cycle-start-btn)
       (ui/set-mis-pane mission-pane cycle-mis-pane))))
@@ -98,7 +97,7 @@
    mission files."
   []
   (let [{:keys [single-path-fld
-                single-path-lbl]} @state/controls
+                single-path-lbl]} @state/control-instances
         mission-path (ui/get-text single-path-fld)]
     (when (not (string/blank? mission-path))
       (ui/set-label single-path-lbl mission-path))))
@@ -114,7 +113,7 @@
    mission to load."
   []
   (let [{:keys [mis-chooser
-                single-path-lbl]} @state/controls
+                single-path-lbl]} @state/control-instances
         file (ui/show-chooser mis-chooser)]
     (when file
       (ui/set-label single-path-lbl
@@ -125,19 +124,8 @@
    This zero argument function sets the global single mission path atom.
    It is called when the single mission path label text changes."
   []
-  (let [{:keys [single-path-lbl]} @state/controls
+  (let [{:keys [single-path-lbl]} @state/control-instances
         single-path (ui/get-text single-path-lbl)]
-    (if (or (not= @state/mode "single") (= single-path "..."))
-      (reset! state/mission-path nil)
-      (reset! state/mission-path single-path))))
-
-(defn set-mis-selected
-  "### set-mis-selected
-   This watch function sets the UI accordingly when a single mission has
-   been selected."
-  [_ _ _ selected]
-  (ui/set-ui-mis selected
-                 @state/connected
-                 @state/loaded
-                 @state/mode
-                 @state/controls))
+    (if (= single-path "...")
+      (reset! state/single-mission-path nil)
+      (reset! state/single-mission-path single-path))))

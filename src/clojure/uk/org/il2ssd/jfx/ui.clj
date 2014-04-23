@@ -1,4 +1,4 @@
-;; 
+;;
 ;; ## UI manipulation functions
 ;;
 ;; In this namespace we define all the functions which will be used to update
@@ -35,8 +35,9 @@
 (defn clear-diff-data
   "### clear-diff-data
    This one argument function clears the list which it receives as an argument."
-  [^List diff-data]
-  (util/run-later (.clear diff-data)))
+  [controls]
+  (let [{:keys [^List diff-data]} controls]
+    (util/run-later (.clear diff-data))))
 
 (defn add-diff-data
   "### add-diff-data
@@ -86,68 +87,38 @@
       (util/run-later (.setVisible prog-ind true))
       (util/run-later (.setVisible prog-ind false)))))
 
-(defn set-ui-connected
+(defn toggle-console-text
   "### set-ui-connected
    This two argument function sets the controls in the supplied map of controls
    to the relevant state for the connection state provided."
   [connected controls]
-  (let [{:keys [^Button connect-btn
-                ^Button disconn-btn
-                ^Button load-btn
-                ^Button cycle-start-btn
-                ^Button get-diff-btn
-                ^Button set-diff-btn
-                ^TextField cmd-entry
-                ^TextArea console]} controls]
+  (let [{:keys [^TextArea console]} controls]
     (if connected
-      (util/run-later (do (.setDisable connect-btn true)
-                          (.setDisable disconn-btn false)
-                          (.setDisable get-diff-btn false)
-                          (.setDisable set-diff-btn false)
-                          (.setDisable cmd-entry false)
-                          (.clear console)))
-      (util/run-later (do (.setDisable connect-btn false)
-                          (.setDisable disconn-btn true)
-                          (.setDisable load-btn true)
-                          (.setDisable cycle-start-btn true)
-                          (.setDisable get-diff-btn true)
-                          (.setDisable set-diff-btn true)
-                          (.setDisable cmd-entry true)
-                          (.setText console "<disconnected>"))))))
+      (util/run-later (.clear console))
+      (util/run-later (.setText console "<disconnected>")))))
 
-(defn set-ui-playing
+(defn toggle-start-txt
   "### set-ui-playing
    This two argument function sets the controls in the supplied map of controls to
    the correct state for the supplied mission running state."
   [playing controls]
   (let [{:keys [^TableView diff-table
-                ^Button set-diff-btn
                 ^Button start-btn]} controls]
     (if playing
       (util/run-later (do (.setEditable diff-table false)
-                          (.setDisable set-diff-btn true)
                           (.setText start-btn "\uf04d Stop")))
       (util/run-later (do (.setEditable diff-table true)
-                          (.setDisable set-diff-btn false)
                           (.setText start-btn "\uf04b Start"))))))
 
-(defn set-ui-loaded
+(defn toggle-load-txt
   "### set-ui-loaded
    This two argument function sets the controls in the supplied map of controls to
    the correct state for the supplied mission loaded state."
-  [loaded mission-path controls]
-  (let [{:keys [^Button start-btn
-                ^Button load-btn]} controls]
+  [loaded controls]
+  (let [{:keys [^Button load-btn]} controls]
     (if loaded
-      (util/run-later (do (.setDisable start-btn false)
-                          (.setDisable load-btn false)
-                          (.setText load-btn "\uf05e Unload")
-                          (toggle-prog-ind controls false)))
-      (util/run-later (do (.setDisable start-btn true)
-                          (.setText load-btn "\uf093 Load")
-                          (if mission-path
-                            (.setDisable load-btn false)
-                            (.setDisable load-btn true)))))))
+      (util/run-later (.setText load-btn "\uf05e Unload"))
+      (util/run-later (.setText load-btn "\uf093 Load")))))
 
 (defprotocol GetText
   (get-text [control]))
@@ -226,7 +197,7 @@
   [newval]
   (if
       (try (pos? (Integer/decode newval))
-           (catch Exception e nil))
+           (catch Exception _ nil))
     true))
 
 (defn diff-val-commit
@@ -278,18 +249,6 @@
         (doto col (.setVisible false)
                   (.setVisible true))))))
 
-(defn set-ui-server
-  "### set-ui-server
-   This two argument function sets the UI state accordingly depending upon whether
-   the server path has been set."
-  [path controls]
-  (let [{:keys [^Button single-path-btn
-                ^Button cycle-path-btn]} controls]
-    (if path
-      (do (.setDisable single-path-btn false)
-          (.setDisable cycle-path-btn false))
-      (do (.setDisable single-path-btn true)
-          (.setDisable cycle-path-btn true)))))
 
 (defn set-mis-dir
   "### set-mis-dir
@@ -297,28 +256,12 @@
    chooser to the Missions directory of the server whose .exe is selected."
   [path controls]
   (let [{:keys [^FileChooser mis-chooser]} controls]
-    (.setInitialDirectory mis-chooser
-                          (-> (Paths/get path (into-array String []))
-                              .getParent
-                              (.resolve "Missions")
-                              .toFile))))
-
-(defn set-ui-mis
-  "### set-ui-mis
-   This four argument function enables the load button when connected to the server,
-   with a mission selected but not loaded."
-  [selected connected loaded mode controls]
-  (let [{:keys [^Button load-btn
-                ^Button cycle-start-btn]} controls]
-    (when (and (= mode "single")
-               selected
-               connected
-               (not loaded))
-      (.setDisable load-btn false))
-    (when (and (= mode "cycle")
-               selected
-               connected)
-      (.setDisable cycle-start-btn false))))
+    (util/run-later
+      (.setInitialDirectory mis-chooser
+                            (-> (Paths/get path (into-array String []))
+                                .getParent
+                                (.resolve "Missions")
+                                .toFile)))))
 
 (defn get-list-size
   [^List list]
@@ -332,7 +275,7 @@
 
 (defn get-cycle-mission
   [^List cycle-data index]
-  (let [mission (.get cycle-data index)]
+  (let [^CycleMission mission (.get cycle-data index)]
     (-> {}
         (assoc :mission (.getMission mission))
         (assoc :timer (.getTimer mission)))))
@@ -360,14 +303,12 @@
       .getSelectionModel
       (.clearAndSelect index)))
 
-(defn set-ui-cycle
+(defn toggle-cycle-start-txt
   [running controls]
-  (let [{:keys [cycle-start-btn next-btn]} controls]
+  (let [{:keys [^Button cycle-start-btn]} controls]
     (if running
-      (util/run-later (do (.setDisable next-btn false)
-                          (.setText cycle-start-btn "\uf04d \uf021 Stop")))
-      (util/run-later (do (.setDisable next-btn true)
-                          (.setText cycle-start-btn "\uf04b \uf021 Start"))))))
+      (util/run-later (.setText cycle-start-btn "\uf04d \uf021 Stop"))
+      (util/run-later (.setText cycle-start-btn "\uf04b \uf021 Start")))))
 
 (defn swap-start-button
   [^ToolBar toolbar oldbutton newbutton]
@@ -382,3 +323,20 @@
         (.add items target newbutton))
       (when (< newindex 0)
         (.add items target newbutton)))))
+
+(defn set-button-state
+  [state controls]
+  (let [map-keys (keys controls)]
+    (doseq [key map-keys
+            :let [control (key controls)
+                  {:keys [enabled-by disabled-by]
+                   :or   [:enabled-by #{}
+                          :disabled-by #{}]} control]
+            :when (or (contains? control :enabled-by)
+                      (contains? control :disabled-by))]
+      (if (and (or (empty? enabled-by)
+                   (every? state enabled-by))
+               (or (empty? disabled-by)
+                   (not-every? state disabled-by)))
+        (util/run-later (.setDisable ^Node (:instance control) false))
+        (util/run-later (.setDisable ^Node (:instance control) true))))))

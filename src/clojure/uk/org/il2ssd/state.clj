@@ -34,6 +34,9 @@
    by the afterburner.fx Presenter class for each .fxml file."
   (atom nil))
 
+(def control-instances
+  (atom nil))
+
 (def connected
   "### connected
    This atom simply stores a true or false connected status for global use in the
@@ -52,12 +55,6 @@
    program."
   (atom nil))
 
-(def mis-selected
-  "### mis-selected
-   This atom stores a true or false mission selected status for global use in the
-   program."
-  (atom nil))
-
 (def cycle-running
   "### cycle-running
    This atom stores a true or false cycle running state for global use in the
@@ -69,10 +66,13 @@
    This atom stores the server path for global use in the program."
   (atom nil))
 
-(def mission-path
+(def single-mission-path
   "### mission-path
    This atom stores the current mission path for global use in the
    program."
+  (atom nil))
+
+(def cycle-mission-path
   (atom nil))
 
 (def mode
@@ -83,3 +83,13 @@
 
 (def cycle-index
   (atom 0))
+
+(defn get-state
+  []
+  {:connected           @connected
+   :loaded              @loaded
+   :playing             @playing
+   :server-path         @server-path
+   :single-mission-path @single-mission-path
+   :cycle-mission-path  @cycle-mission-path
+   :cycle-running       @cycle-running})

@@ -10,7 +10,7 @@
    the provided file to set the server path in the UI."
   []
   (let [{:keys [server-chooser
-                server-path-lbl]} @state/controls
+                server-path-lbl]} @state/control-instances
         file (ui/show-chooser server-chooser)]
     (when file
       (ui/set-label server-path-lbl (.getCanonicalPath file)))))
@@ -20,19 +20,11 @@
    This zero argument function sets the global server path atom. It is
    called when the server path label text changes."
   []
-  (let [{:keys [server-path-lbl]} @state/controls
+  (let [{:keys [server-path-lbl]} @state/control-instances
         server-path (ui/get-text server-path-lbl)]
     (if (= server-path "...")
       (reset! state/server-path nil)
       (reset! state/server-path server-path))))
-
-(defn set-server-selected
-  "### set-server-selected
-   This watch function sets the UI accordingly when a path to the server
-   .exe has been defined."
-  [_ _ _ path]
-  (ui/set-ui-server path @state/controls)
-  (ui/set-mis-dir path @state/controls))
 
 (defn get-difficulties
   "### get-difficulties
@@ -40,9 +32,8 @@
    requests the currently loaded difficulty settings from the server so that they
    can be parsed back into the program by the listener function."
   []
-  (let [{:keys [diff-data]} @state/controls]
-    (ui/clear-diff-data diff-data)
-    (server/get-difficulty)))
+  (ui/clear-diff-data @state/control-instances)
+  (server/get-difficulty))
 
 (defn set-difficulties
   "### set-difficulties
@@ -53,7 +44,7 @@
    This will update the server with any changes that the user has made to the
    difficulty settings list."
   []
-  (let [{:keys [diff-data]} @state/controls]
+  (let [{:keys [diff-data]} @state/control-instances]
     (doseq [item diff-data]
       (let [item-data (ui/get-item-data item)
             setting (:setting item-data)

@@ -31,12 +31,19 @@
            (uk.org.il2ssd.jfx ConsolePresenter ConsoleView CyclePresenter
                               CycleView MainPresenter MainView
                               SettingsPresenter SettingsView
-                              SinglePresenter SingleView)))
+                              SinglePresenter SingleView)
+           (javafx.util Callback)))
 
 (def modes
   "### modes
    This is a map of the mission loading modes."
   {:single "Single Mission", :cycle "Mission Cycle"})
+
+(defn map-control-instances
+  [controls]
+  (apply hash-map (interleave
+                    (keys controls)
+                    (map :instance (vals controls)))))
 
 (defn init-stage
   "### init-stage
@@ -90,7 +97,7 @@
    following syntax:
 
        (let [{:keys [<objects we want to use>]}
-             @state/controls]
+             @state/control-instances]
          (<function body>))
 
    It may be necessary to use type hinting to limit uses of the Reflection API at
@@ -101,62 +108,83 @@
                 ^ConsolePresenter console-presenter
                 ^SinglePresenter single-presenter
                 ^CyclePresenter cycle-presenter
-                ^SettingsPresenter settings-presenter]} @state/presenters]
-    (reset! state/controls
-            {;Main FXML file controls
-              :tool-bar          (.getToolBar main-presenter)
-              :connect-btn       (.getConnectButton main-presenter)
-              :disconn-btn       (.getDisconnectButton main-presenter)
-              :prog-stack        (.getProgressStack main-presenter)
-              :prog-ind          (.getProgressIndicator main-presenter)
-              :start-btn         (.getStartStopButton main-presenter)
-              :cycle-start-btn   (.getCycleStartStopButton main-presenter)
-              :next-btn          (.getNextButton main-presenter)
-              :console-tab       (.getConsoleTab main-presenter)
-              :settings-tab      (.getSettingsTab main-presenter)
-              :mission-pane      (.getMissionPane main-presenter)
-              :mode-choice       (.getMissionModeChoice main-presenter)
-              :mission-spring    (.getMissionBarSpring main-presenter)
-              :load-btn          (.getMissionLoadButton main-presenter)
-              :exit-btn          (.getExitItem main-presenter)
-              :about-btn         (.getAboutItem main-presenter)
-              :mis-chooser       (FileChooser.)
-              :dcg-chooser       (FileChooser.)
-             ;Console Tab FXML file controls
-              :console-pane      (.getConsolePane console-presenter)
-              :cmd-entry         (.getCommandEntryField console-presenter)
-              :console           (.getConsoleTextArea console-presenter)
-             ;Single Mission FXML file controls
-              :single-mis-pane   (.getSingleMisPane single-presenter)
-              :single-path-btn   (.getChooseSingleMisButton single-presenter)
-              :single-path-fld   (.getSingleMisPathField single-presenter)
-              :single-remote-btn (.getRemoteSelectButton single-presenter)
-              :single-path-lbl   (.getSingleMisPathLabel single-presenter)
-             ;Mission Cycle FXML file controls
-              :cycle-mis-pane    (.getCycleMisPane cycle-presenter)
-              :cycle-table       (.getCycleMissionTable cycle-presenter)
-              :cycle-data        (FXCollections/synchronizedObservableList (FXCollections/observableArrayList))
-              :cycle-mis-col     (.getCycleMissionColumn cycle-presenter)
-              :cycle-tim-col     (.getCycleTimerColumn cycle-presenter)
-              :cycle-mis-upbtn   (.getMissionUpButton cycle-presenter)
-              :cycle-mis-delbtn  (.getMissionDeleteButton cycle-presenter)
-              :cycle-mis-dwnbtn  (.getMissionDownButton cycle-presenter)
-              :cycle-path-fld    (.getCycleMisPathField cycle-presenter)
-              :cycle-path-btn    (.getChooseCycleMisButton cycle-presenter)
-              :cycle-mis-addbtn  (.getAddMissionButton cycle-presenter)
-             ;Settings Tab FXML file controls
-              :settings-pane     (.getSettingsPane settings-presenter)
-              :ip-field          (.getIpAddressField settings-presenter)
-              :port-field        (.getPortField settings-presenter)
-              :server-path-lbl   (.getServerPathLabel settings-presenter)
-              :server-path-btn   (.getServerPathButton settings-presenter)
-              :server-chooser    (FileChooser.)
-              :get-diff-btn      (.getGetDifficultyButton settings-presenter)
-              :set-diff-btn      (.getSetDifficultyButton settings-presenter)
-              :diff-table        (.getDifficultyTable settings-presenter)
-              :diff-data         (FXCollections/synchronizedObservableList (FXCollections/observableArrayList))
-              :diff-set-col      (.getDiffSettingColumn settings-presenter)
-              :diff-val-col      (.getDiffValueColumn settings-presenter)})))
+                ^SettingsPresenter settings-presenter]} @state/presenters
+        controls
+        {;Main FXML file controls
+          :tool-bar          {:instance (.getToolBar main-presenter)}
+          :connect-btn       {:instance    (.getConnectButton main-presenter)
+                              :disabled-by #{:connected}}
+          :disconn-btn       {:instance   (.getDisconnectButton main-presenter)
+                              :enabled-by #{:connected}}
+          :prog-stack        {:instance (.getProgressStack main-presenter)}
+          :prog-ind          {:instance (.getProgressIndicator main-presenter)}
+          :start-btn         {:instance   (.getStartStopButton main-presenter)
+                              :enabled-by #{:connected :single-mission-path :loaded}}
+          :cycle-start-btn   {:instance   (.getCycleStartStopButton main-presenter)
+                              :enabled-by #{:connected :cycle-mission-path}}
+          :next-btn          {:instance   (.getNextButton main-presenter)
+                              :enabled-by #{:connected :cycle-mission-path :cycle-running :playing}}
+          :console-tab       {:instance (.getConsoleTab main-presenter)}
+          :settings-tab      {:instance (.getSettingsTab main-presenter)}
+          :mission-pane      {:instance (.getMissionPane main-presenter)}
+          :mode-choice       {:instance (.getMissionModeChoice main-presenter)}
+          :mission-spring    {:instance (.getMissionBarSpring main-presenter)}
+          :load-btn          {:instance   (.getMissionLoadButton main-presenter)
+                              :enabled-by #{:connected :single-mission-path}}
+          :exit-btn          {:instance (.getExitItem main-presenter)}
+          :about-btn         {:instance (.getAboutItem main-presenter)}
+          :mis-chooser       {:instance (FileChooser.)}
+          :dcg-chooser       {:instance (FileChooser.)}
+         ;Console Tab FXML file controls
+          :console-pane      {:instance (.getConsolePane console-presenter)}
+          :cmd-entry         {:instance   (.getCommandEntryField console-presenter)
+                              :enabled-by #{:connected}}
+          :console           {:instance (.getConsoleTextArea console-presenter)}
+         ;Single Mission FXML file controls
+          :single-mis-pane   {:instance (.getSingleMisPane single-presenter)}
+          :single-path-btn   {:instance   (.getChooseSingleMisButton single-presenter)
+                              :enabled-by #{:server-path}}
+          :single-path-fld   {:instance (.getSingleMisPathField single-presenter)}
+          :single-remote-btn {:instance (.getRemoteSelectButton single-presenter)}
+          :single-path-lbl   {:instance (.getSingleMisPathLabel single-presenter)}
+         ;Mission Cycle FXML file controls
+          :cycle-mis-pane    {:instance (.getCycleMisPane cycle-presenter)}
+          :cycle-table       {:instance (.getCycleMissionTable cycle-presenter)}
+          :cycle-data        {:instance (FXCollections/synchronizedObservableList (FXCollections/observableArrayList))}
+          :cycle-mis-col     {:instance (.getCycleMissionColumn cycle-presenter)}
+          :cycle-tim-col     {:instance (.getCycleTimerColumn cycle-presenter)}
+          :cycle-mis-upbtn   {:instance    (.getMissionUpButton cycle-presenter)
+                              :enabled-by  #{:cycle-mission-path}
+                              :disabled-by #{:cycle-running}}
+          :cycle-mis-delbtn  {:instance    (.getMissionDeleteButton cycle-presenter)
+                              :enabled-by  #{:cycle-mission-path}
+                              :disabled-by #{:cycle-running}}
+          :cycle-mis-dwnbtn  {:instance    (.getMissionDownButton cycle-presenter)
+                              :enabled-by  #{:cycle-mission-path}
+                              :disabled-by #{:cycle-running}}
+          :cycle-path-fld    {:instance (.getCycleMisPathField cycle-presenter)}
+          :cycle-path-btn    {:instance   (.getChooseCycleMisButton cycle-presenter)
+                              :enabled-by #{:server-path}}
+          :cycle-mis-addbtn  {:instance (.getAddMissionButton cycle-presenter)}
+         ;Settings Tab FXML file controls
+          :settings-pane     {:instance (.getSettingsPane settings-presenter)}
+          :ip-field          {:instance (.getIpAddressField settings-presenter)}
+          :port-field        {:instance (.getPortField settings-presenter)}
+          :server-path-lbl   {:instance (.getServerPathLabel settings-presenter)}
+          :server-path-btn   {:instance (.getServerPathButton settings-presenter)}
+          :server-chooser    {:instance (FileChooser.)}
+          :get-diff-btn      {:instance   (.getGetDifficultyButton settings-presenter)
+                              :enabled-by #{:connected}}
+          :set-diff-btn      {:instance    (.getSetDifficultyButton settings-presenter)
+                              :enabled-by  #{:connected}
+                              :disabled-by #{:playing}}
+          :diff-table        {:instance (.getDifficultyTable settings-presenter)}
+          :diff-data         {:instance (FXCollections/synchronizedObservableList (FXCollections/observableArrayList))}
+          :diff-set-col      {:instance (.getDiffSettingColumn settings-presenter)}
+          :diff-val-col      {:instance (.getDiffValueColumn settings-presenter)}}
+        control-instances (map-control-instances controls)]
+    (reset! state/controls controls)
+    (reset! state/control-instances control-instances)))
 
 (defn init-handlers
   "### init-handlers
@@ -174,13 +202,10 @@
                 ^ChoiceBox mode-choice
                 ^Button load-btn
                 ^MenuItem exit-btn
-                ^MenuItem about-btn
                 ^Label server-path-lbl
                 ^Button server-path-btn
                 ^Button get-diff-btn
                 ^Button set-diff-btn
-                ^TextField ip-field
-                ^TextField port-field
                 ^Button single-remote-btn
                 ^Button single-path-btn
                 ^Label single-path-lbl
@@ -189,14 +214,16 @@
                 ^Button cycle-mis-dwnbtn
                 ^Button cycle-mis-addbtn
                 ^Button cycle-path-btn]}
-        @state/controls]
+        @state/control-instances
+        watch-fn (partial main/update-ui state/get-state @state/controls)]
     ;State atom watch functions
-    (add-watch state/connected :connect main/set-connected)
-    (add-watch state/loaded :load main/set-mission-loaded)
-    (add-watch state/playing :play main/set-mission-playing)
-    (add-watch state/mission-path :mis mission/set-mis-selected)
-    (add-watch state/cycle-running :cycle cycle/set-cycle-running)
-    (add-watch state/server-path :path settings/set-server-selected)
+    (add-watch state/connected :connected watch-fn)
+    (add-watch state/loaded :loaded watch-fn)
+    (add-watch state/playing :playing watch-fn)
+    (add-watch state/server-path :server-path watch-fn)
+    (add-watch state/single-mission-path :single-mission-path watch-fn)
+    (add-watch state/cycle-mission-path :cycle-mission-path watch-fn)
+    (add-watch state/cycle-running :cycle-running watch-fn)
     ;Main UI EventHandlers and Listeners
     (util/button-handler connect-btn main/connect-command)
     (util/button-handler disconn-btn main/disconnect-command)
@@ -247,13 +274,19 @@
                 ^Label single-path-lbl
                 ^StackPane prog-stack
                 ^ChoiceBox mode-choice
-                ^Region mission-spring]} @state/controls
+                ^Region mission-spring]} @state/control-instances
         config (-> (read-config-file) (get-configuration))
-        ip (:ip-field config)
-        port (:port-field config)
-        srv-path (:server-path-lbl config)
-        mode (-> (:mode-choice config) keyword modes)
-        single-mis (:single-path-lbl config)]
+        {ip         :ip-field
+         port       :port-field
+         srv-path   :server-path-lbl
+         mode-key   :mode-choice
+         single-mis :single-path-lbl
+         :or        {:ip-field        ""
+                     :port-field      ""
+                     :server-path-lbl "..."
+                     :mode-choice     "single"
+                     :single-path-lbl "..."}} config
+        mode (-> mode-key keyword modes)]
     (HBox/setHgrow prog-stack Priority/ALWAYS)
     (HBox/setHgrow mission-spring Priority/ALWAYS)
     (.setContent console-tab console-pane)
@@ -278,7 +311,7 @@
   []
   (let [{:keys [^FileChooser server-chooser
                 ^FileChooser mis-chooser
-                ^FileChooser dcg-chooser]} @state/controls]
+                ^FileChooser dcg-chooser]} @state/control-instances]
     (doto server-chooser
       (.setTitle "Choose Il-2 Server Executable")
       (.setInitialDirectory
@@ -332,12 +365,12 @@
   (let [{:keys [^TableView diff-table
                 ^List diff-data
                 ^TableColumn diff-set-col
-                ^TableColumn diff-val-col]} @state/controls]
+                ^TableColumn diff-val-col]} @state/control-instances]
     (.setCellValueFactory diff-set-col (PropertyValueFactory. "setting"))
     (doto diff-val-col
       (.setCellFactory
-        (ComboBoxTableCell/forTableColumn
-          (FXCollections/observableArrayList (into-array String ["0" "1"]))))
+        ^Callback (ComboBoxTableCell/forTableColumn
+                    ^List (FXCollections/observableArrayList (into-array String ["0" "1"]))))
       (.setCellValueFactory (PropertyValueFactory. "value"))
       (.setOnEditCommit (ui/diff-val-commit)))
     (doto diff-table
@@ -364,7 +397,7 @@
   (let [{:keys [^TableView cycle-table
                 ^List cycle-data
                 ^TableColumn cycle-mis-col
-                ^TableColumn cycle-tim-col]} @state/controls]
+                ^TableColumn cycle-tim-col]} @state/control-instances]
     (.setCellValueFactory cycle-mis-col (PropertyValueFactory. "mission"))
     (doto cycle-tim-col
       (.setCellFactory (TextFieldTableCell/forTableColumn))

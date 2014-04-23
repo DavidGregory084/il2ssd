@@ -38,12 +38,12 @@
    exceptions which arise from converting the port-field text to an integer."
   []
   (let [{:keys [ip-field
-                port-field]} @state/controls
+                port-field]} @state/control-instances
         ip (ui/get-text ip-field)
         port (ui/get-text port-field)]
     (go (try (server/connect ip (Integer/decode port))
-             (catch NumberFormatException e nil)
-             (catch NullPointerException e nil)))))
+             (catch NumberFormatException _ nil)
+             (catch NullPointerException _ nil)))))
 
 (defn disconnect-command
   "### disconnect-command
@@ -83,9 +83,8 @@
   []
   (if @state/loaded
     (server/unload-mission)
-    (when (= @state/mode "single")
-      (ui/toggle-prog-ind @state/controls true)
-      (server/load-mission @state/mission-path))))
+    (do (ui/toggle-prog-ind @state/control-instances true)
+        (server/load-mission @state/single-mission-path))))
 
 (defn console-listener
   "### console-listener
@@ -100,9 +99,8 @@
   []
   (thread (while @state/connected
             (when-let [text (<!! print-channel)]
-              (let [{:keys [console]} @state/controls]
+              (let [{:keys [console]} @state/control-instances]
                 (ui/print-console console text))))))
-
 
 (defn difficulty-listener
   "### difficulty-listener
@@ -119,7 +117,7 @@
   (thread (while @state/connected
             (when-let [text (<!! diff-channel)]
               (let [parsed (parse-text difficulty-parser text)
-                    {:keys [diff-data]} @state/controls
+                    {:keys [diff-data]} @state/control-instances
                     {:keys [setting value]} parsed]
                 (ui/add-diff-data diff-data setting value))))))
 
@@ -160,7 +158,7 @@
                       (reset! state/playing true))
                     (set-title mission state))))))))
 
-(defn err-listener
+(defn error-listener
   "### err-listener
    This is a zero argument function which listens for text on the error channel.
 
@@ -169,8 +167,8 @@
    can set the mission state to unloaded."
   []
   (thread (while @state/connected
-            (when-let [text (<!! err-channel)]
-              (ui/toggle-prog-ind @state/controls false)
+            (when-let [_ (<!! err-channel)]
+              (ui/toggle-prog-ind @state/control-instances false)
               (reset! state/loaded false)
               (reset! state/playing false)
               (set-title)
@@ -188,50 +186,18 @@
   (console-listener)
   (difficulty-listener)
   (mission-listener)
-  (err-listener))
-
-(defn set-connected
-  "### set-connected
-   This is a watch function which sets the UI controls to the correct state
-   for the connection status defined by the connected argument.
-
-   It also starts all of the listeners which parse output from the server console.
-
-   Because these listeners spawn on a separate thread, their functions return
-   immediately and the current thread does not block."
-  [_ _ _ connected]
-  (let [{:keys [diff-data]} @state/controls]
-    (ui/set-ui-connected connected @state/controls)
-    (if connected
-      (start-listeners)
-      (do (set-title)
-          (ui/clear-diff-data diff-data)))))
-
-(defn set-mission-playing
-  "### set-mission-playing
-   This is a watch function which sets the UI controls to the correct state for
-   the mission playing status defined by the playing argument."
-  [_ _ _ playing]
-  (ui/set-ui-playing playing @state/controls))
-
-(defn set-mission-loaded
-  "### set-mission-loaded
-   This is a watch function which sets the UI controls to the correct state for
-   the mission loaded status defined by the loaded argument."
-  [_ _ _ loaded]
-  (ui/set-ui-loaded loaded @state/mission-path @state/controls))
+  (error-listener))
 
 (defn save-ui-state
   "### save-ui-state
    This zero argument function saves the text values from various UI
    controls into settings atoms."
   []
-  (let [{:keys [mode-choice
-                ip-field
+  (let [{:keys [ip-field
                 port-field
                 server-path-lbl
                 single-path-lbl
-                cycle-data]} @state/controls
+                cycle-data]} @state/control-instances
         mode @state/mode
         ip-addr (ui/get-text ip-field)
         port (ui/get-text port-field)
@@ -240,18 +206,36 @@
     (config/save-server ip-addr port server-path)
     (config/save-mission mode single-path)))
 
-  (defn close
-    "### close
-     This is a zero argument function which disconnects from the server if the
-     program is connected, saves the current settings to the config file and
-     requests to close the program."
-    []
-    (do (if @state/connected (server/disconnect))
-        (save-ui-state)
-        (config/save-config-file)
-        (ui/exit)))
+(defn close
+  "### close
+   This is a zero argument function which disconnects from the server if the
+   program is connected, saves the current settings to the config file and
+   requests to close the program."
+  []
+  (do (if @state/connected (server/disconnect))
+      (save-ui-state)
+      (config/save-config-file)
+      (ui/exit)))
 
 (defn next-command
   []
   (when (= @state/mode "cycle")
     (cycle/next-mission false)))
+
+(defn update-ui
+  [state controls key _ _ new]
+  (case key
+    :connected (do (ui/toggle-console-text new @state/control-instances)
+                   (if new
+                     (start-listeners)
+                     (do (set-title)
+                         (ui/clear-diff-data @state/control-instances))))
+    :loaded (do (ui/toggle-load-txt new @state/control-instances)
+                (ui/toggle-prog-ind @state/control-instances false))
+    :playing (ui/toggle-start-txt new @state/control-instances)
+    :server-path (ui/set-mis-dir new @state/control-instances)
+    :single-mission-path nil
+    :cycle-mission-path nil
+    :cycle-running (ui/toggle-cycle-start-txt new @state/control-instances))
+  (let [new-state (assoc (state) key new)]
+    (ui/set-button-state new-state controls)))

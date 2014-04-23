@@ -33,7 +33,7 @@
 (defn mission-swap
   [f]
   (let [{:keys [cycle-table
-                cycle-data]} @state/controls
+                cycle-data]} @state/control-instances
         list-size (dec (ui/get-list-size cycle-data))
         source (ui/get-selected-index cycle-table)
         target (f source)]
@@ -46,20 +46,23 @@
 (defn mission-delete
   []
   (let [{:keys [cycle-table
-                cycle-data]} @state/controls
+                cycle-data]} @state/control-instances
         index (ui/get-selected-index cycle-table)]
     (when (>= index 0)
-        (ui/remove-list-item cycle-data index))))
+      (ui/remove-list-item cycle-data index)
+      (let [size (ui/get-list-size cycle-data)]
+        (when (= size 0)
+          (reset! state/cycle-mission-path nil))))))
 
 (defn mission-add
   []
   (let [{:keys [cycle-data
-                cycle-path-fld]} @state/controls
+                cycle-path-fld]} @state/control-instances
         mission (ui/get-text cycle-path-fld)]
     (when (not (string/blank? mission))
       (ui/clear-input cycle-path-fld)
       (ui/add-cycle-data cycle-data mission "60")
-      (reset! state/mission-path
+      (reset! state/cycle-mission-path
               (:mission (ui/get-cycle-mission cycle-data @state/cycle-index))))))
 
 (defn cycle-choose-command
@@ -73,23 +76,21 @@
    to add to the cycle."
   []
   (let [{:keys [mis-chooser
-                cycle-data]} @state/controls
+                cycle-data]} @state/control-instances
         file (ui/show-chooser mis-chooser)]
     (when file
       (ui/add-cycle-data
         cycle-data
         (mission/get-relative-path @state/server-path (.getCanonicalPath file))
-        "60"))))
-
-(defn set-cycle-running
-  [_ _ _ running]
-  (ui/set-ui-cycle running @state/controls))
+        "60")
+      (reset! state/cycle-mission-path
+              (:mission (ui/get-cycle-mission cycle-data @state/cycle-index))))))
 
 (defn next-mission
   [scheduled]
   (when (not scheduled)
     (stop @scheduled-mis))
-  (let [{:keys [cycle-data]} @state/controls
+  (let [{:keys [cycle-data]} @state/control-instances
         last-mission (dec (ui/get-list-size cycle-data))]
     (if (= @state/cycle-index last-mission)
       (reset! state/cycle-index 0)
@@ -103,20 +104,20 @@
 
 (defn load-cycle-mis
   []
-  (let [{:keys [cycle-data]} @state/controls
+  (let [{:keys [cycle-data]} @state/control-instances
         mission-data (ui/get-cycle-mission cycle-data @state/cycle-index)
         mission (:mission mission-data)
         timer (mins-to-ms (:timer mission-data))]
-    (ui/toggle-prog-ind @state/controls true)
+    (ui/toggle-prog-ind @state/control-instances true)
     (server/load-begin-mission mission)
     (->> (after timer #(next-mission true) cycle-schedule)
          (reset! scheduled-mis))))
 
 (defn stop-cycle
   []
-  (ui/toggle-prog-ind @state/controls true)
+  (ui/toggle-prog-ind @state/control-instances true)
   (stop-and-reset-pool! cycle-schedule :strategy :kill)
-  (ui/toggle-prog-ind @state/controls false)
+  (ui/toggle-prog-ind @state/control-instances false)
   (reset! scheduled-mis nil)
   (reset! state/cycle-running false)
   (reset! state/cycle-index 0))

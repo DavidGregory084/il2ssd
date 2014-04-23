@@ -12,7 +12,7 @@
    values, we send the entered text as a command to the server."
   []
   (let [{:keys [cmd-entry
-                console]} @state/controls]
+                console]} @state/control-instances]
     (if (= (ui/get-text cmd-entry) "clear")
       (do (ui/clear-input console)
           (ui/clear-input cmd-entry))
