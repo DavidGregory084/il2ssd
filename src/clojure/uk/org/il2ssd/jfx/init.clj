@@ -66,6 +66,8 @@
    them into a map atom."
   []
   (let [^Stage stage @state/stage
+        _ (Font/loadFont
+            (.toExternalForm ^URL (resource "fontawesome-webfont.ttf")) 12.0)
         main-view (MainView.)
         console-view (ConsoleView.)
         single-view (SingleView.)
@@ -82,8 +84,6 @@
       (.setScene scene)
       (.setResizable false)
       (.show))
-    (Font/loadFont
-      (.toExternalForm ^URL (resource "fontawesome-webfont.ttf")) 12.0)
     (util/close-handler stage main/close)
     (reset! state/presenters
             {:main-presenter     main-presenter
@@ -178,10 +178,10 @@
                               :enabled-by  #{:cycle-mission-path}
                               :disabled-by #{:cycle-running}}
           :cycle-path-fld    {:instance (.getCycleMisPathField cycle-presenter)}
-          :cycle-path-btn    {:instance   (.getChooseCycleMisButton cycle-presenter)
-                              :enabled-by #{:server-path}
+          :cycle-path-btn    {:instance    (.getChooseCycleMisButton cycle-presenter)
+                              :enabled-by  #{:server-path}
                               :disabled-by #{:cycle-running}}
-          :cycle-mis-addbtn  {:instance (.getAddMissionButton cycle-presenter)
+          :cycle-mis-addbtn  {:instance    (.getAddMissionButton cycle-presenter)
                               :disabled-by #{:cycle-running}}
          ;Settings Tab FXML file controls
           :settings-pane     {:instance (.getSettingsPane settings-presenter)}

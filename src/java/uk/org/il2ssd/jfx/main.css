@@ -1,11 +1,9 @@
-.text{
-    -fx-font-family: 'FontAwesome';
+.root {
+    -fx-font-family: "FontAwesome";
     -fx-font-size: 12px;
-    -fx-font-style: normal;
-    -fx-font-weight: normal;
 }
 
-.text-area{
+.text-area {
     -fx-font-family: monospace;
     -fx-text-fill: white;
     -fx-background-color: black;
