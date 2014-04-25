@@ -12,7 +12,7 @@
   (:import (java.io BufferedReader BufferedWriter InputStreamReader
                     OutputStreamWriter PrintWriter)
            (java.net ConnectException InetSocketAddress Socket
-                     SocketTimeoutException)
+                     SocketTimeoutException SocketException)
            (java.nio.charset Charset)
            (org.apache.commons.lang StringEscapeUtils)))
 
@@ -36,7 +36,8 @@
    all server state parsing."
   []
   (thread (while @state/connected
-            (when-let [text (.readLine ^BufferedReader @socket-in)]
+            (when-let [text (try (.readLine ^BufferedReader @socket-in)
+                                 (catch SocketException _ nil))]
               (->> text
                    (StringEscapeUtils/unescapeJava)
                    (>!! in-channel))))))
@@ -86,6 +87,9 @@
   (write-socket (str "mission LOAD " path-to-mission)))
 
 (defn load-begin-mission
+  "### load-begin-mission
+   This one argument function sends a command to the server console to load and
+   start the mission provided in the argument."
   [path-to-mission]
   (write-socket (str "mission LOAD " path-to-mission " BEGIN")))
 
@@ -166,8 +170,8 @@
          (socket-listener)
          (get-server-text)
          (get-mission-state)
-         (catch ConnectException e nil)
-         (catch SocketTimeoutException e nil))))
+         (catch ConnectException _ nil)
+         (catch SocketTimeoutException _ nil))))
 
 (defn disconnect
   "### disconnect

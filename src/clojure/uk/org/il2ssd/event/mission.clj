@@ -10,7 +10,9 @@
 (defn mis-selected?
   "### mis-selected?
    This zero argument function is used to determine whether there is a valid
-   mission selection, dependent upon the current UI mission loading mode."
+   mission selection, dependent upon the current UI mission loading mode.
+   It does this by retrieving the contents of the valid control for the mission
+   mode selected."
   [mode]
   (let [{:keys [single-path-lbl
                 cycle-data]} @state/control-instances
@@ -57,7 +59,10 @@
    retrieve the key of the mode text selected.
 
    This key is used to load the correct UI pane for the mission mode the user has
-   selected."
+   selected.
+
+   The mission state atoms are also set conditional upon a valid mission selection
+   for the mode chosen."
   [modes]
   (let [{:keys [mission-pane
                 single-mis-pane
@@ -120,7 +125,7 @@
                     (get-relative-path @state/server-path (.getCanonicalPath file))))))
 
 (defn single-path-select
-  "### server-path-select
+  "### single-path-select
    This zero argument function sets the global single mission path atom.
    It is called when the single mission path label text changes."
   []

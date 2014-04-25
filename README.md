@@ -3,6 +3,10 @@ Il-2 Simple Server Daemon
 
 Il-2 Simple Server Daemon is a very simple server controller for the Il-2 Sturmovik 1946 dedicated server. It aims to be an easy-to-use tool with IL-2 DCG integration.
 
+### Requirements:
+
+[Java JRE 7][1] must be installed.
+
 ### Implemented:
 
 - Cross-platform compatibility: Simple Server Daemon is based upon Java SE 7, the JavaFX 2.x framework and Clojure. As such, it is capable of running on most desktop operating systems as long as the JavaFX runtime is available.
@@ -33,3 +37,5 @@ The program .jar file and lib directory can be extracted to the location of your
 Copyright © 2014 David Gregory
 
 Distributed under the Eclipse Public License version 1.0.
+
+[1]: http://www.oracle.com/technetwork/java/javase/downloads/jre7-downloads-1880261.html

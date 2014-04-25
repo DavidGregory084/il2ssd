@@ -69,10 +69,14 @@
 (def single-mission-path
   "### mission-path
    This atom stores the current mission path for global use in the
-   program."
+   program. It is also used to indicate whether a mission can be
+   loaded."
   (atom nil))
 
 (def cycle-mission-path
+  "### cycle-mission-path
+   This atom stores the current cycle mission path. It is also used
+   to indicate whether a cycle can be started."
   (atom nil))
 
 (def mode
@@ -82,9 +86,16 @@
   (atom nil))
 
 (def cycle-index
+  "### cycle-index
+   This atom stores the current cycle index for global use in the
+   program."
   (atom 0))
 
 (defn get-state
+  "### get-state
+   This function returns a map containing the current state of all
+   of the global state atoms which are relevant to the UI state,
+   keyed by the name of the atom."
   []
   {:connected           @connected
    :loaded              @loaded

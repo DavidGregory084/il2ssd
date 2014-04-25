@@ -10,27 +10,38 @@
             [uk.org.il2ssd.state :as state]
             [uk.org.il2ssd.jfx.ui :as ui]
             [overtone.at-at :refer [after mk-pool
+                                    kill
                                     scheduled-jobs
                                     show-schedule
                                     stop
                                     stop-and-reset-pool!]])
   (:import (java.io File)
-           (uk.org.il2ssd.jfx CycleMission)
-           (overtone.at_at ScheduledJob)))
+           (uk.org.il2ssd.jfx CycleMission)))
 
 (declare load-cycle-mis)
 
 (def cycle-schedule
+  "### cycle-schedule
+   This is the scheduled task pool for the cycle mission scheduler."
   (mk-pool))
 
 (def scheduled-mis
+  "### scheduled-mis
+   This is the next scheduled mission load event. It's stored in an atom
+   so that it can be cancelled if the user loads the next mission explicitly."
   (atom nil))
 
 (defn mins-to-ms
+  "### mins-to-ms
+   This function converts a minutes string to a millisecond integer value."
   [mins]
   (* (Integer/decode mins) 60000))
 
 (defn mission-swap
+  "### mission-swap
+   This one argument applies the provided function to the current selected
+   mission index, swapping the selected mission with the one stored at the
+   target index, provided the target index is valid."
   [f]
   (let [{:keys [cycle-table
                 cycle-data]} @state/control-instances
@@ -44,6 +55,9 @@
       (ui/select-table-index cycle-table target))))
 
 (defn mission-delete
+  "### mission-delete
+   This function deletes the mission at the current selected index, providing
+   the current selected index is valid."
   []
   (let [{:keys [cycle-table
                 cycle-data]} @state/control-instances
@@ -55,6 +69,11 @@
           (reset! state/cycle-mission-path nil))))))
 
 (defn mission-add
+  "### mission-add
+   This function adds the mission path in the cycle mission path field to the
+   list, with an initial value of 60 minutes as the timer. It also sets the
+   cycle mission atom to the cycle mission stored at the current value of the
+   cycle index."
   []
   (let [{:keys [cycle-data
                 cycle-path-fld]} @state/control-instances
@@ -72,8 +91,8 @@
    against the Missions directory so that it is in the format expected
    by the server in LOAD commands.
 
-   This value is loaded into the cycle mission path field as the mission
-   to add to the cycle."
+   This value is loaded into the cycle mission list, and the cycle mission
+   atom is reset to the mission path at the current cycle index."
   []
   (let [{:keys [mis-chooser
                 cycle-data]} @state/control-instances
@@ -87,6 +106,13 @@
               (:mission (ui/get-cycle-mission cycle-data @state/cycle-index))))))
 
 (defn next-mission
+  "### next-mission
+   This one argument function increments the index and loads the mission at
+   that index, unless the initial index was the last index, in which case the
+   index is reset to 0 before loading.
+   If this was not a scheduled load event, the active scheduled load event
+   is cancelled - the user has chosen to override the scheduler by pressing
+   the next button, or loading the mission at the previous index has failed."
   [scheduled]
   (when (not scheduled)
     (stop @scheduled-mis))
@@ -98,11 +124,21 @@
     (load-cycle-mis)))
 
 (defn start-cycle
+  "### start-cycle
+   This function resets the cycle-running atom and loads the first
+   cycle mission. The cycle index is set to 0 when the program is
+   initialised or when stopping the cycle."
   []
   (reset! state/cycle-running true)
   (load-cycle-mis))
 
 (defn load-cycle-mis
+  "### load-cycle-mis
+   This function gets the cycle mission object from the list at the
+   current cycle index and loads the mission. It schedules the
+   next-mission function to trigger after the timer specified for
+   the current mission and stores this scheduled event in an atom
+   so that it may be cancelled later."
   []
   (let [{:keys [cycle-data]} @state/control-instances
         mission-data (ui/get-cycle-mission cycle-data @state/cycle-index)
@@ -114,8 +150,12 @@
          (reset! scheduled-mis))))
 
 (defn stop-cycle
+  "### stop-cycle
+   This function stops the cycle by resetting the schedule pool and
+   each of the state atoms associated with the cycle scheduler."
   []
   (ui/toggle-prog-ind @state/control-instances true)
+  (kill @scheduled-mis)
   (stop-and-reset-pool! cycle-schedule :strategy :kill)
   (ui/toggle-prog-ind @state/control-instances false)
   (reset! scheduled-mis nil)

@@ -132,8 +132,9 @@
 
 (defn button-handler
   "### button-handler
-   This two argument function attaches an EventHandler instance to the supplied
-   control which calls the supplied function when the OnAction event is triggered."
+   This multiple-arity function attaches an EventHandler instance to the supplied
+   control which calls the supplied function when the OnAction event is triggered.
+   If an argument is supplied, the function is called with this argument."
   ([control f]
    (.setOnAction control (event-handler [_] (f))))
   ([control f arg]

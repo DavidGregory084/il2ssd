@@ -25,7 +25,8 @@
 ;; Because we are using buffered channels, up to ten items can be put onto the mult
 ;; before further puts will block until every channel has taken the oldest put.
 (ns uk.org.il2ssd.channel
-  (:require [clojure.core.async :refer [chan filter< mult remove< tap]]))
+  (:require [clojure.core.async :refer [close! chan filter< mult remove<
+                                        tap untap-all]]))
 
 (def in-channel
   "### in-channel
@@ -78,3 +79,15 @@
   (filter<
     #(re-find #"ERROR mission:.+NOT loaded" %)
     (tap mult-channel (chan 10))))
+
+(defn close-channels
+  "### close-channels
+   This function untaps the mult and closes all channels so that pending
+   operations don't block and can end successfully."
+  []
+  (untap-all mult-channel)
+  (close! in-channel)
+  (close! print-channel)
+  (close! diff-channel)
+  (close! mis-channel)
+  (close! err-channel))

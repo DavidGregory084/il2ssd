@@ -49,7 +49,7 @@
    After initialising the objects map, we initialise event handlers, watches and the
    state for our standard controls from defaults or from our stored config file.
 
-   Finally the tables and file choosers are instantiated, which requires some extra
+   Finally the tables and file choosers are instantiated, as these require some extra
    configuration."
   [^Core this stage]
   (reset! state/params (-> this .getParameters .getRaw))

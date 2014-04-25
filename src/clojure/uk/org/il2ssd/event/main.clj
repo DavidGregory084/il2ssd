@@ -57,7 +57,8 @@
 (defn start-stop-command
   "### start-stop-command
    This is a zero argument function which ends the current mission if is playing,
-   or starts the currently loaded mission if it is not."
+   or starts the currently loaded mission if it is not.
+   If a cycle is running it stops the cycle first."
   []
   (when @state/cycle-running
     (cycle/stop-cycle))
@@ -66,6 +67,9 @@
     (server/start-mission)))
 
 (defn start-stop-cycle-command
+  "### start-stop-cycle-command
+   This function stops the cycle if it is running, or starts it if it is not.
+   In either case it stops any mission that is playing."
   []
   (if @state/cycle-running
     (do (cycle/stop-cycle)
@@ -78,9 +82,11 @@
 (defn load-unload-command
   "### load-unload-command
    This is a zero argument function which unloads the currently loaded mission if
-   it is loaded, and loads the current mission (dependent upon the mission loading
-   mode) if it is not."
+   it is loaded, and loads the current mission if it is not.
+   If a cycle is running, it stops the cycle first."
   []
+  (when @state/cycle-running
+    (cycle/stop-cycle))
   (if @state/loaded
     (server/unload-mission)
     (do (ui/toggle-prog-ind @state/control-instances true)
@@ -159,12 +165,15 @@
                     (set-title mission state))))))))
 
 (defn error-listener
-  "### err-listener
+  "### error-listener
    This is a zero argument function which listens for text on the error channel.
 
    This channel filters for mission loading errors, so when we receive a value
    from this channel we know that the requested mission failed to load, and we
-   can set the mission state to unloaded."
+   can set the mission state to unloaded.
+
+   If a mission cycle is running, we know that the scheduled mission failed to
+   load and we can skip this mission."
   []
   (thread (while @state/connected
             (when-let [_ (<!! err-channel)]
@@ -204,7 +213,13 @@
         server-path (ui/get-text server-path-lbl)
         single-path (ui/get-text single-path-lbl)]
     (config/save-server ip-addr port server-path)
-    (config/save-mission mode single-path)))
+    (config/save-mission mode single-path)
+    (doseq [item cycle-data
+            :let [cycle-mission (ui/get-cycle-mission item)
+                  mission (:mission cycle-mission)
+                  timer (:timer cycle-mission)
+                  index (ui/get-index-of-mission cycle-data item)]]
+      (config/save-cycle index mission timer))))
 
 (defn close
   "### close
@@ -212,17 +227,30 @@
    program is connected, saves the current settings to the config file and
    requests to close the program."
   []
-  (do (if @state/connected (server/disconnect))
+  (do (when @state/cycle-running (cycle/stop-cycle))
+      (when @state/connected (server/disconnect))
+      (close-channels)
       (save-ui-state)
       (config/save-config-file)
       (ui/exit)))
 
 (defn next-command
+  "### next-command
+   This function calls the next cycle mission function, specifying that this
+   load event is unscheduled."
   []
   (when (= @state/mode "cycle")
     (cycle/next-mission false)))
 
 (defn update-ui
+  "### update-ui
+   This function is called whenever any watched global state atom is changed.
+   The key provided specifies which state atom has changed.
+   For each event, any UI processing specific to that event is triggered.
+   To ensure that the state triggered is correct, the new state is assoc-ed
+   into the map provided, then the button state is set correctly for the
+   current global state based upon the dependencies defined in the controls
+   map."
   [state controls key _ _ new]
   (case key
     :connected (do (ui/toggle-console-text new @state/control-instances)

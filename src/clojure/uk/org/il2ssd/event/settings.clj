@@ -45,8 +45,8 @@
    difficulty settings list."
   []
   (let [{:keys [diff-data]} @state/control-instances]
-    (doseq [item diff-data]
-      (let [item-data (ui/get-item-data item)
-            setting (:setting item-data)
-            value (:value item-data)]
-        (server/set-difficulty setting value)))))
+    (doseq [item diff-data
+            :let [difficulty-setting (ui/get-difficulty-setting item)
+                  setting (:setting difficulty-setting)
+                  value (:value difficulty-setting)]]
+      (server/set-difficulty setting value))))

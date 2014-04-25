@@ -5,8 +5,8 @@
 
     <property environment="env"/>
 
-    <property name="jdk.home" value="${java.home}"/>
-    <property name="maven.repository" value="${user.home}/.m2/repository"/>
+    <property name="jdk.home" value="${env.JAVA_HOME}"/>
+    <property name="maven.repository" value="${env.USERPROFILE}/.m2/repository"/>
 
     <target name="prepare">
 

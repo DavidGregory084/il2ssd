@@ -42,23 +42,23 @@
   (atom nil))
 
 (defprotocol BuildSettings
+  "### BuildSettings
+   Here we define a protocol to handle building a config file vector, using
+   type-based dispatch to handle each expected data structure.
+
+   Strings can be passed with an extra parameter which determines whether they are
+   preceded by a newline character.
+
+   Maps are used to produce simple key-value pairs in the file.
+
+   Vectors are reserved for saving mission cycle data. In this case we create
+   key-value pairs keyed by the index of the mission in the vector.
+   The value is taken from the vector nested within the main vector at this
+   index. The output takes the following form:
+
+       0 = [\"mission path\" \"timer\"]"
   (build-conf [this file] [this newln? file]))
 
-;; ### BuildSettings
-;; Here we extend the protocol defined above to handle building a config file vector
-;; using type-based dispatch to handle each data structure.
-;;
-;; Strings can be passed with an extra parameter which determines whether they are
-;; preceded by a newline character.
-;;
-;; Maps are used to produce simple key-value pairs in the file.
-;;
-;; Vectors are reserved for saving mission cycle data. In this case we create
-;; key-value pairs keyed by the index of the mission in the vector (incremented by
-;; one). The value is taken from the vector nested within the main vector at this
-;; index. The output takes the following form:
-;;
-;;     1 = ["mission path" "timer"]
 (extend-protocol BuildSettings
 
   nil
@@ -80,7 +80,7 @@
   (build-conf [this file]
     (if (seq this)
       (reduce conj file
-              (for [setting this
+              (for [setting (reverse this)
                     :let [[key value] setting]]
                 (str key " = " value)))
       file))
@@ -89,7 +89,7 @@
   (build-conf [this file]
     (if (seq this)
       (reduce conj file
-              (for [setting (map-indexed #(vector (inc %) %2) this)
+              (for [setting (reverse (map-indexed #(vector (inc %) %2) this))
                     :let [[key value] setting]]
                 (string/replace (str key " = " value) "\"" "")))
       file)))
@@ -199,7 +199,7 @@
   []
   (try
     (iniconfig/read-ini "il2ssd.ini")
-    (catch FileNotFoundException e nil)))
+    (catch FileNotFoundException _ nil)))
 
 (defn get-configuration
   "### get-configuration
@@ -213,4 +213,5 @@
     :port-field (get-in file ["Server" "Port"] "")
     :server-path-lbl (get-in file ["Server" "Path"] "...")
     :mode-choice (get-in file ["Mission" "Mode"] "single")
-    :single-path-lbl (get-in file ["Mission" "Single Mission"] "...")))
+    :single-path-lbl (get-in file ["Mission" "Single Mission"] "...")
+    :cycle-data (get file "Cycle" "")))

@@ -2,10 +2,11 @@
 ;; ## UI initialisation functions
 ;;
 ;; In this namespace we define the functions which instantiate any objects that
-;; we need and initialise the objects we receive by dependency injection into data
+;; we need and initialise the objects we retrieve using afterburner.fx into data
 ;; structures which we can more easily manipulate in Clojure.
 (ns uk.org.il2ssd.jfx.init
   (:require [clojure.java.io :refer [resource]]
+            [clojure.edn :as edn]
             [uk.org.il2ssd.event.console :as console]
             [uk.org.il2ssd.event.cycle :as cycle]
             [uk.org.il2ssd.event.main :as main]
@@ -31,7 +32,7 @@
            (uk.org.il2ssd.jfx ConsolePresenter ConsoleView CyclePresenter
                               CycleView MainPresenter MainView
                               SettingsPresenter SettingsView
-                              SinglePresenter SingleView)
+                              SinglePresenter SingleView CycleMission)
            (javafx.util Callback)))
 
 (def modes
@@ -40,6 +41,10 @@
   {:single "Single Mission", :cycle "Mission Cycle"})
 
 (defn map-control-instances
+  "### map-control-instances
+   This function takes the main controls map as an argument and assocs the
+   top-level keys to the object instances held in the main map, so that the
+   instances can be accessed by key directly."
   [controls]
   (apply hash-map (interleave
                     (keys controls)
@@ -93,6 +98,16 @@
    atom before retrieving the objects from these presenters and loading them into
    a map which we put into a global state atom.
 
+   The main control map contains the object instance, the global states that are
+   required to enable this control, and those which disabled it. At present all
+   states are required for enablement: there is no way to define an OR condition.
+   For disablement, the presence of the given disabling states will disable the
+   control: there is no way to define an AND condition.
+   This functionality is sufficient for now.
+
+   The main control map is then supplemented with another atom in which the
+   top-level keys are mapped directly to the object instances.
+
    By doing this, we can refer to an object instance in any namespace by using the
    following syntax:
 
@@ -101,7 +116,7 @@
          (<function body>))
 
    It may be necessary to use type hinting to limit uses of the Reflection API at
-   runtime for performance reasons; Clojure can't simply infer what you're going
+   runtime for performance reasons; Clojure can't simply infer what we're going
    to hold in an atom at runtime."
   []
   (let [{:keys [^MainPresenter main-presenter
@@ -164,8 +179,10 @@
                               :disabled-by #{:cycle-running}}
           :cycle-path-fld    {:instance (.getCycleMisPathField cycle-presenter)}
           :cycle-path-btn    {:instance   (.getChooseCycleMisButton cycle-presenter)
-                              :enabled-by #{:server-path}}
-          :cycle-mis-addbtn  {:instance (.getAddMissionButton cycle-presenter)}
+                              :enabled-by #{:server-path}
+                              :disabled-by #{:cycle-running}}
+          :cycle-mis-addbtn  {:instance (.getAddMissionButton cycle-presenter)
+                              :disabled-by #{:cycle-running}}
          ;Settings Tab FXML file controls
           :settings-pane     {:instance (.getSettingsPane settings-presenter)}
           :ip-field          {:instance (.getIpAddressField settings-presenter)}
@@ -189,9 +206,11 @@
 (defn init-handlers
   "### init-handlers
    This zero argument function is used to add event handlers and change listeners
-   to any objects that must respond to user input. We also add watch functions to
-   the global state atoms where those state atoms' values should be reflected in
-   the UI."
+   to any objects that must respond to user input.
+   We also add watch functions to the global state atoms where those state atoms'
+   values should be reflected in the UI.
+   Changes in these atoms' values will trigger a watch function that sets any
+   event-specific state, and sets the control enabled states globally."
   []
   (let [{:keys [^Button connect-btn
                 ^Button disconn-btn
@@ -254,11 +273,12 @@
 
 (defn init-controls
   "### init-controls
-   The zero argument function is used to initialise any controls with default
-   values. If a configuration file is found, the UI is initialised using the
-   values retrieved from this file.
+   The zero argument function is used to load any subsidiary FXML files.
 
-   We also add any content from our subsidiary FXML files.
+   It is also is used to initialise any controls with default values.
+
+   If a configuration file is found, the UI state is restored using the
+   values retrieved from this file.
 
    We also set the HGrow setting for some UI elements because this cannot be set
    within a ToolBar in the JavaFX Scene Builder (even though a ToolBar is a
@@ -274,13 +294,15 @@
                 ^Label single-path-lbl
                 ^StackPane prog-stack
                 ^ChoiceBox mode-choice
-                ^Region mission-spring]} @state/control-instances
+                ^Region mission-spring
+                ^List cycle-data]} @state/control-instances
         config (-> (read-config-file) (get-configuration))
         {ip         :ip-field
          port       :port-field
          srv-path   :server-path-lbl
          mode-key   :mode-choice
          single-mis :single-path-lbl
+         cycle      :cycle-data
          :or        {:ip-field        ""
                      :port-field      ""
                      :server-path-lbl "..."
@@ -297,7 +319,14 @@
           (.setText ip-field ip)
           (.setText port-field port)
           (.setText server-path-lbl srv-path)
-          (.setText single-path-lbl single-mis))
+          (.setText single-path-lbl single-mis)
+          (when (seq cycle)
+            (loop [index 0]
+              (when-let [saved-mission (get cycle (str index))]
+                (let [[mission timer] (edn/read-string saved-mission)]
+                  (.add cycle-data (CycleMission. mission timer))
+                  (reset! state/cycle-mission-path mission))
+                (recur (inc index))))))
       (-> mode-choice .getSelectionModel .selectFirst))))
 
 (defn init-choosers
@@ -353,7 +382,9 @@
    for the PropertyValueFactory for that column.
 
    We also define the CellFactory for the difficulty value column as
-   TextFieldTableCell, which produces editable table cells.
+   ComboBoxTableCell and define the acceptable values, which produces
+   table cells containing a combo box from which these values can be
+   chosen.
 
    The backing list for the table is instantiated and stored in the controls
    atom before being linked to the table.

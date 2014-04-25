@@ -4,7 +4,7 @@
 ;; In this namespace we define all the functions which will be used to update
 ;; the UI. The objective is to keep all of the JavaFX-specific logic (other
 ;; than initialisation) within this namespace, so that the application logic
-;; is independent of the UI logic.
+;; is independent of the UI framework.
 ;;
 ;; This namespace wraps UI update functions that will be called from other
 ;; threads in util/run-later calls so that all handling of the JavaFX
@@ -88,7 +88,7 @@
       (util/run-later (.setVisible prog-ind false)))))
 
 (defn toggle-console-text
-  "### set-ui-connected
+  "### tpggle-console-text
    This two argument function sets the controls in the supplied map of controls
    to the relevant state for the connection state provided."
   [connected controls]
@@ -98,7 +98,7 @@
       (util/run-later (.setText console "<disconnected>")))))
 
 (defn toggle-start-txt
-  "### set-ui-playing
+  "### toggle-start-txt
    This two argument function sets the controls in the supplied map of controls to
    the correct state for the supplied mission running state."
   [playing controls]
@@ -111,7 +111,7 @@
                           (.setText start-btn "\uf04b Start"))))))
 
 (defn toggle-load-txt
-  "### set-ui-loaded
+  "### toggle-load-txt
    This two argument function sets the controls in the supplied map of controls to
    the correct state for the supplied mission loaded state."
   [loaded controls]
@@ -121,13 +121,14 @@
       (util/run-later (.setText load-btn "\uf093 Load")))))
 
 (defprotocol GetText
+  "### GetText
+   This protocol is simply used to eliminate calls to the Reflection API when
+   calling the .getText method. This method is part of two very different
+   interfaces in JavaFX, so each has been extended for type-based dispatch
+   here."
   (get-text [control]))
 
-;; ### GetText
-;; This protocol is simply used to eliminate calls to the Reflection API when
-;; calling the .getText method. This method is part of two very different
-;; interfaces in JavaFX, so each has been extended for type-based dispatch
-;; here.
+
 (extend-protocol GetText
 
   TextInputControl
@@ -139,10 +140,13 @@
     (.getText control)))
 
 (defn set-text
+  "### set-text
+   This two argument function sets the text in the supplied text control using
+   the text provided."
   [^TextInputControl control text]
   (.setText control text))
 
-(defn get-item-data
+(defn get-difficulty-setting
   "### get-item-data
    This one argument function returns a map containing the setting and value
    for the supplied DifficultySetting instance."
@@ -167,7 +171,7 @@
 
 (defn set-label
   "### set-label
-   This two argument function sets the text content of the supplied control to the
+   This two argument function sets the text content of the supplied Label to the
    value of the supplied text argument."
   [^Label label text]
   (.setText label text))
@@ -252,7 +256,7 @@
 
 (defn set-mis-dir
   "### set-mis-dir
-   This two argument function sets the initial directory for the single mission
+   This two argument function sets the initial directory for the mission
    chooser to the Missions directory of the server whose .exe is selected."
   [path controls]
   (let [{:keys [^FileChooser mis-chooser]} controls]
@@ -264,46 +268,79 @@
                                 .toFile)))))
 
 (defn get-list-size
+  "### get-list-size
+   This one argument function returns the size of the provided list."
   [^List list]
   (.size list))
 
 (defn get-selected-index
+  "### get-selected-index
+   This one argument function returns the index of the currently selected
+   item."
   [^TableView table]
   (-> table
       .getSelectionModel
       .getSelectedIndex))
 
+(defn get-index-of-mission
+  "### get-index-of-mission
+   This function returns the index of the supplied CycleMission object in
+   the cycle mission list."
+  [^List cycle-data ^CycleMission mission]
+  (.indexOf cycle-data mission))
+
 (defn get-cycle-mission
-  [^List cycle-data index]
-  (let [^CycleMission mission (.get cycle-data index)]
-    (-> {}
-        (assoc :mission (.getMission mission))
-        (assoc :timer (.getTimer mission)))))
+  "### get-cycle-mission
+   This two argument function retrieves the CycleMission object at the
+   specified index in the cycle mission list.
+   If an index is not specified, it is assumed that the instance itself
+   has been provided."
+  ([^CycleMission mission]
+   (-> {}
+       (assoc :mission (.getMission mission))
+       (assoc :timer (.getTimer mission))))
+  ([^List cycle-data index]
+   (let [^CycleMission mission (.get cycle-data index)]
+     (-> {}
+         (assoc :mission (.getMission mission))
+         (assoc :timer (.getTimer mission))))))
 
 (defn swap-list-items
+  "### swap-list-items
+   This three argument function swaps the items in the list at the given
+   indices."
   [list item1 item2]
   (Collections/swap list item1 item2))
 
 (defn remove-list-item
+  "### remove-list-item
+   This two argument function removes the item at the specified index from
+   the supplied list."
   [^List list ^Integer index]
   (.remove list (int index)))
 
 (defn add-cycle-data
   "### add-cycle-data
-   This two argument function adds the supplied element to the supplied list
-   object."
+   This three argument function instantiates a Cyclemission and adds it to
+   the supplied list object."
   [^List cycle-data
    ^String mission
    ^String timer]
   (.add cycle-data (CycleMission. mission timer)))
 
 (defn select-table-index
+  "### select-table-index
+   This two argument function selects the item at the given index in the
+   table."
   [^TableView table index]
   (-> table
       .getSelectionModel
       (.clearAndSelect index)))
 
 (defn toggle-cycle-start-txt
+  "### toggle-cycle-start-txt
+   This two argument function sets the controls in the supplied map of controls to
+   the correct state for the supplied mission cycle running state."
   [running controls]
   (let [{:keys [^Button cycle-start-btn]} controls]
     (if running
@@ -311,6 +348,8 @@
       (util/run-later (.setText cycle-start-btn "\uf04b \uf021 Start")))))
 
 (defn swap-start-button
+  "### swap-start-button
+   This three argument function swaps the given buttons in the supplied toolbar."
   [^ToolBar toolbar oldbutton newbutton]
   (let [items (.getItems toolbar)
         oldindex (.indexOf items oldbutton)]
@@ -325,6 +364,13 @@
         (.add items target newbutton)))))
 
 (defn set-button-state
+  "### set-button-state
+   This two argument function takes a global state map and the controls map and
+   enables each control for which every one of the enablement dependencies is
+   satisfied and none of the disablement dependencies are met. Any controls
+   which do not match these conditions are disabled.
+   Controls which do not specify either enablement or disablement dependencies
+   are ignored."
   [state controls]
   (let [map-keys (keys controls)]
     (doseq [key map-keys

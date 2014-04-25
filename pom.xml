@@ -3,7 +3,7 @@
   <groupId>uk.org.il2ssd</groupId>
   <artifactId>il2ssd</artifactId>
   <packaging>jar</packaging>
-  <version>0.1.0-SNAPSHOT</version>
+  <version>0.1.0</version>
   <name>il2ssd</name>
   <description>Il-2 Simple Server Daemon is a very simple server controller for the Il-2 Sturmovik 1946 dedicated server. It aims to be an easy-to-use tool with IL-2 DCG integration.</description>
   <url>https://github.com/DavidGregory084/il2ssd</url>
@@ -18,14 +18,14 @@
     <url>https://github.com/DavidGregory084/il2ssd.git</url>
   </scm>
   <build>
-    <sourceDirectory>src/clojure</sourceDirectory>
-    <testSourceDirectory>test/clojure</testSourceDirectory>
+    <sourceDirectory>src\clojure</sourceDirectory>
+    <testSourceDirectory>test\clojure</testSourceDirectory>
     <resources>
       <resource>
         <directory>resources</directory>
       </resource>
       <resource>
-        <directory>src/java</directory>
+        <directory>src\java</directory>
       </resource>
     </resources>
     <testResources>
@@ -36,11 +36,11 @@
         <directory>resources</directory>
       </testResource>
       <testResource>
-        <directory>src/java</directory>
+        <directory>src\java</directory>
       </testResource>
     </testResources>
     <directory>target</directory>
-    <outputDirectory>target/classes</outputDirectory>
+    <outputDirectory>target\classes</outputDirectory>
     <plugins>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
@@ -55,7 +55,7 @@
             </goals>
             <configuration>
               <sources>
-                <source>src/java</source>
+                <source>src\java</source>
               </sources>
             </configuration>
           </execution>
@@ -67,7 +67,7 @@
             </goals>
             <configuration>
               <sources>
-                <source>test/java</source>
+                <source>test\java</source>
               </sources>
             </configuration>
           </execution>
@@ -121,7 +121,7 @@
     <dependency>
       <groupId>instaparse</groupId>
       <artifactId>instaparse</artifactId>
-      <version>1.3.1</version>
+      <version>1.3.2</version>
     </dependency>
     <dependency>
       <groupId>com.brainbot</groupId>
