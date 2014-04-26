@@ -228,6 +228,7 @@
    requests to close the program."
   []
   (do (when @state/cycle-running (cycle/stop-cycle))
+      (shutdown-agents)
       (when @state/connected (server/disconnect))
       (close-channels)
       (save-ui-state)

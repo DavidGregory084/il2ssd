@@ -372,17 +372,15 @@
    Controls which do not specify either enablement or disablement dependencies
    are ignored."
   [state controls]
-  (let [map-keys (keys controls)]
-    (doseq [key map-keys
-            :let [control (key controls)
-                  {:keys [enabled-by disabled-by]
-                   :or   [:enabled-by #{}
-                          :disabled-by #{}]} control]
-            :when (or (contains? control :enabled-by)
-                      (contains? control :disabled-by))]
-      (if (and (or (empty? enabled-by)
-                   (every? state enabled-by))
-               (or (empty? disabled-by)
-                   (not-any? state disabled-by)))
-        (util/run-later (.setDisable ^Node (:instance control) false))
-        (util/run-later (.setDisable ^Node (:instance control) true))))))
+  (doseq [control (vals controls)
+          :let [{:keys [enabled-by disabled-by]
+                 :or   [:enabled-by #{}
+                        :disabled-by #{}]} control]
+          :when (or (contains? control :enabled-by)
+                    (contains? control :disabled-by))]
+    (if (and (or (empty? enabled-by)
+                 (every? state enabled-by))
+             (or (empty? disabled-by)
+                 (not-any? state disabled-by)))
+      (util/run-later (.setDisable ^Node (:instance control) false))
+      (util/run-later (.setDisable ^Node (:instance control) true)))))

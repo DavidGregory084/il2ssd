@@ -155,7 +155,7 @@
    each of the state atoms associated with the cycle scheduler."
   []
   (ui/toggle-prog-ind @state/control-instances true)
-  (kill @scheduled-mis)
+  (stop @scheduled-mis)
   (stop-and-reset-pool! cycle-schedule :strategy :kill)
   (ui/toggle-prog-ind @state/control-instances false)
   (reset! scheduled-mis nil)

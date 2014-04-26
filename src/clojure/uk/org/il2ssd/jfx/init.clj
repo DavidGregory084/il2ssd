@@ -325,7 +325,8 @@
               (when-let [saved-mission (get cycle (str index))]
                 (let [[mission timer] (edn/read-string saved-mission)]
                   (.add cycle-data (CycleMission. mission timer))
-                  (reset! state/cycle-mission-path mission))
+                  (when (= index 0)
+                    (reset! state/cycle-mission-path mission)))
                 (recur (inc index))))))
       (-> mode-choice .getSelectionModel .selectFirst))))
 
