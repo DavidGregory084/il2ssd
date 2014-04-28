@@ -37,7 +37,7 @@
     </target>
 
     <target name="prepare-test">
-        <fileset id="testview.fileset" dir="src/java" includes="uk/org/il2ssd/jfx/*.fxml, uk/org/il2ssd/jfx/*.css"/>
+        <fileset id="testview.fileset" dir="src/java" includes="uk/org/il2ssd/jfx/*.fxml, uk/org/il2ssd/*.css, uk/org/il2ssd/jfx/*.css"/>
         <fileset id="testfont.Fileset" dir="resources"/>
         <copy todir="target/classes">
             <fileset refid="testfont.Fileset"/>
@@ -53,10 +53,16 @@
 
         <fx:application id="il2ssd"
                         name="Il-2 Simple Server Daemon"
-                        mainclass="uk.org.il2ssd.Core"/>
+                        version="0.1"
+                        mainClass="uk.org.il2ssd.Core"
+                        preloaderClass="uk.org.il2ssd.Il2SsdPreloader"/>
 
         <fx:resources id="resources">
-            <fx:fileset dir="${project.outdir}" includes="lib/*.jar"/>
+            <fx:fileset id="preLoaderFiles"
+                        requiredFor="preloader"
+                        dir="${project.outdir}"
+                        includes="preloader.jar"/>
+            <fx:fileset id="libs" dir="${project.outdir}" includes="lib/*.jar"/>
         </fx:resources>
 
         <fx:jar destfile="${project.outdir}/${il2ssdpom.artifactId}-${il2ssdpom.version}.jar">
@@ -74,8 +80,19 @@
 
             <fileset dir="target/classes" includes="uk/org/il2ssd/**"/>
             <fileset dir="resources"/>
-            <fileset dir="src/java" includes="uk/org/il2ssd/jfx/*.fxml, uk/org/il2ssd/jfx/*.css"/>
+            <fileset dir="src/java" includes="uk/org/il2ssd/jfx/*.fxml, uk/org/il2ssd/*.css, uk/org/il2ssd/jfx/*.css"/>
         </fx:jar>
+
+        <fx:deploy width="500" height="528"
+                   nativeBundles="image"
+                   outdir="target/bundles" outfile="il2ssd">
+            <fx:application refid="il2ssd"/>
+            <fx:resources>
+                <fx:fileset dir="${project.outdir}" includes="**"/>
+            </fx:resources>
+            <fx:info title="Il-2 Simple Server Daemon"
+                     vendor="Il-2 Community"/>
+        </fx:deploy>
 
         <zip basedir="${project.outdir}" destfile="target/${il2ssdpom.artifactId}-${il2ssdpom.version}.zip" update="false" excludes="*.ini"/>
 
