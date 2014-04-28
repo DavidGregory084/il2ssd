@@ -134,7 +134,7 @@
           :prog-stack        {:instance (.getProgressStack main-presenter)}
           :prog-ind          {:instance (.getProgressIndicator main-presenter)}
           :start-btn         {:instance   (.getStartStopButton main-presenter)
-                              :enabled-by #{:connected :single-mission-path :loaded}}
+                              :enabled-by #{:connected :loaded}}
           :cycle-start-btn   {:instance   (.getCycleStartStopButton main-presenter)
                               :enabled-by #{:connected :cycle-mission-path}}
           :next-btn          {:instance   (.getNextButton main-presenter)
@@ -179,10 +179,8 @@
                               :disabled-by #{:cycle-running}}
           :cycle-path-fld    {:instance (.getCycleMisPathField cycle-presenter)}
           :cycle-path-btn    {:instance    (.getChooseCycleMisButton cycle-presenter)
-                              :enabled-by  #{:server-path}
-                              :disabled-by #{:cycle-running}}
-          :cycle-mis-addbtn  {:instance    (.getAddMissionButton cycle-presenter)
-                              :disabled-by #{:cycle-running}}
+                              :enabled-by  #{:server-path}}
+          :cycle-mis-addbtn  {:instance    (.getAddMissionButton cycle-presenter)}
          ;Settings Tab FXML file controls
           :settings-pane     {:instance (.getSettingsPane settings-presenter)}
           :ip-field          {:instance (.getIpAddressField settings-presenter)}

@@ -37,7 +37,7 @@
     </target>
 
     <target name="prepare-test">
-        <fileset id="testview.fileset" dir="src/java" includes="uk/org/il2ssd/jfx/*.fxml, uk/org/il2ssd/*.css, uk/org/il2ssd/jfx/*.css"/>
+        <fileset id="testview.fileset" dir="src/java" includes="uk/org/il2ssd/jfx/*.fxml, uk/org/il2ssd/jfx/*.css"/>
         <fileset id="testfont.Fileset" dir="resources"/>
         <copy todir="target/classes">
             <fileset refid="testfont.Fileset"/>
@@ -55,7 +55,7 @@
                         name="Il-2 Simple Server Daemon"
                         version="0.1"
                         mainClass="uk.org.il2ssd.Core"
-                        preloaderClass="uk.org.il2ssd.Il2SsdPreloader"/>
+                        preloaderClass="uk.org.il2ssd.jfx.Il2SsdPreloader"/>
 
         <fx:resources id="resources">
             <fx:fileset id="preLoaderFiles"
@@ -80,7 +80,7 @@
 
             <fileset dir="target/classes" includes="uk/org/il2ssd/**"/>
             <fileset dir="resources"/>
-            <fileset dir="src/java" includes="uk/org/il2ssd/jfx/*.fxml, uk/org/il2ssd/*.css, uk/org/il2ssd/jfx/*.css"/>
+            <fileset dir="src/java" includes="uk/org/il2ssd/jfx/*.fxml, uk/org/il2ssd/jfx/*.css"/>
         </fx:jar>
 
         <fx:deploy width="500" height="528"
