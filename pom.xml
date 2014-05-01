@@ -3,7 +3,7 @@
   <groupId>uk.org.il2ssd</groupId>
   <artifactId>il2ssd</artifactId>
   <packaging>jar</packaging>
-  <version>0.1.3-SNAPSHOT</version>
+  <version>0.2.0</version>
   <name>il2ssd</name>
   <description>Il-2 Simple Server Daemon is a very simple server controller for the Il-2 Sturmovik 1946 dedicated server. It aims to be an easy-to-use tool with IL-2 DCG integration.</description>
   <url>https://github.com/DavidGregory084/il2ssd</url>
@@ -132,6 +132,11 @@
       <groupId>overtone</groupId>
       <artifactId>at-at</artifactId>
       <version>1.2.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.clojars.hozumi</groupId>
+      <artifactId>clj-commons-exec</artifactId>
+      <version>1.0.7</version>
     </dependency>
     <dependency>
       <groupId>org.clojure</groupId>

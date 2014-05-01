@@ -3028,8 +3028,8 @@ net.brehaut.ClojureTools = (function (SH) {
     build_tree: build_tree
   };
 })(SyntaxHighlighter);
-</script><title>Il-2 Simple Server Daemon -- Marginalia</title></head><body><table><tr><td class="docs"><div class="header"><h1 class="project-name">Il-2 Simple Server Daemon</h1><h2 class="project-version">0.1.3-SNAPSHOT</h2><br /><p>Il-2 Simple Server Daemon is a very simple server controller for the Il-2 Sturmovik 1946 dedicated server. It aims to be an easy-to-use tool with IL-2 DCG integration.</p>
-</div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">org.clojure/clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.6.0</td></tr><tr><td class="dep-name">org.clojure/core.async</td><td class="dotted"><hr /></td><td class="dep-version">0.1.278.0-76b25b-alpha</td></tr><tr><td class="dep-name">com.airhacks/afterburner.fx</td><td class="dotted"><hr /></td><td class="dep-version">1.4.4</td></tr><tr><td class="dep-name">commons-lang/commons-lang</td><td class="dotted"><hr /></td><td class="dep-version">2.6</td></tr><tr><td class="dep-name">instaparse/instaparse</td><td class="dotted"><hr /></td><td class="dep-version">1.3.2</td></tr><tr><td class="dep-name">com.brainbot/iniconfig</td><td class="dotted"><hr /></td><td class="dep-version">0.2.0</td></tr><tr><td class="dep-name">overtone/at-at</td><td class="dotted"><hr /></td><td class="dep-version">1.2.0</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#uk.org.il2ssd.channel">uk.org.il2ssd.channel</a></li><li><a href="#uk.org.il2ssd.config">uk.org.il2ssd.config</a></li><li><a href="#uk.org.il2ssd.core">uk.org.il2ssd.core</a></li><li><a href="#uk.org.il2ssd.event.console">uk.org.il2ssd.event.console</a></li><li><a href="#uk.org.il2ssd.event.cycle">uk.org.il2ssd.event.cycle</a></li><li><a href="#uk.org.il2ssd.event.main">uk.org.il2ssd.event.main</a></li><li><a href="#uk.org.il2ssd.event.mission">uk.org.il2ssd.event.mission</a></li><li><a href="#uk.org.il2ssd.event.settings">uk.org.il2ssd.event.settings</a></li><li><a href="#uk.org.il2ssd.jfx.init">uk.org.il2ssd.jfx.init</a></li><li><a href="#uk.org.il2ssd.jfx.ui">uk.org.il2ssd.jfx.ui</a></li><li><a href="#uk.org.il2ssd.jfx.util">uk.org.il2ssd.jfx.util</a></li><li><a href="#uk.org.il2ssd.parse">uk.org.il2ssd.parse</a></li><li><a href="#uk.org.il2ssd.server">uk.org.il2ssd.server</a></li><li><a href="#uk.org.il2ssd.state">uk.org.il2ssd.state</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#uk.org.il2ssd.channel" name="uk.org.il2ssd.channel"><h1 class="project-name">uk.org.il2ssd.channel</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><h2>Channels for thread-safe concurrency</h2>
+</script><title>Il-2 Simple Server Daemon -- Marginalia</title></head><body><table><tr><td class="docs"><div class="header"><h1 class="project-name">Il-2 Simple Server Daemon</h1><h2 class="project-version">0.2.0</h2><br /><p>Il-2 Simple Server Daemon is a very simple server controller for the Il-2 Sturmovik 1946 dedicated server. It aims to be an easy-to-use tool with IL-2 DCG integration.</p>
+</div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">org.clojure/clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.6.0</td></tr><tr><td class="dep-name">org.clojure/core.async</td><td class="dotted"><hr /></td><td class="dep-version">0.1.278.0-76b25b-alpha</td></tr><tr><td class="dep-name">com.airhacks/afterburner.fx</td><td class="dotted"><hr /></td><td class="dep-version">1.4.4</td></tr><tr><td class="dep-name">commons-lang/commons-lang</td><td class="dotted"><hr /></td><td class="dep-version">2.6</td></tr><tr><td class="dep-name">instaparse/instaparse</td><td class="dotted"><hr /></td><td class="dep-version">1.3.2</td></tr><tr><td class="dep-name">com.brainbot/iniconfig</td><td class="dotted"><hr /></td><td class="dep-version">0.2.0</td></tr><tr><td class="dep-name">overtone/at-at</td><td class="dotted"><hr /></td><td class="dep-version">1.2.0</td></tr><tr><td class="dep-name">org.clojars.hozumi/clj-commons-exec</td><td class="dotted"><hr /></td><td class="dep-version">1.0.7</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#uk.org.il2ssd.channel">uk.org.il2ssd.channel</a></li><li><a href="#uk.org.il2ssd.config">uk.org.il2ssd.config</a></li><li><a href="#uk.org.il2ssd.core">uk.org.il2ssd.core</a></li><li><a href="#uk.org.il2ssd.event.console">uk.org.il2ssd.event.console</a></li><li><a href="#uk.org.il2ssd.event.cycle">uk.org.il2ssd.event.cycle</a></li><li><a href="#uk.org.il2ssd.event.dcg">uk.org.il2ssd.event.dcg</a></li><li><a href="#uk.org.il2ssd.event.main">uk.org.il2ssd.event.main</a></li><li><a href="#uk.org.il2ssd.event.mission">uk.org.il2ssd.event.mission</a></li><li><a href="#uk.org.il2ssd.event.settings">uk.org.il2ssd.event.settings</a></li><li><a href="#uk.org.il2ssd.jfx.init">uk.org.il2ssd.jfx.init</a></li><li><a href="#uk.org.il2ssd.jfx.ui">uk.org.il2ssd.jfx.ui</a></li><li><a href="#uk.org.il2ssd.jfx.util">uk.org.il2ssd.jfx.util</a></li><li><a href="#uk.org.il2ssd.parse">uk.org.il2ssd.parse</a></li><li><a href="#uk.org.il2ssd.server">uk.org.il2ssd.server</a></li><li><a href="#uk.org.il2ssd.state">uk.org.il2ssd.state</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#uk.org.il2ssd.channel" name="uk.org.il2ssd.channel"><h1 class="project-name">uk.org.il2ssd.channel</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><h2>Channels for thread-safe concurrency</h2>
 
 <p>Here we define the input channels that we use to safely process the server console
 output concurrently. The initial input channel will receive one line at a time from
@@ -3143,6 +3143,11 @@ files.</p>
 <p>   This is an atom to hold a map of the server settings so that they can be saved
    in the main "il2ssd.ini" config file.</p>
 </td><td class="codes"><pre class="brush: clojure">(def server-settings
+  (atom nil))</pre></td></tr><tr><td class="docs"><h3>dcg-settings</h3>
+
+<p>   This is an atom to hold a map of the DCG settings so that they can be saved in
+   the main "il2ssd.ini" config file.</p>
+</td><td class="codes"><pre class="brush: clojure">(def dcg-settings
   (atom nil))</pre></td></tr><tr><td class="docs"><h3>saved-difficulties</h3>
 
 <p>   This is an atom to hold the difficulty settings loaded from a saved difficulty
@@ -3240,7 +3245,13 @@ files.</p>
    applied to the mission.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn save-cycle
   [index mission timer]
-  (swap! mission-cycle assoc-in [index] [mission timer]))</pre></td></tr><tr><td class="docs"><h3>build-config-file</h3>
+  (swap! mission-cycle assoc-in [index] [mission timer]))</pre></td></tr><tr><td class="docs"><h3>save-dcg</h3>
+
+<p>   This one argument function saves DCG configuration data.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn save-dcg
+  [dcg-path]
+  (when (.isFile (File. ^String dcg-path))
+    (swap! dcg-settings assoc &quot;DCG Executable&quot; dcg-path)))</pre></td></tr><tr><td class="docs"><h3>build-config-file</h3>
 
 <p>   This is a zero argument function which builds a config file for the program.
    It first retrieves the system default line separator.</p>
@@ -3277,6 +3288,8 @@ files.</p>
          (build-conf @mission-settings)
          (build-conf &quot;[Cycle]&quot; true)
          (build-conf @mission-cycle)
+         (build-conf &quot;[DCG]&quot; true)
+         (build-conf @dcg-settings)
          (string/join newln))))</pre></td></tr><tr><td class="docs"><h3>save-config-file</h3>
 
 <p>   This is a zero argument function which calls build-config-file and saves the
@@ -3316,7 +3329,8 @@ files.</p>
     :server-path-lbl (get-in file [&quot;Server&quot; &quot;Path&quot;] &quot;...&quot;)
     :mode-choice (get-in file [&quot;Mission&quot; &quot;Mode&quot;] &quot;single&quot;)
     :single-path-lbl (get-in file [&quot;Mission&quot; &quot;Single Mission&quot;] &quot;...&quot;)
-    :cycle-data (get file &quot;Cycle&quot; &quot;&quot;)))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#uk.org.il2ssd.core" name="uk.org.il2ssd.core"><h1 class="project-name">uk.org.il2ssd.core</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><h2>Main application class and main method</h2>
+    :cycle-data (get file &quot;Cycle&quot; &quot;&quot;)
+    :dcg-path-lbl (get-in file [&quot;DCG&quot; &quot;DCG Executable&quot;] &quot;...&quot;)))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#uk.org.il2ssd.core" name="uk.org.il2ssd.core"><h1 class="project-name">uk.org.il2ssd.core</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><h2>Main application class and main method</h2>
 
 <p>This namespace must be AOT compiled for the main application class to be generated!</p>
 
@@ -3537,7 +3551,7 @@ using the at-at scheduling library.</p>
         mission-data (ui/get-cycle-mission cycle-data @state/cycle-index)
         mission (:mission mission-data)
         timer (mins-to-ms (:timer mission-data))]
-    (ui/toggle-prog-ind @state/control-instances true)
+    (reset! state/loading true)
     (server/load-begin-mission mission)
     (-&gt;&gt; (after timer #(next-mission true) cycle-schedule)
          (reset! scheduled-mis))))</pre></td></tr><tr><td class="docs"><h3>stop-cycle</h3>
@@ -3546,13 +3560,97 @@ using the at-at scheduling library.</p>
    each of the state atoms associated with the cycle scheduler.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn stop-cycle
   []
-  (ui/toggle-prog-ind @state/control-instances true)
   (stop @scheduled-mis)
   (stop-and-reset-pool! cycle-schedule :strategy :kill)
-  (ui/toggle-prog-ind @state/control-instances false)
   (reset! scheduled-mis nil)
   (reset! state/cycle-running false)
-  (reset! state/cycle-index 0))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#uk.org.il2ssd.event.main" name="uk.org.il2ssd.event.main"><h1 class="project-name">uk.org.il2ssd.event.main</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
+  (reset! state/cycle-index 0))</pre></td></tr><tr><td class="docs"><h3>start-stop-cycle-command</h3>
+
+<p>   This function stops the cycle if it is running, or starts it if it is not.
+   In either case it stops any mission that is playing.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn start-stop-cycle-command
+  []
+  (when @state/playing
+    (server/unload-mission))
+  (if @state/cycle-running
+    (stop-cycle)
+    (start-cycle)))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#uk.org.il2ssd.event.dcg" name="uk.org.il2ssd.event.dcg"><h1 class="project-name">uk.org.il2ssd.event.dcg</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(ns uk.org.il2ssd.event.dcg
+  (:require [clojure.core.async :refer [go]]
+            [clojure.string :as string]
+            [uk.org.il2ssd.state :as state]
+            [uk.org.il2ssd.jfx.ui :as ui]
+            [uk.org.il2ssd.server :as server]
+            [uk.org.il2ssd.event.cycle :as cycle]
+            [clj-commons-exec :as exec])
+  (:import (java.io BufferedReader File)
+           (java.nio.file Files Path Paths LinkOption)
+           (java.nio.charset Charset)))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn get-generated-mis
+  []
+  (let [dcg-exe (Paths/get @state/dcg-path (into-array String []))
+        dcg-dir (.getParent dcg-exe)
+        mis-list (.resolve dcg-dir &quot;missions.txt&quot;)]
+    (when (Files/exists mis-list (into-array LinkOption []))
+      (let [reader (Files/newBufferedReader
+                     mis-list (Charset/defaultCharset))
+            dcg-mis-path (str &quot;Net/&quot; (.readLine reader))]
+        (string/replace dcg-mis-path &quot;\\&quot; &quot;/&quot;)))))</pre></td></tr><tr><td class="docs"><h3>dcg-choose-command</h3>
+
+<p>   This zero argument function displays the DCG chooser dialog and uses
+   the provided file to set the DCG executable path in the UI.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn dcg-choose-command
+  []
+  (let [{:keys [dcg-chooser
+                dcg-path-lbl]} @state/control-instances
+        file (ui/show-chooser dcg-chooser)]
+    (when file
+      (ui/set-label dcg-path-lbl (.getCanonicalPath file)))))</pre></td></tr><tr><td class="docs"><h3>dcg-path-select</h3>
+
+<p>   This zero argument function sets the global DCG executable path atom.
+   It is called when the DCG path label text changes.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn dcg-path-select
+  []
+  (let [{:keys [dcg-path-lbl
+                dcg-mis-lbl]} @state/control-instances
+        dcg-path (ui/get-text dcg-path-lbl)]
+    (if (= dcg-path &quot;...&quot;)
+      (do (reset! state/dcg-path nil)
+          (ui/set-label dcg-mis-lbl &quot;...&quot;))
+      (do (reset! state/dcg-path dcg-path)
+          (let [dcg-mis-path (get-generated-mis)]
+            (when (not (string/blank? dcg-mis-path))
+              (ui/set-label dcg-mis-lbl dcg-mis-path)))))))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn generate-dcg-mis
+  []
+  (let [dcg-gen (exec/sh [@state/dcg-path &quot;/netdogfight&quot;])]
+    (reset! state/loading true)
+    (go (println @dcg-gen)
+        (let [{:keys [dcg-mis-lbl]} @state/control-instances
+              dcg-mis-path (get-generated-mis)]
+          (when (not (string/blank? dcg-mis-path))
+            (ui/set-label dcg-mis-lbl dcg-mis-path)
+            (server/load-begin-mission dcg-mis-path))))))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn dcg-mis-generated
+  []
+  (let [{:keys [dcg-mis-lbl]} @state/control-instances
+        dcg-mis-path (ui/get-text dcg-mis-lbl)]
+    (if (= dcg-mis-path &quot;...&quot;)
+      (reset! state/dcg-mission-path nil)
+      (reset! state/dcg-mission-path dcg-mis-path))))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn start-stop-dcg-command
+  []
+  (let [{:keys [dcg-mis-lbl]} @state/control-instances
+        dcg-mis-path (ui/get-text dcg-mis-lbl)]
+    (if @state/dcg-running
+      (server/unload-mission)
+      (do (when @state/cycle-running
+            (cycle/stop-cycle))
+          (reset! state/dcg-running true)
+          (if (= dcg-mis-path &quot;...&quot;)
+            (generate-dcg-mis)
+            (do (reset! state/loading true)
+                (server/load-begin-mission dcg-mis-path)))))))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#uk.org.il2ssd.event.main" name="uk.org.il2ssd.event.main"><h1 class="project-name">uk.org.il2ssd.event.main</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(ns uk.org.il2ssd.event.main
   (:require [clojure.core.async :refer [&lt;!! go thread]]
             [clojure.string :as string]
@@ -3615,19 +3713,7 @@ using the at-at scheduling library.</p>
     (cycle/stop-cycle))
   (if @state/playing
     (server/end-mission)
-    (server/start-mission)))</pre></td></tr><tr><td class="docs"><h3>start-stop-cycle-command</h3>
-
-<p>   This function stops the cycle if it is running, or starts it if it is not.
-   In either case it stops any mission that is playing.</p>
-</td><td class="codes"><pre class="brush: clojure">(defn start-stop-cycle-command
-  []
-  (if @state/cycle-running
-    (do (cycle/stop-cycle)
-        (when @state/playing
-          (server/unload-mission)))
-    (do (when @state/playing
-          (server/unload-mission))
-        (cycle/start-cycle))))</pre></td></tr><tr><td class="docs"><h3>load-unload-command</h3>
+    (server/start-mission)))</pre></td></tr><tr><td class="docs"><h3>load-unload-command</h3>
 
 <p>   This is a zero argument function which unloads the currently loaded mission if
    it is loaded, and loads the current mission if it is not.
@@ -3638,7 +3724,7 @@ using the at-at scheduling library.</p>
     (cycle/stop-cycle))
   (if @state/loaded
     (server/unload-mission)
-    (do (ui/toggle-prog-ind @state/control-instances true)
+    (do (reset! state/loading true)
         (server/load-mission @state/single-mission-path))))</pre></td></tr><tr><td class="docs"><h3>console-listener</h3>
 
 <p>   This is a zero argument function which spawns another thread. The process on
@@ -3694,14 +3780,19 @@ using the at-at scheduling library.</p>
   []
   (thread (while @state/connected
             (when-let [text (&lt;!! mis-channel)]
+              (reset! state/loading false)
               (let [parsed (parse-text mission-parser text)]
                 (if (nil? (:mission parsed))
                   (let [state (:state parsed)]
                     (when (= state &quot;NOT loaded&quot;)
+                      (reset! state/dcg-running false)
                       (reset! state/loaded false)
                       (reset! state/playing false)
                       (set-title)))
-                  (let [{:keys [mission state]} parsed]
+                  (let [{:keys [path mission state]} parsed
+                        mis-path (str path mission)]
+                    (when (= mis-path @state/dcg-mission-path)
+                      (reset! state/dcg-running true))
                     (when (= state &quot;Loaded&quot;)
                       (reset! state/loaded true)
                       (reset! state/playing false))
@@ -3722,7 +3813,7 @@ using the at-at scheduling library.</p>
   []
   (thread (while @state/connected
             (when-let [_ (&lt;!! err-channel)]
-              (ui/toggle-prog-ind @state/control-instances false)
+              (reset! state/loading false)
               (reset! state/loaded false)
               (reset! state/playing false)
               (set-title)
@@ -3749,14 +3840,17 @@ using the at-at scheduling library.</p>
                 port-field
                 server-path-lbl
                 single-path-lbl
+                dcg-path-lbl
                 cycle-data]} @state/control-instances
         mode @state/mode
         ip-addr (ui/get-text ip-field)
         port (ui/get-text port-field)
         server-path (ui/get-text server-path-lbl)
-        single-path (ui/get-text single-path-lbl)]
+        single-path (ui/get-text single-path-lbl)
+        dcg-path (ui/get-text dcg-path-lbl)]
     (config/save-server ip-addr port server-path)
     (config/save-mission mode single-path)
+    (config/save-dcg dcg-path)
     (doseq [item cycle-data
             :let [cycle-mission (ui/get-cycle-mission item)
                   mission (:mission cycle-mission)
@@ -3775,14 +3869,7 @@ using the at-at scheduling library.</p>
       (close-channels)
       (save-ui-state)
       (config/save-config-file)
-      (ui/exit)))</pre></td></tr><tr><td class="docs"><h3>next-command</h3>
-
-<p>   This function calls the next cycle mission function, specifying that this
-   load event is unscheduled.</p>
-</td><td class="codes"><pre class="brush: clojure">(defn next-command
-  []
-  (when (= @state/mode &quot;cycle&quot;)
-    (cycle/next-mission false)))</pre></td></tr><tr><td class="docs"><h3>update-ui</h3>
+      (ui/exit)))</pre></td></tr><tr><td class="docs"><h3>update-ui</h3>
 
 <p>   This function is called whenever any watched global state atom is changed.
    The key provided specifies which state atom has changed.
@@ -3799,13 +3886,16 @@ using the at-at scheduling library.</p>
                      (start-listeners)
                      (do (set-title)
                          (ui/clear-diff-data @state/control-instances))))
-    :loaded (do (ui/toggle-load-txt new @state/control-instances)
-                (ui/toggle-prog-ind @state/control-instances false))
+    :loading (ui/toggle-prog-ind new @state/control-instances)
+    :loaded (ui/toggle-load-txt new @state/control-instances)
     :playing (ui/toggle-start-txt new @state/control-instances)
     :server-path (ui/set-mis-dir new @state/control-instances)
+    :dcg-path nil
     :single-mission-path nil
     :cycle-mission-path nil
-    :cycle-running (ui/toggle-cycle-start-txt new @state/control-instances))
+    :dcg-mission-path nil
+    :cycle-running (ui/toggle-cycle-start-txt new @state/control-instances)
+    :dcg-running (ui/toggle-dcg-start-txt new @state/control-instances))
   (let [new-state (assoc (state) key new)]
     (ui/set-button-state new-state controls)))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#uk.org.il2ssd.event.mission" name="uk.org.il2ssd.event.mission"><h1 class="project-name">uk.org.il2ssd.event.mission</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(ns uk.org.il2ssd.event.mission
@@ -3874,11 +3964,15 @@ using the at-at scheduling library.</p>
   (let [{:keys [mission-pane
                 single-mis-pane
                 cycle-mis-pane
+                dcg-mis-pane
                 mode-choice
                 load-btn
                 tool-bar
                 start-btn
                 cycle-start-btn
+                dcg-start-btn
+                cycle-next-btn
+                dcg-next-btn
                 single-path-lbl
                 cycle-data]} @state/control-instances
         mode (name ((map-invert modes) (ui/get-choice mode-choice)))]
@@ -3889,7 +3983,10 @@ using the at-at scheduling library.</p>
                 (ui/get-text single-path-lbl))
         (reset! state/single-mission-path nil))
       (ui/set-visible load-btn true)
-      (ui/swap-start-button tool-bar cycle-start-btn start-btn)
+      (ui/set-visible cycle-next-btn false)
+      (ui/set-visible dcg-next-btn false)
+      (ui/swap-to-button tool-bar start-btn [cycle-start-btn dcg-start-btn])
+      (ui/swap-to-button tool-bar cycle-next-btn [dcg-next-btn])
       (ui/set-mis-pane mission-pane single-mis-pane))
     (when (= mode &quot;cycle&quot;)
       (if (mis-selected? mode)
@@ -3897,8 +3994,19 @@ using the at-at scheduling library.</p>
                 (:mission (ui/get-cycle-mission cycle-data @state/cycle-index)))
         (reset! state/cycle-mission-path nil))
       (ui/set-visible load-btn false)
-      (ui/swap-start-button tool-bar start-btn cycle-start-btn)
-      (ui/set-mis-pane mission-pane cycle-mis-pane))))</pre></td></tr><tr><td class="docs"><h3>set-single-remote</h3>
+      (ui/set-visible cycle-next-btn true)
+      (ui/set-visible dcg-next-btn false)
+      (ui/swap-to-button tool-bar cycle-start-btn [start-btn dcg-start-btn])
+      (ui/swap-to-button tool-bar cycle-next-btn [dcg-next-btn])
+      (ui/set-mis-pane mission-pane cycle-mis-pane))
+    (when (= mode &quot;dcg&quot;)
+      #_(if (mis-selected? mode))
+      (ui/set-visible load-btn false)
+      (ui/set-visible cycle-next-btn false)
+      (ui/set-visible dcg-next-btn true)
+      (ui/swap-to-button tool-bar dcg-start-btn [start-btn cycle-start-btn])
+      (ui/swap-to-button tool-bar dcg-next-btn [cycle-next-btn])
+      (ui/set-mis-pane mission-pane dcg-mis-pane))))</pre></td></tr><tr><td class="docs"><h3>set-single-remote</h3>
 
 <p>   This zero argument function sets the UI label which defines the mission
    to load based upon the content of the remote single mission text field.</p>
@@ -3995,6 +4103,7 @@ structures which we can more easily manipulate in Clojure.</p>
             [clojure.edn :as edn]
             [uk.org.il2ssd.event.console :as console]
             [uk.org.il2ssd.event.cycle :as cycle]
+            [uk.org.il2ssd.event.dcg :as dcg]
             [uk.org.il2ssd.event.main :as main]
             [uk.org.il2ssd.event.mission :as mission]
             [uk.org.il2ssd.event.settings :as settings]
@@ -4018,12 +4127,12 @@ structures which we can more easily manipulate in Clojure.</p>
            (uk.org.il2ssd.jfx ConsolePresenter ConsoleView CyclePresenter
                               CycleView MainPresenter MainView
                               SettingsPresenter SettingsView
-                              SinglePresenter SingleView CycleMission)
+                              SinglePresenter SingleView CycleMission DCGView DCGPresenter)
            (javafx.util Callback)))</pre></td></tr><tr><td class="docs"><h3>modes</h3>
 
 <p>   This is a map of the mission loading modes.</p>
 </td><td class="codes"><pre class="brush: clojure">(def modes
-  {:single &quot;Single Mission&quot;, :cycle &quot;Mission Cycle&quot;})</pre></td></tr><tr><td class="docs"><h3>map-control-instances</h3>
+  {:single &quot;Single Mission&quot;, :cycle &quot;Mission Cycle&quot;, :dcg &quot;DCG Generation&quot;})</pre></td></tr><tr><td class="docs"><h3>map-control-instances</h3>
 
 <p>   This function takes the main controls map as an argument and assocs the
    top-level keys to the object instances held in the main map, so that the
@@ -4055,12 +4164,14 @@ structures which we can more easily manipulate in Clojure.</p>
         console-view (ConsoleView.)
         single-view (SingleView.)
         cycle-view (CycleView.)
+        dcg-view (DCGView.)
         settings-view (SettingsView.)
         scene (Scene. (.getView main-view))
         main-presenter (.getPresenter main-view)
         console-presenter (.getPresenter console-view)
         single-presenter (.getPresenter single-view)
         cycle-presenter (.getPresenter cycle-view)
+        dcg-presenter (.getPresenter dcg-view)
         settings-presenter (.getPresenter settings-view)]
     (main/set-title)
     (doto stage
@@ -4073,6 +4184,7 @@ structures which we can more easily manipulate in Clojure.</p>
              :console-presenter  console-presenter
              :single-presenter   single-presenter
              :cycle-presenter    cycle-presenter
+             :dcg-presenter      dcg-presenter
              :settings-presenter settings-presenter})))</pre></td></tr><tr><td class="docs"><h3>init-objects</h3>
 
 <p>   This one argument function retrieves the presenter instances from our presenter
@@ -4106,6 +4218,7 @@ structures which we can more easily manipulate in Clojure.</p>
                 ^ConsolePresenter console-presenter
                 ^SinglePresenter single-presenter
                 ^CyclePresenter cycle-presenter
+                ^DCGPresenter dcg-presenter
                 ^SettingsPresenter settings-presenter]} @state/presenters
         controls
         {;Main FXML file controls
@@ -4119,16 +4232,25 @@ structures which we can more easily manipulate in Clojure.</p>
           :start-btn         {:instance   (.getStartStopButton main-presenter)
                               :enabled-by #{:connected :loaded}}
           :cycle-start-btn   {:instance   (.getCycleStartStopButton main-presenter)
-                              :enabled-by #{:connected :cycle-mission-path}}
-          :next-btn          {:instance   (.getNextButton main-presenter)
-                              :enabled-by #{:connected :cycle-mission-path :cycle-running :playing}}
+                              :enabled-by #{:connected :cycle-mission-path}
+                              :disabled-by #{:loading}}
+          :dcg-start-btn     {:instance   (.getDcgStartStopButton main-presenter)
+                              :enabled-by #{:connected :dcg-path}
+                              :disabled-by #{:loading}}
+          :cycle-next-btn    {:instance   (.getCycleNextButton main-presenter)
+                              :enabled-by #{:connected :cycle-mission-path :cycle-running :playing}
+                              :disabled-by #{:loading}}
+          :dcg-next-btn      {:instance   (.getDcgNextButton main-presenter)
+                              :enabled-by #{:connected :dcg-running :playing}
+                              :disabled-by #{:loading}}
           :console-tab       {:instance (.getConsoleTab main-presenter)}
           :settings-tab      {:instance (.getSettingsTab main-presenter)}
           :mission-pane      {:instance (.getMissionPane main-presenter)}
           :mode-choice       {:instance (.getMissionModeChoice main-presenter)}
           :mission-spring    {:instance (.getMissionBarSpring main-presenter)}
           :load-btn          {:instance   (.getMissionLoadButton main-presenter)
-                              :enabled-by #{:connected :single-mission-path}}
+                              :enabled-by #{:connected :single-mission-path}
+                              :disabled-by #{:loading}}
           :exit-btn          {:instance (.getExitItem main-presenter)}
           :about-btn         {:instance (.getAboutItem main-presenter)}
           :mis-chooser       {:instance (FileChooser.)}
@@ -4161,9 +4283,14 @@ structures which we can more easily manipulate in Clojure.</p>
                               :enabled-by  #{:cycle-mission-path}
                               :disabled-by #{:cycle-running}}
           :cycle-path-fld    {:instance (.getCycleMisPathField cycle-presenter)}
-          :cycle-path-btn    {:instance    (.getChooseCycleMisButton cycle-presenter)
-                              :enabled-by  #{:server-path}}
-          :cycle-mis-addbtn  {:instance    (.getAddMissionButton cycle-presenter)}
+          :cycle-path-btn    {:instance   (.getChooseCycleMisButton cycle-presenter)
+                              :enabled-by #{:server-path}}
+          :cycle-mis-addbtn  {:instance (.getAddMissionButton cycle-presenter)}
+         ;DCG Mode FXML file controls
+          :dcg-mis-pane      {:instance (.getDcgMisPane dcg-presenter)}
+          :dcg-mis-lbl       {:instance (.getDcgMisPathLabel dcg-presenter)}
+          :dcg-path-lbl      {:instance (.getDcgExePathLabel dcg-presenter)}
+          :dcg-path-btn      {:instance (.getDcgExePathSelectButton dcg-presenter)}
          ;Settings Tab FXML file controls
           :settings-pane     {:instance (.getSettingsPane settings-presenter)}
           :ip-field          {:instance (.getIpAddressField settings-presenter)}
@@ -4175,7 +4302,7 @@ structures which we can more easily manipulate in Clojure.</p>
                               :enabled-by #{:connected}}
           :set-diff-btn      {:instance    (.getSetDifficultyButton settings-presenter)
                               :enabled-by  #{:connected}
-                              :disabled-by #{:playing}}
+                              :disabled-by #{:loading :playing}}
           :diff-table        {:instance (.getDifficultyTable settings-presenter)}
           :diff-data         {:instance (FXCollections/synchronizedObservableList (FXCollections/observableArrayList))}
           :diff-set-col      {:instance (.getDiffSettingColumn settings-presenter)}
@@ -4196,7 +4323,7 @@ structures which we can more easily manipulate in Clojure.</p>
                 ^Button disconn-btn
                 ^Button start-btn
                 ^Button cycle-start-btn
-                ^Button next-btn
+                ^Button cycle-next-btn
                 ^TextField cmd-entry
                 ^ChoiceBox mode-choice
                 ^Button load-btn
@@ -4212,23 +4339,30 @@ structures which we can more easily manipulate in Clojure.</p>
                 ^Button cycle-mis-delbtn
                 ^Button cycle-mis-dwnbtn
                 ^Button cycle-mis-addbtn
-                ^Button cycle-path-btn]}
+                ^Button cycle-path-btn
+                ^Button dcg-path-btn
+                ^Button dcg-start-btn
+                ^Button dcg-next-btn
+                ^Label dcg-path-lbl
+                ^Label dcg-mis-lbl]}
         @state/control-instances
         watch-fn (partial main/update-ui state/get-state @state/controls)]
     ;State atom watch functions
     (add-watch state/connected :connected watch-fn)
     (add-watch state/loaded :loaded watch-fn)
+    (add-watch state/loading :loading watch-fn)
     (add-watch state/playing :playing watch-fn)
     (add-watch state/server-path :server-path watch-fn)
+    (add-watch state/dcg-path :dcg-path watch-fn)
     (add-watch state/single-mission-path :single-mission-path watch-fn)
     (add-watch state/cycle-mission-path :cycle-mission-path watch-fn)
+    (add-watch state/dcg-mission-path :dcg-mission-path watch-fn)
     (add-watch state/cycle-running :cycle-running watch-fn)
+    (add-watch state/dcg-running :dcg-running watch-fn)
     ;Main UI EventHandlers and Listeners
     (util/button-handler connect-btn main/connect-command)
     (util/button-handler disconn-btn main/disconnect-command)
     (util/button-handler start-btn main/start-stop-command)
-    (util/button-handler cycle-start-btn main/start-stop-cycle-command)
-    (util/button-handler next-btn main/next-command)
     (util/button-handler load-btn main/load-unload-command)
     (util/button-handler exit-btn main/close)
     ;Console tab
@@ -4245,6 +4379,14 @@ structures which we can more easily manipulate in Clojure.</p>
     (util/button-handler cycle-mis-dwnbtn cycle/mission-swap inc)
     (util/button-handler cycle-mis-addbtn cycle/mission-add)
     (util/button-handler cycle-path-btn cycle/cycle-choose-command)
+    (util/button-handler cycle-start-btn cycle/start-stop-cycle-command)
+    (util/button-handler cycle-next-btn cycle/next-mission false)
+    ;DCG generation pane
+    (util/button-handler dcg-path-btn dcg/dcg-choose-command)
+    (util/button-handler dcg-start-btn dcg/start-stop-dcg-command)
+    (util/button-handler dcg-next-btn dcg/generate-dcg-mis)
+    (util/text-listener dcg-path-lbl dcg/dcg-path-select)
+    (util/text-listener dcg-mis-lbl dcg/dcg-mis-generated)
     ;Settings tab
     (util/button-handler server-path-btn settings/server-choose-command)
     (util/text-listener server-path-lbl settings/server-path-select)
@@ -4271,6 +4413,7 @@ structures which we can more easily manipulate in Clojure.</p>
                 ^TextField port-field
                 ^Label server-path-lbl
                 ^Label single-path-lbl
+                ^Label dcg-path-lbl
                 ^StackPane prog-stack
                 ^ChoiceBox mode-choice
                 ^Region mission-spring
@@ -4282,23 +4425,26 @@ structures which we can more easily manipulate in Clojure.</p>
          mode-key   :mode-choice
          single-mis :single-path-lbl
          cycle      :cycle-data
+         dcg-path   :dcg-path-lbl
          :or        {:ip-field        &quot;&quot;
                      :port-field      &quot;&quot;
                      :server-path-lbl &quot;...&quot;
                      :mode-choice     &quot;single&quot;
-                     :single-path-lbl &quot;...&quot;}} config
+                     :single-path-lbl &quot;...&quot;
+                     :dcg-path-lbl &quot;...&quot;}} config
         mode (-&gt; mode-key keyword modes)]
     (HBox/setHgrow prog-stack Priority/ALWAYS)
     (HBox/setHgrow mission-spring Priority/ALWAYS)
     (.setContent console-tab console-pane)
     (.setContent settings-tab settings-pane)
-    (-&gt; mode-choice .getItems (.addAll ^List (map modes [:single :cycle])))
+    (-&gt; mode-choice .getItems (.addAll ^List (map modes [:single :cycle :dcg])))
     (if config
       (do (-&gt; mode-choice .getSelectionModel (.select mode))
           (.setText ip-field ip)
           (.setText port-field port)
           (.setText server-path-lbl srv-path)
           (.setText single-path-lbl single-mis)
+          (.setText dcg-path-lbl dcg-path)
           (when (seq cycle)
             (loop [index 0]
               (when-let [saved-mission (get cycle (str index))]
@@ -4487,7 +4633,7 @@ logic doesn't need to know about it.</p>
 <p>   This two argument function toggles display for the ProgressIndicator instance
    in the supplied controls map according to the show parameter.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn toggle-prog-ind
-  [controls show]
+  [show controls]
   (let [{:keys [^ProgressIndicator prog-ind]} controls]
     (if show
       (util/run-later (.setVisible prog-ind true))
@@ -4724,22 +4870,38 @@ logic doesn't need to know about it.</p>
   (let [{:keys [^Button cycle-start-btn]} controls]
     (if running
       (util/run-later (.setText cycle-start-btn &quot;\uf04d \uf021 Stop&quot;))
-      (util/run-later (.setText cycle-start-btn &quot;\uf04b \uf021 Start&quot;)))))</pre></td></tr><tr><td class="docs"><h3>swap-start-button</h3>
+      (util/run-later (.setText cycle-start-btn &quot;\uf04b \uf021 Start&quot;)))))</pre></td></tr><tr><td class="docs"><h3>toggle-dcg-start-txt</h3>
 
-<p>   This three argument function swaps the given buttons in the supplied toolbar.</p>
-</td><td class="codes"><pre class="brush: clojure">(defn swap-start-button
-  [^ToolBar toolbar oldbutton newbutton]
+<p>   This two argument function sets the controls in the supplied map of controls to
+   the correct state for the supplied DCG running state.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn toggle-dcg-start-txt
+  [running controls]
+  (let [{:keys [^Button dcg-start-btn]} controls]
+    (if running
+      (util/run-later (.setText dcg-start-btn &quot;\uf04d \uf021 Stop&quot;))
+      (util/run-later (.setText dcg-start-btn &quot;\uf04b \uf021 Start&quot;)))))</pre></td></tr><tr><td class="docs"><h3>swap-to-button</h3>
+
+<p>   This three argument function removes the listed buttons and adds the button
+   requested at the leftmost index out of all the original buttons provided.
+   This function is idempotent; that is, it can be run multiple times for the
+   same inputs and regardless of the original state the result will be the same.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn swap-to-button
+  [^ToolBar toolbar to-add to-remove]
   (let [items (.getItems toolbar)
-        oldindex (.indexOf items oldbutton)]
-    (when (&gt; oldindex 0)
-      (.remove items (int oldindex)))
-    (let [newindex (.indexOf items newbutton)
-          target (apply min (filter #(&gt; % 0) (list oldindex newindex)))]
-      (when (and (&gt; newindex 0) (not= newindex target))
-        (.remove items (int newindex))
-        (.add items target newbutton))
-      (when (&lt; newindex 0)
-        (.add items target newbutton)))))</pre></td></tr><tr><td class="docs"><h3>set-button-state</h3>
+        remove-indices (sort &gt; (map #(.indexOf items %) to-remove))]
+    (loop [indices remove-indices]
+      (when-let [index (first indices)]
+        (when (&gt; index -1)
+          (.remove items (int index)))
+        (recur (next indices))))
+    (let [add-index (.indexOf items to-add)
+          all-indices (conj remove-indices add-index)
+          target (apply min (filter #(&gt; % -1) all-indices))]
+      (when (and (&gt; add-index -1) (not= add-index target))
+        (.remove items (int add-index))
+        (.add items target to-add))
+      (when (&lt; add-index 0)
+        (.add items target to-add)))))</pre></td></tr><tr><td class="docs"><h3>set-button-state</h3>
 
 <p>   This two argument function takes a global state map and the controls map and
    enables each control for which every one of the enablement dependencies is
@@ -5171,9 +5333,11 @@ of the initial connection function.</p>
    state evaluation and end rather than staying at a running, blocked state.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn disconnect
   []
+  (reset! state/loading false)
   (reset! state/loaded false)
   (reset! state/playing false)
   (reset! state/cycle-running false)
+  (reset! state/dcg-running false)
   (reset! state/connected false)
   (.shutdownInput ^Socket @socket)
   (.close ^Socket @socket))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#uk.org.il2ssd.state" name="uk.org.il2ssd.state"><h1 class="project-name">uk.org.il2ssd.state</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><h2>Global state atoms</h2>
@@ -5203,9 +5367,14 @@ necessary to initialise these atoms.</p>
   (atom nil))</pre></td></tr><tr><td class="docs"><h3>controls</h3>
 
 <p>   This atom will store a map of the control object instances which are returned
-   by the afterburner.fx Presenter class for each .fxml file.</p>
+   by the afterburner.fx Presenter class for each .fxml file, along with sets of
+   enablement and disablement dependencies for each object.</p>
 </td><td class="codes"><pre class="brush: clojure">(def controls
-  (atom nil))</pre></td></tr><tr><td class="docs">
+  (atom nil))</pre></td></tr><tr><td class="docs"><h3>control-instances</h3>
+
+<p>   This atom will store a map of the control object instances which are returned
+   by the afterburner.fx Presenter class for each .fxml file, mapped directly to
+   the top=level keys.</p>
 </td><td class="codes"><pre class="brush: clojure">(def control-instances
   (atom nil))</pre></td></tr><tr><td class="docs"><h3>connected</h3>
 
@@ -5222,15 +5391,29 @@ necessary to initialise these atoms.</p>
 <p>   This atom stores a true or false mission playing status for global use in the
    program.</p>
 </td><td class="codes"><pre class="brush: clojure">(def playing
+  (atom nil))</pre></td></tr><tr><td class="docs"><h3>loading</h3>
+
+<p>   This atom stores a true or false loading status for global use in the program.</p>
+</td><td class="codes"><pre class="brush: clojure">(def loading
   (atom nil))</pre></td></tr><tr><td class="docs"><h3>cycle-running</h3>
 
 <p>   This atom stores a true or false cycle running state for global use in the
    program.</p>
 </td><td class="codes"><pre class="brush: clojure">(def cycle-running
+  (atom nil))</pre></td></tr><tr><td class="docs"><h3>dcg-running</h3>
+
+<p>   This atom stores a true or false DCG running state for global use in the
+   program.</p>
+</td><td class="codes"><pre class="brush: clojure">(def dcg-running
   (atom nil))</pre></td></tr><tr><td class="docs"><h3>server-path</h3>
 
 <p>   This atom stores the server path for global use in the program.</p>
 </td><td class="codes"><pre class="brush: clojure">(def server-path
+  (atom nil))</pre></td></tr><tr><td class="docs"><h3>dcg-path</h3>
+
+<p>   This atom stores the DCG executable path for global use in the
+   program.</p>
+</td><td class="codes"><pre class="brush: clojure">(def dcg-path
   (atom nil))</pre></td></tr><tr><td class="docs"><h3>mission-path</h3>
 
 <p>   This atom stores the current mission path for global use in the
@@ -5242,6 +5425,11 @@ necessary to initialise these atoms.</p>
 <p>   This atom stores the current cycle mission path. It is also used
    to indicate whether a cycle can be started.</p>
 </td><td class="codes"><pre class="brush: clojure">(def cycle-mission-path
+  (atom nil))</pre></td></tr><tr><td class="docs"><h3>dcg-mission-path</h3>
+
+<p>   This atom stores the current DCG mission path. It is also used to
+   indicate whether a DCG mission can be loaded.</p>
+</td><td class="codes"><pre class="brush: clojure">(def dcg-mission-path
   (atom nil))</pre></td></tr><tr><td class="docs"><h3>mode</h3>
 
 <p>   This atom stores the current mission loading mode for global use
@@ -5261,9 +5449,13 @@ necessary to initialise these atoms.</p>
   []
   {:connected           @connected
    :loaded              @loaded
+   :loading             @loading
    :playing             @playing
    :server-path         @server-path
+   :dcg-path            @dcg-path
    :single-mission-path @single-mission-path
    :cycle-mission-path  @cycle-mission-path
-   :cycle-running       @cycle-running})</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr></table><div class="footer">Generated by <a href="https://github.com/fogus/marginalia">Marginalia</a>.&nbsp;&nbsp;Syntax highlighting provided by Alex Gorbatchev's <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a></div><script type="text/javascript">SyntaxHighlighter.defaults['gutter'] = false;
+   :dcg-mission-path    @dcg-mission-path
+   :cycle-running       @cycle-running
+   :dcg-running         @dcg-running})</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr></table><div class="footer">Generated by <a href="https://github.com/fogus/marginalia">Marginalia</a>.&nbsp;&nbsp;Syntax highlighting provided by Alex Gorbatchev's <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a></div><script type="text/javascript">SyntaxHighlighter.defaults['gutter'] = false;
        SyntaxHighlighter.all()</script></body></html>

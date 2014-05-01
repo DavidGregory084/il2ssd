@@ -9,6 +9,7 @@
             [clojure.edn :as edn]
             [uk.org.il2ssd.event.console :as console]
             [uk.org.il2ssd.event.cycle :as cycle]
+            [uk.org.il2ssd.event.dcg :as dcg]
             [uk.org.il2ssd.event.main :as main]
             [uk.org.il2ssd.event.mission :as mission]
             [uk.org.il2ssd.event.settings :as settings]
@@ -140,20 +141,25 @@
           :start-btn         {:instance   (.getStartStopButton main-presenter)
                               :enabled-by #{:connected :loaded}}
           :cycle-start-btn   {:instance   (.getCycleStartStopButton main-presenter)
-                              :enabled-by #{:connected :cycle-mission-path}}
+                              :enabled-by #{:connected :cycle-mission-path}
+                              :disabled-by #{:loading}}
           :dcg-start-btn     {:instance   (.getDcgStartStopButton main-presenter)
-                              :enabled-by #{:connected :dcg-path}}
+                              :enabled-by #{:connected :dcg-path}
+                              :disabled-by #{:loading}}
           :cycle-next-btn    {:instance   (.getCycleNextButton main-presenter)
-                              :enabled-by #{:connected :cycle-mission-path :cycle-running :playing}}
+                              :enabled-by #{:connected :cycle-mission-path :cycle-running :playing}
+                              :disabled-by #{:loading}}
           :dcg-next-btn      {:instance   (.getDcgNextButton main-presenter)
-                              :enabled-by #{:connected :dcg-running :playing}}
+                              :enabled-by #{:connected :dcg-running :playing}
+                              :disabled-by #{:loading}}
           :console-tab       {:instance (.getConsoleTab main-presenter)}
           :settings-tab      {:instance (.getSettingsTab main-presenter)}
           :mission-pane      {:instance (.getMissionPane main-presenter)}
           :mode-choice       {:instance (.getMissionModeChoice main-presenter)}
           :mission-spring    {:instance (.getMissionBarSpring main-presenter)}
           :load-btn          {:instance   (.getMissionLoadButton main-presenter)
-                              :enabled-by #{:connected :single-mission-path}}
+                              :enabled-by #{:connected :single-mission-path}
+                              :disabled-by #{:loading}}
           :exit-btn          {:instance (.getExitItem main-presenter)}
           :about-btn         {:instance (.getAboutItem main-presenter)}
           :mis-chooser       {:instance (FileChooser.)}
@@ -205,7 +211,7 @@
                               :enabled-by #{:connected}}
           :set-diff-btn      {:instance    (.getSetDifficultyButton settings-presenter)
                               :enabled-by  #{:connected}
-                              :disabled-by #{:playing}}
+                              :disabled-by #{:loading :playing}}
           :diff-table        {:instance (.getDifficultyTable settings-presenter)}
           :diff-data         {:instance (FXCollections/synchronizedObservableList (FXCollections/observableArrayList))}
           :diff-set-col      {:instance (.getDiffSettingColumn settings-presenter)}
@@ -243,23 +249,30 @@
                 ^Button cycle-mis-delbtn
                 ^Button cycle-mis-dwnbtn
                 ^Button cycle-mis-addbtn
-                ^Button cycle-path-btn]}
+                ^Button cycle-path-btn
+                ^Button dcg-path-btn
+                ^Button dcg-start-btn
+                ^Button dcg-next-btn
+                ^Label dcg-path-lbl
+                ^Label dcg-mis-lbl]}
         @state/control-instances
         watch-fn (partial main/update-ui state/get-state @state/controls)]
     ;State atom watch functions
     (add-watch state/connected :connected watch-fn)
     (add-watch state/loaded :loaded watch-fn)
+    (add-watch state/loading :loading watch-fn)
     (add-watch state/playing :playing watch-fn)
     (add-watch state/server-path :server-path watch-fn)
+    (add-watch state/dcg-path :dcg-path watch-fn)
     (add-watch state/single-mission-path :single-mission-path watch-fn)
     (add-watch state/cycle-mission-path :cycle-mission-path watch-fn)
+    (add-watch state/dcg-mission-path :dcg-mission-path watch-fn)
     (add-watch state/cycle-running :cycle-running watch-fn)
+    (add-watch state/dcg-running :dcg-running watch-fn)
     ;Main UI EventHandlers and Listeners
     (util/button-handler connect-btn main/connect-command)
     (util/button-handler disconn-btn main/disconnect-command)
     (util/button-handler start-btn main/start-stop-command)
-    (util/button-handler cycle-start-btn main/start-stop-cycle-command)
-    (util/button-handler cycle-next-btn main/next-command)
     (util/button-handler load-btn main/load-unload-command)
     (util/button-handler exit-btn main/close)
     ;Console tab
@@ -276,6 +289,14 @@
     (util/button-handler cycle-mis-dwnbtn cycle/mission-swap inc)
     (util/button-handler cycle-mis-addbtn cycle/mission-add)
     (util/button-handler cycle-path-btn cycle/cycle-choose-command)
+    (util/button-handler cycle-start-btn cycle/start-stop-cycle-command)
+    (util/button-handler cycle-next-btn cycle/next-mission false)
+    ;DCG generation pane
+    (util/button-handler dcg-path-btn dcg/dcg-choose-command)
+    (util/button-handler dcg-start-btn dcg/start-stop-dcg-command)
+    (util/button-handler dcg-next-btn dcg/generate-dcg-mis)
+    (util/text-listener dcg-path-lbl dcg/dcg-path-select)
+    (util/text-listener dcg-mis-lbl dcg/dcg-mis-generated)
     ;Settings tab
     (util/button-handler server-path-btn settings/server-choose-command)
     (util/text-listener server-path-lbl settings/server-path-select)
@@ -303,6 +324,7 @@
                 ^TextField port-field
                 ^Label server-path-lbl
                 ^Label single-path-lbl
+                ^Label dcg-path-lbl
                 ^StackPane prog-stack
                 ^ChoiceBox mode-choice
                 ^Region mission-spring
@@ -314,11 +336,13 @@
          mode-key   :mode-choice
          single-mis :single-path-lbl
          cycle      :cycle-data
+         dcg-path   :dcg-path-lbl
          :or        {:ip-field        ""
                      :port-field      ""
                      :server-path-lbl "..."
                      :mode-choice     "single"
-                     :single-path-lbl "..."}} config
+                     :single-path-lbl "..."
+                     :dcg-path-lbl "..."}} config
         mode (-> mode-key keyword modes)]
     (HBox/setHgrow prog-stack Priority/ALWAYS)
     (HBox/setHgrow mission-spring Priority/ALWAYS)
@@ -331,6 +355,7 @@
           (.setText port-field port)
           (.setText server-path-lbl srv-path)
           (.setText single-path-lbl single-mis)
+          (.setText dcg-path-lbl dcg-path)
           (when (seq cycle)
             (loop [index 0]
               (when-let [saved-mission (get cycle (str index))]

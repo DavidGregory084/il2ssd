@@ -66,19 +66,6 @@
     (server/end-mission)
     (server/start-mission)))
 
-(defn start-stop-cycle-command
-  "### start-stop-cycle-command
-   This function stops the cycle if it is running, or starts it if it is not.
-   In either case it stops any mission that is playing."
-  []
-  (if @state/cycle-running
-    (do (cycle/stop-cycle)
-        (when @state/playing
-          (server/unload-mission)))
-    (do (when @state/playing
-          (server/unload-mission))
-        (cycle/start-cycle))))
-
 (defn load-unload-command
   "### load-unload-command
    This is a zero argument function which unloads the currently loaded mission if
@@ -89,7 +76,7 @@
     (cycle/stop-cycle))
   (if @state/loaded
     (server/unload-mission)
-    (do (ui/toggle-prog-ind @state/control-instances true)
+    (do (reset! state/loading true)
         (server/load-mission @state/single-mission-path))))
 
 (defn console-listener
@@ -148,14 +135,19 @@
   []
   (thread (while @state/connected
             (when-let [text (<!! mis-channel)]
+              (reset! state/loading false)
               (let [parsed (parse-text mission-parser text)]
                 (if (nil? (:mission parsed))
                   (let [state (:state parsed)]
                     (when (= state "NOT loaded")
+                      (reset! state/dcg-running false)
                       (reset! state/loaded false)
                       (reset! state/playing false)
                       (set-title)))
-                  (let [{:keys [mission state]} parsed]
+                  (let [{:keys [path mission state]} parsed
+                        mis-path (str path mission)]
+                    (when (= mis-path @state/dcg-mission-path)
+                      (reset! state/dcg-running true))
                     (when (= state "Loaded")
                       (reset! state/loaded true)
                       (reset! state/playing false))
@@ -177,7 +169,7 @@
   []
   (thread (while @state/connected
             (when-let [_ (<!! err-channel)]
-              (ui/toggle-prog-ind @state/control-instances false)
+              (reset! state/loading false)
               (reset! state/loaded false)
               (reset! state/playing false)
               (set-title)
@@ -206,14 +198,17 @@
                 port-field
                 server-path-lbl
                 single-path-lbl
+                dcg-path-lbl
                 cycle-data]} @state/control-instances
         mode @state/mode
         ip-addr (ui/get-text ip-field)
         port (ui/get-text port-field)
         server-path (ui/get-text server-path-lbl)
-        single-path (ui/get-text single-path-lbl)]
+        single-path (ui/get-text single-path-lbl)
+        dcg-path (ui/get-text dcg-path-lbl)]
     (config/save-server ip-addr port server-path)
     (config/save-mission mode single-path)
+    (config/save-dcg dcg-path)
     (doseq [item cycle-data
             :let [cycle-mission (ui/get-cycle-mission item)
                   mission (:mission cycle-mission)
@@ -235,14 +230,6 @@
       (config/save-config-file)
       (ui/exit)))
 
-(defn next-command
-  "### next-command
-   This function calls the next cycle mission function, specifying that this
-   load event is unscheduled."
-  []
-  (when (= @state/mode "cycle")
-    (cycle/next-mission false)))
-
 (defn update-ui
   "### update-ui
    This function is called whenever any watched global state atom is changed.
@@ -259,12 +246,15 @@
                      (start-listeners)
                      (do (set-title)
                          (ui/clear-diff-data @state/control-instances))))
-    :loaded (do (ui/toggle-load-txt new @state/control-instances)
-                (ui/toggle-prog-ind @state/control-instances false))
+    :loading (ui/toggle-prog-ind new @state/control-instances)
+    :loaded (ui/toggle-load-txt new @state/control-instances)
     :playing (ui/toggle-start-txt new @state/control-instances)
     :server-path (ui/set-mis-dir new @state/control-instances)
+    :dcg-path nil
     :single-mission-path nil
     :cycle-mission-path nil
-    :cycle-running (ui/toggle-cycle-start-txt new @state/control-instances))
+    :dcg-mission-path nil
+    :cycle-running (ui/toggle-cycle-start-txt new @state/control-instances)
+    :dcg-running (ui/toggle-dcg-start-txt new @state/control-instances))
   (let [new-state (assoc (state) key new)]
     (ui/set-button-state new-state controls)))

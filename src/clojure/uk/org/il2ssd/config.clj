@@ -34,6 +34,12 @@
    in the main \"il2ssd.ini\" config file."
   (atom nil))
 
+(def dcg-settings
+  "### dcg-settings
+   This is an atom to hold a map of the DCG settings so that they can be saved in
+   the main \"il2ssd.ini\" config file."
+  (atom nil))
+
 (def saved-difficulties
   "### saved-difficulties
    This is an atom to hold the difficulty settings loaded from a saved difficulty
@@ -136,6 +142,13 @@
   [index mission timer]
   (swap! mission-cycle assoc-in [index] [mission timer]))
 
+(defn save-dcg
+  "### save-dcg
+   This one argument function saves DCG configuration data."
+  [dcg-path]
+  (when (.isFile (File. ^String dcg-path))
+    (swap! dcg-settings assoc "DCG Executable" dcg-path)))
+
 (defn build-config-file
   "### build-config-file
    This is a zero argument function which builds a config file for the program.
@@ -172,6 +185,8 @@
          (build-conf @mission-settings)
          (build-conf "[Cycle]" true)
          (build-conf @mission-cycle)
+         (build-conf "[DCG]" true)
+         (build-conf @dcg-settings)
          (string/join newln))))
 
 (defn save-config-file
@@ -214,4 +229,5 @@
     :server-path-lbl (get-in file ["Server" "Path"] "...")
     :mode-choice (get-in file ["Mission" "Mode"] "single")
     :single-path-lbl (get-in file ["Mission" "Single Mission"] "...")
-    :cycle-data (get file "Cycle" "")))
+    :cycle-data (get file "Cycle" "")
+    :dcg-path-lbl (get-in file ["DCG" "DCG Executable"] "...")))

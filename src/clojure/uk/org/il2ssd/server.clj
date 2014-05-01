@@ -185,9 +185,11 @@
    This allows the socket-listener thread to get to the connected
    state evaluation and end rather than staying at a running, blocked state."
   []
+  (reset! state/loading false)
   (reset! state/loaded false)
   (reset! state/playing false)
   (reset! state/cycle-running false)
+  (reset! state/dcg-running false)
   (reset! state/connected false)
   (.shutdownInput ^Socket @socket)
   (.close ^Socket @socket))

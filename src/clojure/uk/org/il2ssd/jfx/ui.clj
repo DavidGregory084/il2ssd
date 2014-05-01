@@ -81,7 +81,7 @@
   "### toggle-prog-ind
    This two argument function toggles display for the ProgressIndicator instance
    in the supplied controls map according to the show parameter."
-  [controls show]
+  [show controls]
   (let [{:keys [^ProgressIndicator prog-ind]} controls]
     (if show
       (util/run-later (.setVisible prog-ind true))
@@ -346,6 +346,16 @@
     (if running
       (util/run-later (.setText cycle-start-btn "\uf04d \uf021 Stop"))
       (util/run-later (.setText cycle-start-btn "\uf04b \uf021 Start")))))
+
+(defn toggle-dcg-start-txt
+  "### toggle-dcg-start-txt
+   This two argument function sets the controls in the supplied map of controls to
+   the correct state for the supplied DCG running state."
+  [running controls]
+  (let [{:keys [^Button dcg-start-btn]} controls]
+    (if running
+      (util/run-later (.setText dcg-start-btn "\uf04d \uf021 Stop"))
+      (util/run-later (.setText dcg-start-btn "\uf04b \uf021 Start")))))
 
 (defn swap-to-button
   "### swap-to-button

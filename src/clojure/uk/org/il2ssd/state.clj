@@ -31,10 +31,15 @@
 (def controls
   "### controls
    This atom will store a map of the control object instances which are returned
-   by the afterburner.fx Presenter class for each .fxml file."
+   by the afterburner.fx Presenter class for each .fxml file, along with sets of
+   enablement and disablement dependencies for each object."
   (atom nil))
 
 (def control-instances
+  "### control-instances
+   This atom will store a map of the control object instances which are returned
+   by the afterburner.fx Presenter class for each .fxml file, mapped directly to
+   the top=level keys."
   (atom nil))
 
 (def connected
@@ -55,15 +60,32 @@
    program."
   (atom nil))
 
+(def loading
+  "### loading
+   This atom stores a true or false loading status for global use in the program."
+  (atom nil))
+
 (def cycle-running
   "### cycle-running
    This atom stores a true or false cycle running state for global use in the
    program."
   (atom nil))
 
+(def dcg-running
+  "### dcg-running
+   This atom stores a true or false DCG running state for global use in the
+   program."
+  (atom nil))
+
 (def server-path
   "### server-path
    This atom stores the server path for global use in the program."
+  (atom nil))
+
+(def dcg-path
+  "### dcg-path
+   This atom stores the DCG executable path for global use in the
+   program."
   (atom nil))
 
 (def single-mission-path
@@ -77,6 +99,12 @@
   "### cycle-mission-path
    This atom stores the current cycle mission path. It is also used
    to indicate whether a cycle can be started."
+  (atom nil))
+
+(def dcg-mission-path
+  "### dcg-mission-path
+   This atom stores the current DCG mission path. It is also used to
+   indicate whether a DCG mission can be loaded."
   (atom nil))
 
 (def mode
@@ -99,8 +127,12 @@
   []
   {:connected           @connected
    :loaded              @loaded
+   :loading             @loading
    :playing             @playing
    :server-path         @server-path
+   :dcg-path            @dcg-path
    :single-mission-path @single-mission-path
    :cycle-mission-path  @cycle-mission-path
-   :cycle-running       @cycle-running})
+   :dcg-mission-path    @dcg-mission-path
+   :cycle-running       @cycle-running
+   :dcg-running         @dcg-running})
