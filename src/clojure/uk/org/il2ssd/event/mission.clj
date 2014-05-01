@@ -67,11 +67,15 @@
   (let [{:keys [mission-pane
                 single-mis-pane
                 cycle-mis-pane
+                dcg-mis-pane
                 mode-choice
                 load-btn
                 tool-bar
                 start-btn
                 cycle-start-btn
+                dcg-start-btn
+                cycle-next-btn
+                dcg-next-btn
                 single-path-lbl
                 cycle-data]} @state/control-instances
         mode (name ((map-invert modes) (ui/get-choice mode-choice)))]
@@ -82,7 +86,10 @@
                 (ui/get-text single-path-lbl))
         (reset! state/single-mission-path nil))
       (ui/set-visible load-btn true)
-      (ui/swap-start-button tool-bar cycle-start-btn start-btn)
+      (ui/set-visible cycle-next-btn false)
+      (ui/set-visible dcg-next-btn false)
+      (ui/swap-to-button tool-bar start-btn [cycle-start-btn dcg-start-btn])
+      (ui/swap-to-button tool-bar cycle-next-btn [dcg-next-btn])
       (ui/set-mis-pane mission-pane single-mis-pane))
     (when (= mode "cycle")
       (if (mis-selected? mode)
@@ -90,8 +97,19 @@
                 (:mission (ui/get-cycle-mission cycle-data @state/cycle-index)))
         (reset! state/cycle-mission-path nil))
       (ui/set-visible load-btn false)
-      (ui/swap-start-button tool-bar start-btn cycle-start-btn)
-      (ui/set-mis-pane mission-pane cycle-mis-pane))))
+      (ui/set-visible cycle-next-btn true)
+      (ui/set-visible dcg-next-btn false)
+      (ui/swap-to-button tool-bar cycle-start-btn [start-btn dcg-start-btn])
+      (ui/swap-to-button tool-bar cycle-next-btn [dcg-next-btn])
+      (ui/set-mis-pane mission-pane cycle-mis-pane))
+    (when (= mode "dcg")
+      #_(if (mis-selected? mode))
+      (ui/set-visible load-btn false)
+      (ui/set-visible cycle-next-btn false)
+      (ui/set-visible dcg-next-btn true)
+      (ui/swap-to-button tool-bar dcg-start-btn [start-btn cycle-start-btn])
+      (ui/swap-to-button tool-bar dcg-next-btn [cycle-next-btn])
+      (ui/set-mis-pane mission-pane dcg-mis-pane))))
 
 (defn set-single-remote
   "### set-single-remote

@@ -347,21 +347,28 @@
       (util/run-later (.setText cycle-start-btn "\uf04d \uf021 Stop"))
       (util/run-later (.setText cycle-start-btn "\uf04b \uf021 Start")))))
 
-(defn swap-start-button
-  "### swap-start-button
-   This three argument function swaps the given buttons in the supplied toolbar."
-  [^ToolBar toolbar oldbutton newbutton]
+(defn swap-to-button
+  "### swap-to-button
+   This three argument function removes the listed buttons and adds the button
+   requested at the leftmost index out of all the original buttons provided.
+   This function is idempotent; that is, it can be run multiple times for the
+   same inputs and regardless of the original state the result will be the same."
+  [^ToolBar toolbar to-add to-remove]
   (let [items (.getItems toolbar)
-        oldindex (.indexOf items oldbutton)]
-    (when (> oldindex 0)
-      (.remove items (int oldindex)))
-    (let [newindex (.indexOf items newbutton)
-          target (apply min (filter #(> % 0) (list oldindex newindex)))]
-      (when (and (> newindex 0) (not= newindex target))
-        (.remove items (int newindex))
-        (.add items target newbutton))
-      (when (< newindex 0)
-        (.add items target newbutton)))))
+        remove-indices (sort > (map #(.indexOf items %) to-remove))]
+    (loop [indices remove-indices]
+      (when-let [index (first indices)]
+        (when (> index -1)
+          (.remove items (int index)))
+        (recur (next indices))))
+    (let [add-index (.indexOf items to-add)
+          all-indices (conj remove-indices add-index)
+          target (apply min (filter #(> % -1) all-indices))]
+      (when (and (> add-index -1) (not= add-index target))
+        (.remove items (int add-index))
+        (.add items target to-add))
+      (when (< add-index 0)
+        (.add items target to-add)))))
 
 (defn set-button-state
   "### set-button-state

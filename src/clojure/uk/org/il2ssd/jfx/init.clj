@@ -32,13 +32,13 @@
            (uk.org.il2ssd.jfx ConsolePresenter ConsoleView CyclePresenter
                               CycleView MainPresenter MainView
                               SettingsPresenter SettingsView
-                              SinglePresenter SingleView CycleMission)
+                              SinglePresenter SingleView CycleMission DCGView DCGPresenter)
            (javafx.util Callback)))
 
 (def modes
   "### modes
    This is a map of the mission loading modes."
-  {:single "Single Mission", :cycle "Mission Cycle"})
+  {:single "Single Mission", :cycle "Mission Cycle", :dcg "DCG Generation"})
 
 (defn map-control-instances
   "### map-control-instances
@@ -72,12 +72,14 @@
         console-view (ConsoleView.)
         single-view (SingleView.)
         cycle-view (CycleView.)
+        dcg-view (DCGView.)
         settings-view (SettingsView.)
         scene (Scene. (.getView main-view))
         main-presenter (.getPresenter main-view)
         console-presenter (.getPresenter console-view)
         single-presenter (.getPresenter single-view)
         cycle-presenter (.getPresenter cycle-view)
+        dcg-presenter (.getPresenter dcg-view)
         settings-presenter (.getPresenter settings-view)]
     (main/set-title)
     (doto stage
@@ -90,6 +92,7 @@
              :console-presenter  console-presenter
              :single-presenter   single-presenter
              :cycle-presenter    cycle-presenter
+             :dcg-presenter      dcg-presenter
              :settings-presenter settings-presenter})))
 
 (defn init-objects
@@ -123,6 +126,7 @@
                 ^ConsolePresenter console-presenter
                 ^SinglePresenter single-presenter
                 ^CyclePresenter cycle-presenter
+                ^DCGPresenter dcg-presenter
                 ^SettingsPresenter settings-presenter]} @state/presenters
         controls
         {;Main FXML file controls
@@ -137,8 +141,12 @@
                               :enabled-by #{:connected :loaded}}
           :cycle-start-btn   {:instance   (.getCycleStartStopButton main-presenter)
                               :enabled-by #{:connected :cycle-mission-path}}
-          :next-btn          {:instance   (.getNextButton main-presenter)
+          :dcg-start-btn     {:instance   (.getDcgStartStopButton main-presenter)
+                              :enabled-by #{:connected :dcg-path}}
+          :cycle-next-btn    {:instance   (.getCycleNextButton main-presenter)
                               :enabled-by #{:connected :cycle-mission-path :cycle-running :playing}}
+          :dcg-next-btn      {:instance   (.getDcgNextButton main-presenter)
+                              :enabled-by #{:connected :dcg-running :playing}}
           :console-tab       {:instance (.getConsoleTab main-presenter)}
           :settings-tab      {:instance (.getSettingsTab main-presenter)}
           :mission-pane      {:instance (.getMissionPane main-presenter)}
@@ -178,9 +186,14 @@
                               :enabled-by  #{:cycle-mission-path}
                               :disabled-by #{:cycle-running}}
           :cycle-path-fld    {:instance (.getCycleMisPathField cycle-presenter)}
-          :cycle-path-btn    {:instance    (.getChooseCycleMisButton cycle-presenter)
-                              :enabled-by  #{:server-path}}
-          :cycle-mis-addbtn  {:instance    (.getAddMissionButton cycle-presenter)}
+          :cycle-path-btn    {:instance   (.getChooseCycleMisButton cycle-presenter)
+                              :enabled-by #{:server-path}}
+          :cycle-mis-addbtn  {:instance (.getAddMissionButton cycle-presenter)}
+         ;DCG Mode FXML file controls
+          :dcg-mis-pane      {:instance (.getDcgMisPane dcg-presenter)}
+          :dcg-mis-lbl       {:instance (.getDcgMisPathLabel dcg-presenter)}
+          :dcg-path-lbl      {:instance (.getDcgExePathLabel dcg-presenter)}
+          :dcg-path-btn      {:instance (.getDcgExePathSelectButton dcg-presenter)}
          ;Settings Tab FXML file controls
           :settings-pane     {:instance (.getSettingsPane settings-presenter)}
           :ip-field          {:instance (.getIpAddressField settings-presenter)}
@@ -214,7 +227,7 @@
                 ^Button disconn-btn
                 ^Button start-btn
                 ^Button cycle-start-btn
-                ^Button next-btn
+                ^Button cycle-next-btn
                 ^TextField cmd-entry
                 ^ChoiceBox mode-choice
                 ^Button load-btn
@@ -246,7 +259,7 @@
     (util/button-handler disconn-btn main/disconnect-command)
     (util/button-handler start-btn main/start-stop-command)
     (util/button-handler cycle-start-btn main/start-stop-cycle-command)
-    (util/button-handler next-btn main/next-command)
+    (util/button-handler cycle-next-btn main/next-command)
     (util/button-handler load-btn main/load-unload-command)
     (util/button-handler exit-btn main/close)
     ;Console tab
@@ -311,7 +324,7 @@
     (HBox/setHgrow mission-spring Priority/ALWAYS)
     (.setContent console-tab console-pane)
     (.setContent settings-tab settings-pane)
-    (-> mode-choice .getItems (.addAll ^List (map modes [:single :cycle])))
+    (-> mode-choice .getItems (.addAll ^List (map modes [:single :cycle :dcg])))
     (if config
       (do (-> mode-choice .getSelectionModel (.select mode))
           (.setText ip-field ip)

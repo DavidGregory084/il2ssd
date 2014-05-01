@@ -26,7 +26,11 @@ public class MainPresenter {
     @FXML
     Button cycleStartStopButton;
     @FXML
-    Button nextButton;
+    Button dcgStartStopButton;
+    @FXML
+    Button cycleNextButton;
+    @FXML
+    Button dcgNextButton;
     @FXML
     Tab consoleTab;
     @FXML
@@ -43,6 +47,14 @@ public class MainPresenter {
     MenuItem exitItem;
     @FXML
     MenuItem aboutItem;
+
+    public Button getDcgNextButton() {
+        return dcgNextButton;
+    }
+
+    public Button getDcgStartStopButton() {
+        return dcgStartStopButton;
+    }
 
     public ToolBar getToolBar() {
         return toolBar;
@@ -84,8 +96,8 @@ public class MainPresenter {
         return startStopButton;
     }
 
-    public Button getNextButton() {
-        return nextButton;
+    public Button getCycleNextButton() {
+        return cycleNextButton;
     }
 
     public Tab getConsoleTab() {
