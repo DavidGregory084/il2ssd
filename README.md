@@ -17,10 +17,10 @@ Il-2 Simple Server Daemon is a very simple server controller for the Il-2 Sturmo
 - Mission cycle loading: define a series of missions and time intervals, and Simple Server Daemon will run through the mission cycle, allowing missions to run for the interval defined.
 - Settings in a single, easily editable .ini file: If you'd like to move your config to a new location, it's as easy as copying a single file.
 - Version-independent difficulty settings: Difficulty settings are parsed into the program directly from the server to prevent new IL-2 patches from rendering this tool useless.
+- IL-2 DCG integration: Seamless integration with DCG was the inspiration for this tool. On Windows, Simple Server Daemon will generate a new DCG mission when you press the Next button.
 
 ### Planned:
 
-- IL-2 DCG integration: Seamless integration with DCG was the inspiration for this tool. On Windows, Simple Server Daemon will generate a new DCG mission when you press the Next button.
 - In-game control via chat: enter macro commands into the Il-2 text chat and the controller will process them accordingly.
 - Simple pilot management: Kick & Ban features are planned. Extremely detailed pilot management is not envisaged.
 
