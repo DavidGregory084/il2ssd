@@ -48,12 +48,34 @@
    ^String value]
   (util/run-later (.add diff-data (DifficultySetting. setting value))))
 
+(defn get-nth-in-string
+  [n ch in-text]
+  (loop [index -1
+         found 0
+         text in-text]
+    (if (or (< n 1) (= found n))
+      index
+      (let [found-idx (.indexOf text (int ch))]
+        (if (< found-idx 0)
+          found-idx
+          (recur (int (+ index (inc found-idx)))
+                 (inc found)
+                 (.substring text (inc found-idx))))))))
+
 (defn print-console
   "### print-console
    This two argument function appends the supplied text to the supplied text area
-   control."
-  [^TextArea console text]
-  (util/run-later (.appendText console text)))
+   control. We also delete old lines when the line count reaches 1000 lines."
+  [^TextArea console new-text]
+  (let [console-text (.getText ^TextArea console)
+        newlines (partial filter #(= % \newline))
+        current-count (count (newlines console-text))
+        new-count (count (newlines new-text))
+        overflow (- (+ current-count new-count) 1000)
+        delete-index (get-nth-in-string overflow \newline console-text)]
+    (when (> delete-index -1)
+      (util/run-now (.deleteText console 0 delete-index))))
+  (util/run-now (.appendText console new-text)))
 
 (defn clear-input
   "### clear-input
