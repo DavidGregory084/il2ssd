@@ -23,10 +23,7 @@ Il-2 Simple Server Daemon is a very simple server controller for the Il-2 Sturmo
 
 - In-game control via chat: enter macro commands into the Il-2 text chat and the controller will process them accordingly.
 - Simple pilot management: Kick & Ban features are planned. Extremely detailed pilot management is not envisaged.
-
-### Not planned:
-
-- Statistics
+- Statistics: It's planned that Simple Server Daemon will at least replicate the functionality of FBDj in this respect.
 
 ### Installation:
 

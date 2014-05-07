@@ -49,10 +49,13 @@
   (util/run-later (.add diff-data (DifficultySetting. setting value))))
 
 (defn get-nth-in-string
+ "### get-nth-in-string
+  This function takes an integer n, a character ch and some input text, and
+  returns the index of the nth occurrence of character ch in the text."
   [n ch in-text]
   (loop [index -1
          found 0
-         text in-text]
+         ^String text in-text]
     (if (or (< n 1) (= found n))
       index
       (let [found-idx (.indexOf text (int ch))]
