@@ -268,6 +268,7 @@
     (add-watch state/cycle-mission-path :cycle-mission-path watch-fn)
     (add-watch state/dcg-mission-path :dcg-mission-path watch-fn)
     (add-watch state/cycle-running :cycle-running watch-fn)
+    (add-watch state/cycle-index :cycle-index watch-fn)
     (add-watch state/dcg-running :dcg-running watch-fn)
     ;Main UI EventHandlers and Listeners
     (util/button-handler connect-btn main/connect-command)

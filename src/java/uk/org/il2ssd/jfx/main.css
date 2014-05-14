@@ -8,3 +8,7 @@
     -fx-text-fill: white;
     -fx-background-color: black;
 }
+
+.highlightRow {
+    -fx-background-color: red;
+}

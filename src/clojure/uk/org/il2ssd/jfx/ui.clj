@@ -21,7 +21,8 @@
            (javafx.scene.control Button ChoiceBox Label Labeled
                                  ProgressIndicator SelectionModel TableColumn
                                  TableColumn$CellEditEvent TableView
-                                 TextArea TextField TextInputControl TablePosition ToolBar)
+                                 TextArea TextField TextInputControl TablePosition
+                                 ToolBar TableRow)
            (javafx.scene.layout BorderPane)
            (javafx.stage FileChooser Stage)
            (uk.org.il2ssd.jfx CycleMission DifficultySetting)))
@@ -49,9 +50,9 @@
   (util/run-later (.add diff-data (DifficultySetting. setting value))))
 
 (defn get-nth-in-string
- "### get-nth-in-string
-  This function takes an integer n, a character ch and some input text, and
-  returns the index of the nth occurrence of character ch in the text."
+  "### get-nth-in-string
+   This function takes an integer n, a character ch and some input text, and
+   returns the index of the nth occurrence of character ch in the text."
   [n ch in-text]
   (loop [index -1
          found 0
@@ -426,3 +427,24 @@
                  (not-any? state disabled-by)))
       (util/run-later (.setDisable ^Node (:instance control) false))
       (util/run-later (.setDisable ^Node (:instance control) true)))))
+
+(defn highlight-table-row
+  "### highlight-table-row
+   This function highlights the row at the specified index in the mission
+   cycle table. First the highlightRow style class is removed from all rows.
+   Next, the index of the table row is compared to the current cycle index.
+   If they are the same the highlightRow style class is added.
+   Passing a nonexistent index (e.g. -1) simply removes highlighting for all
+   rows."
+  [index controls]
+  (let [{:keys [^TableView cycle-table]} controls
+        rows (.lookupAll cycle-table "TableRow")]
+    (doseq [^TableRow row rows
+            :let [row-index (.getIndex row)]]
+      (-> row
+          .getStyleClass
+          (.remove "highlightRow"))
+      (when (= row-index index)
+        (-> row
+            .getStyleClass
+            (.add "highlightRow"))))))

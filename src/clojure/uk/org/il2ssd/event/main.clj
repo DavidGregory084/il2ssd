@@ -254,7 +254,10 @@
     :single-mission-path nil
     :cycle-mission-path nil
     :dcg-mission-path nil
-    :cycle-running (ui/toggle-cycle-start-txt new @state/control-instances)
+    :cycle-running (do (ui/toggle-cycle-start-txt new @state/control-instances)
+                       (when (not new)
+                         (ui/highlight-table-row -1 @state/control-instances)))
+    :cycle-index (ui/highlight-table-row new @state/control-instances)
     :dcg-running (ui/toggle-dcg-start-txt new @state/control-instances))
   (let [new-state (assoc (state) key new)]
     (ui/set-button-state new-state controls)))

@@ -135,4 +135,5 @@
    :cycle-mission-path  @cycle-mission-path
    :dcg-mission-path    @dcg-mission-path
    :cycle-running       @cycle-running
+   :cycle-index         @cycle-index
    :dcg-running         @dcg-running})

@@ -130,6 +130,7 @@
    initialised or when stopping the cycle."
   []
   (reset! state/cycle-running true)
+  (reset! state/cycle-index 0)
   (load-cycle-mis))
 
 (defn load-cycle-mis
@@ -157,8 +158,7 @@
   (stop @scheduled-mis)
   (stop-and-reset-pool! cycle-schedule :strategy :kill)
   (reset! scheduled-mis nil)
-  (reset! state/cycle-running false)
-  (reset! state/cycle-index 0))
+  (reset! state/cycle-running false))
 
 (defn start-stop-cycle-command
   "### start-stop-cycle-command

@@ -3028,7 +3028,7 @@ net.brehaut.ClojureTools = (function (SH) {
     build_tree: build_tree
   };
 })(SyntaxHighlighter);
-</script><title>Il-2 Simple Server Daemon -- Marginalia</title></head><body><table><tr><td class="docs"><div class="header"><h1 class="project-name">Il-2 Simple Server Daemon</h1><h2 class="project-version">0.2.1</h2><br /><p>Il-2 Simple Server Daemon is a very simple server controller for the Il-2 Sturmovik 1946 dedicated server. It aims to be an easy-to-use tool with IL-2 DCG integration.</p>
+</script><title>Il-2 Simple Server Daemon -- Marginalia</title></head><body><table><tr><td class="docs"><div class="header"><h1 class="project-name">Il-2 Simple Server Daemon</h1><h2 class="project-version">0.3-SNAPSHOT</h2><br /><p>Il-2 Simple Server Daemon is a very simple server controller for the Il-2 Sturmovik 1946 dedicated server. It aims to be an easy-to-use tool with IL-2 DCG integration.</p>
 </div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">org.clojure/clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.6.0</td></tr><tr><td class="dep-name">org.clojure/core.async</td><td class="dotted"><hr /></td><td class="dep-version">0.1.278.0-76b25b-alpha</td></tr><tr><td class="dep-name">com.airhacks/afterburner.fx</td><td class="dotted"><hr /></td><td class="dep-version">1.4.4</td></tr><tr><td class="dep-name">commons-lang/commons-lang</td><td class="dotted"><hr /></td><td class="dep-version">2.6</td></tr><tr><td class="dep-name">instaparse/instaparse</td><td class="dotted"><hr /></td><td class="dep-version">1.3.2</td></tr><tr><td class="dep-name">com.brainbot/iniconfig</td><td class="dotted"><hr /></td><td class="dep-version">0.2.0</td></tr><tr><td class="dep-name">overtone/at-at</td><td class="dotted"><hr /></td><td class="dep-version">1.2.0</td></tr><tr><td class="dep-name">org.clojars.hozumi/clj-commons-exec</td><td class="dotted"><hr /></td><td class="dep-version">1.0.7</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#uk.org.il2ssd.channel">uk.org.il2ssd.channel</a></li><li><a href="#uk.org.il2ssd.config">uk.org.il2ssd.config</a></li><li><a href="#uk.org.il2ssd.core">uk.org.il2ssd.core</a></li><li><a href="#uk.org.il2ssd.event.console">uk.org.il2ssd.event.console</a></li><li><a href="#uk.org.il2ssd.event.cycle">uk.org.il2ssd.event.cycle</a></li><li><a href="#uk.org.il2ssd.event.dcg">uk.org.il2ssd.event.dcg</a></li><li><a href="#uk.org.il2ssd.event.main">uk.org.il2ssd.event.main</a></li><li><a href="#uk.org.il2ssd.event.mission">uk.org.il2ssd.event.mission</a></li><li><a href="#uk.org.il2ssd.event.settings">uk.org.il2ssd.event.settings</a></li><li><a href="#uk.org.il2ssd.jfx.init">uk.org.il2ssd.jfx.init</a></li><li><a href="#uk.org.il2ssd.jfx.ui">uk.org.il2ssd.jfx.ui</a></li><li><a href="#uk.org.il2ssd.jfx.util">uk.org.il2ssd.jfx.util</a></li><li><a href="#uk.org.il2ssd.parse">uk.org.il2ssd.parse</a></li><li><a href="#uk.org.il2ssd.server">uk.org.il2ssd.server</a></li><li><a href="#uk.org.il2ssd.state">uk.org.il2ssd.state</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#uk.org.il2ssd.channel" name="uk.org.il2ssd.channel"><h1 class="project-name">uk.org.il2ssd.channel</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><h2>Channels for thread-safe concurrency</h2>
 
 <p>Here we define the input channels that we use to safely process the server console
@@ -3538,6 +3538,7 @@ using the at-at scheduling library.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn start-cycle
   []
   (reset! state/cycle-running true)
+  (reset! state/cycle-index 0)
   (load-cycle-mis))</pre></td></tr><tr><td class="docs"><h3>load-cycle-mis</h3>
 
 <p>   This function gets the cycle mission object from the list at the
@@ -3563,8 +3564,7 @@ using the at-at scheduling library.</p>
   (stop @scheduled-mis)
   (stop-and-reset-pool! cycle-schedule :strategy :kill)
   (reset! scheduled-mis nil)
-  (reset! state/cycle-running false)
-  (reset! state/cycle-index 0))</pre></td></tr><tr><td class="docs"><h3>start-stop-cycle-command</h3>
+  (reset! state/cycle-running false))</pre></td></tr><tr><td class="docs"><h3>start-stop-cycle-command</h3>
 
 <p>   This function stops the cycle if it is running, or starts it if it is not.
    In either case it stops any mission that is playing.</p>
@@ -3894,7 +3894,10 @@ using the at-at scheduling library.</p>
     :single-mission-path nil
     :cycle-mission-path nil
     :dcg-mission-path nil
-    :cycle-running (ui/toggle-cycle-start-txt new @state/control-instances)
+    :cycle-running (do (ui/toggle-cycle-start-txt new @state/control-instances)
+                       (when (not new)
+                         (ui/highlight-table-row -1 @state/control-instances)))
+    :cycle-index (ui/highlight-table-row new @state/control-instances)
     :dcg-running (ui/toggle-dcg-start-txt new @state/control-instances))
   (let [new-state (assoc (state) key new)]
     (ui/set-button-state new-state controls)))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#uk.org.il2ssd.event.mission" name="uk.org.il2ssd.event.mission"><h1 class="project-name">uk.org.il2ssd.event.mission</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
@@ -4358,6 +4361,7 @@ structures which we can more easily manipulate in Clojure.</p>
     (add-watch state/cycle-mission-path :cycle-mission-path watch-fn)
     (add-watch state/dcg-mission-path :dcg-mission-path watch-fn)
     (add-watch state/cycle-running :cycle-running watch-fn)
+    (add-watch state/cycle-index :cycle-index watch-fn)
     (add-watch state/dcg-running :dcg-running watch-fn)
     ;Main UI EventHandlers and Listeners
     (util/button-handler connect-btn main/connect-command)
@@ -4581,7 +4585,8 @@ logic doesn't need to know about it.</p>
            (javafx.scene.control Button ChoiceBox Label Labeled
                                  ProgressIndicator SelectionModel TableColumn
                                  TableColumn$CellEditEvent TableView
-                                 TextArea TextField TextInputControl TablePosition ToolBar)
+                                 TextArea TextField TextInputControl TablePosition
+                                 ToolBar TableRow)
            (javafx.scene.layout BorderPane)
            (javafx.stage FileChooser Stage)
            (uk.org.il2ssd.jfx CycleMission DifficultySetting)))</pre></td></tr><tr><td class="docs"><h3>exit</h3>
@@ -4605,8 +4610,8 @@ logic doesn't need to know about it.</p>
    ^String value]
   (util/run-later (.add diff-data (DifficultySetting. setting value))))</pre></td></tr><tr><td class="docs"><h3>get-nth-in-string</h3>
 
-<p>  This function takes an integer n, a character ch and some input text, and
-  returns the index of the nth occurrence of character ch in the text.</p>
+<p>   This function takes an integer n, a character ch and some input text, and
+   returns the index of the nth occurrence of character ch in the text.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn get-nth-in-string
   [n ch in-text]
   (loop [index -1
@@ -4946,7 +4951,27 @@ logic doesn't need to know about it.</p>
              (or (empty? disabled-by)
                  (not-any? state disabled-by)))
       (util/run-later (.setDisable ^Node (:instance control) false))
-      (util/run-later (.setDisable ^Node (:instance control) true)))))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#uk.org.il2ssd.jfx.util" name="uk.org.il2ssd.jfx.util"><h1 class="project-name">uk.org.il2ssd.jfx.util</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><h2>JavaFX helper functions</h2>
+      (util/run-later (.setDisable ^Node (:instance control) true)))))</pre></td></tr><tr><td class="docs"><h3>highlight-table-row</h3>
+
+<p>   This function highlights the row at the specified index in the mission
+   cycle table. First the highlightRow style class is removed from all rows.
+   Next, the index of the table row is compared to the current cycle index.
+   If they are the same the highlightRow style class is added.
+   Passing a nonexistent index (e.g. -1) simply removes highlighting for all
+   rows.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn highlight-table-row
+  [index controls]
+  (let [{:keys [^TableView cycle-table]} controls
+        rows (.lookupAll cycle-table &quot;TableRow&quot;)]
+    (doseq [^TableRow row rows
+            :let [row-index (.getIndex row)]]
+      (-&gt; row
+          .getStyleClass
+          (.remove &quot;highlightRow&quot;))
+      (when (= row-index index)
+        (-&gt; row
+            .getStyleClass
+            (.add &quot;highlightRow&quot;))))))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#uk.org.il2ssd.jfx.util" name="uk.org.il2ssd.jfx.util"><h1 class="project-name">uk.org.il2ssd.jfx.util</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><h2>JavaFX helper functions</h2>
 
 <p>These functions wrap common JavaFX methods or return instances of anonymous classes
 which override their methods.
@@ -5481,5 +5506,6 @@ necessary to initialise these atoms.</p>
    :cycle-mission-path  @cycle-mission-path
    :dcg-mission-path    @dcg-mission-path
    :cycle-running       @cycle-running
+   :cycle-index         @cycle-index
    :dcg-running         @dcg-running})</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr></table><div class="footer">Generated by <a href="https://github.com/fogus/marginalia">Marginalia</a>.&nbsp;&nbsp;Syntax highlighting provided by Alex Gorbatchev's <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a></div><script type="text/javascript">SyntaxHighlighter.defaults['gutter'] = false;
        SyntaxHighlighter.all()</script></body></html>
