@@ -34,6 +34,8 @@ public class MainPresenter {
     @FXML
     Tab consoleTab;
     @FXML
+    Tab pilotsTab;
+    @FXML
     Tab settingsTab;
     @FXML
     BorderPane missionPane;
@@ -47,6 +49,10 @@ public class MainPresenter {
     MenuItem exitItem;
     @FXML
     MenuItem aboutItem;
+
+    public Tab getPilotsTab() {
+        return pilotsTab;
+    }
 
     public Button getDcgNextButton() {
         return dcgNextButton;

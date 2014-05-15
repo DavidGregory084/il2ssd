@@ -33,7 +33,8 @@
            (uk.org.il2ssd.jfx ConsolePresenter ConsoleView CyclePresenter
                               CycleView MainPresenter MainView
                               SettingsPresenter SettingsView
-                              SinglePresenter SingleView CycleMission DCGView DCGPresenter)
+                              SinglePresenter SingleView CycleMission DCGView
+                              DCGPresenter PilotsView PilotsPresenter)
            (javafx.util Callback)))
 
 (def modes
@@ -71,6 +72,7 @@
             (.toExternalForm ^URL (resource "fontawesome-webfont.ttf")) 12.0)
         main-view (MainView.)
         console-view (ConsoleView.)
+        pilots-view (PilotsView.)
         single-view (SingleView.)
         cycle-view (CycleView.)
         dcg-view (DCGView.)
@@ -78,6 +80,7 @@
         scene (Scene. (.getView main-view))
         main-presenter (.getPresenter main-view)
         console-presenter (.getPresenter console-view)
+        pilots-presenter (.getPresenter pilots-view)
         single-presenter (.getPresenter single-view)
         cycle-presenter (.getPresenter cycle-view)
         dcg-presenter (.getPresenter dcg-view)
@@ -91,6 +94,7 @@
     (reset! state/presenters
             {:main-presenter     main-presenter
              :console-presenter  console-presenter
+             :pilots-presenter   pilots-presenter
              :single-presenter   single-presenter
              :cycle-presenter    cycle-presenter
              :dcg-presenter      dcg-presenter
@@ -125,6 +129,7 @@
   []
   (let [{:keys [^MainPresenter main-presenter
                 ^ConsolePresenter console-presenter
+                ^PilotsPresenter pilots-presenter
                 ^SinglePresenter single-presenter
                 ^CyclePresenter cycle-presenter
                 ^DCGPresenter dcg-presenter
@@ -153,6 +158,7 @@
                               :enabled-by #{:connected :dcg-running :playing}
                               :disabled-by #{:loading}}
           :console-tab       {:instance (.getConsoleTab main-presenter)}
+          :pilots-tab        {:instance (.getPilotsTab main-presenter)}
           :settings-tab      {:instance (.getSettingsTab main-presenter)}
           :mission-pane      {:instance (.getMissionPane main-presenter)}
           :mode-choice       {:instance (.getMissionModeChoice main-presenter)}
@@ -169,6 +175,23 @@
           :cmd-entry         {:instance   (.getCommandEntryField console-presenter)
                               :enabled-by #{:connected}}
           :console           {:instance (.getConsoleTextArea console-presenter)}
+         ;Pilots Tab FXML file controls
+          :pilots-pane       {:instance (.getPilotsPane pilots-presenter)}
+          :pilots-table      {:instance (.getPilotsTable pilots-presenter)}
+          :pilot-socket-col  {:instance (.getPilotSocketColumn pilots-presenter)}
+          :pilot-name-col    {:instance (.getPilotNameColumn pilots-presenter)}
+          :pilot-score-col   {:instance (.getPilotScoreColumn pilots-presenter)}
+          :pilot-team-col    {:instance (.getPilotTeamColumn pilots-presenter)}
+          :kick-btn          {:instance (.getKickButton pilots-presenter)
+                              :enabled-by #{:connected}}
+          :ban-btn           {:instance (.getBanButton pilots-presenter)
+                              :enabled-by #{:connected}}
+          :ip-ban-btn        {:instance (.getIpBanButton pilots-presenter)
+                              :enabled-by #{:connected}}
+          :chat-field        {:instance (.getChatField pilots-presenter)
+                              :enabled-by #{:connected}}
+          :send-chat-btn     {:instance (.getSendChatButton pilots-presenter)
+                              :enabled-by #{:connected}}
          ;Single Mission FXML file controls
           :single-mis-pane   {:instance (.getSingleMisPane single-presenter)}
           :single-path-btn   {:instance   (.getChooseSingleMisButton single-presenter)
@@ -318,8 +341,10 @@
    subclass of HBox)."
   []
   (let [{:keys [^Tab console-tab
+                ^Tab pilots-tab
                 ^Tab settings-tab
                 ^BorderPane console-pane
+                ^BorderPane pilots-pane
                 ^BorderPane settings-pane
                 ^TextField ip-field
                 ^TextField port-field
@@ -348,6 +373,7 @@
     (HBox/setHgrow prog-stack Priority/ALWAYS)
     (HBox/setHgrow mission-spring Priority/ALWAYS)
     (.setContent console-tab console-pane)
+    (.setContent pilots-tab pilots-pane)
     (.setContent settings-tab settings-pane)
     (-> mode-choice .getItems (.addAll ^List (map modes [:single :cycle :dcg])))
     (if config
