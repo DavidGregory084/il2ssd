@@ -25,7 +25,7 @@
                                  ToolBar TableRow)
            (javafx.scene.layout BorderPane)
            (javafx.stage FileChooser Stage)
-           (uk.org.il2ssd.jfx CycleMission DifficultySetting)))
+           (uk.org.il2ssd.jfx CycleMission DifficultySetting Pilot)))
 
 (defn exit
   "### exit
@@ -48,6 +48,20 @@
    ^String setting
    ^String value]
   (util/run-later (.add diff-data (DifficultySetting. setting value))))
+
+(defn add-pilot-data
+  [^List pilots-data
+   ^String socket
+   ^String ip
+   ^String name]
+  (util/run-later (.add pilots-data (Pilot. socket ip name 0 ""))))
+
+(defn remove-pilot-data
+  [^List pilots-data
+   ^String socket]
+  (doseq [^Pilot pilot pilots-data]
+    (when (= (.getSocket pilot) socket)
+      (util/run-later (.remove pilots-data pilot)))))
 
 (defn get-nth-in-string
   "### get-nth-in-string

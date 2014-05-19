@@ -119,6 +119,9 @@
    program."
   (atom 0))
 
+(def last-command
+  (atom nil))
+
 (defn get-state
   "### get-state
    This function returns a map containing the current state of all

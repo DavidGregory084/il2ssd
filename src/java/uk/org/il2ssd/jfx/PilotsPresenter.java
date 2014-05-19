@@ -18,9 +18,11 @@ public class PilotsPresenter {
     @FXML
     TableColumn<Pilot, String> pilotSocketColumn;
     @FXML
+    TableColumn<Pilot, String> pilotIpColumn;
+    @FXML
     TableColumn<Pilot, String> pilotNameColumn;
     @FXML
-    TableColumn<Pilot, String> pilotScoreColumn;
+    TableColumn<Pilot, Long> pilotScoreColumn;
     @FXML
     TableColumn<Pilot, String> pilotTeamColumn;
     @FXML
@@ -33,6 +35,10 @@ public class PilotsPresenter {
     TextField chatField;
     @FXML
     Button sendChatButton;
+
+    public TableColumn<Pilot, String> getPilotIpColumn() {
+        return pilotIpColumn;
+    }
 
     public BorderPane getPilotsPane() {
         return pilotsPane;
@@ -50,7 +56,7 @@ public class PilotsPresenter {
         return pilotNameColumn;
     }
 
-    public TableColumn<Pilot, String> getPilotScoreColumn() {
+    public TableColumn<Pilot, Long> getPilotScoreColumn() {
         return pilotScoreColumn;
     }
 

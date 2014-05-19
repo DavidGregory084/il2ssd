@@ -36,6 +36,8 @@ public class MainPresenter {
     @FXML
     Tab pilotsTab;
     @FXML
+    Tab bansTab;
+    @FXML
     Tab settingsTab;
     @FXML
     BorderPane missionPane;
@@ -49,6 +51,10 @@ public class MainPresenter {
     MenuItem exitItem;
     @FXML
     MenuItem aboutItem;
+
+    public Tab getBansTab() {
+        return bansTab;
+    }
 
     public Tab getPilotsTab() {
         return pilotsTab;

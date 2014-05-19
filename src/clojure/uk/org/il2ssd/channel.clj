@@ -59,7 +59,7 @@
 
    This channel is used to parse difficulty settings from the server console output."
   (filter<
-    #(re-matches #"\s{2}[A-Z[a-z[_]]]++\s*+[0-1]\n" %)
+    #(re-matches #"\s{2}\w+\s*+[0-1]\n" %)
     (tap mult-channel (chan 10))))
 
 (def mis-channel
@@ -68,7 +68,29 @@
    mission status lines. This channel is used to parse mission load, begin, end
    and unload events from the server console output."
   (filter<
-    #(re-matches #"(Mission){1}:?+\s.+\w++\n" %)
+    #(re-matches #"(Mission){1}:?+\s.+\S++\n" %)
+    (tap mult-channel (chan 10))))
+
+(def pilot-channel
+  "### pilot-channel"
+  (filter<
+    #(or (re-matches #"(socket channel){1}\s'\d++'.+is complete created\n" %)
+         (re-matches #"(socketConnection with){1}.+on channel \d++ lost\..+\n" %))
+    (tap mult-channel (chan 10))))
+
+(def ban-channel
+  (filter<
+    #(re-matches #"\s{2}.+\n" %)
+    (tap mult-channel (chan 10))))
+
+(def user-channel
+  (filter<
+    #(re-matches #"\s\d++\s++.+\s++\d++\s++\d++\s++\(\d\).+\n" %)
+    (tap mult-channel (chan 10))))
+
+(def host-channel
+  (filter<
+    #(re-matches #"\s\d++:\s.+\s\[\d++\](\d{1,3}\.?){4}:\d++\n" %)
     (tap mult-channel (chan 10))))
 
 (def err-channel
@@ -90,4 +112,8 @@
   (close! print-channel)
   (close! diff-channel)
   (close! mis-channel)
-  (close! err-channel))
+  (close! err-channel)
+  (close! pilot-channel)
+  (close! ban-channel)
+  (close! user-channel)
+  (close! host-channel))

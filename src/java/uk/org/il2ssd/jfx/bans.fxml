@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import javafx.geometry.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane fx:id="bansPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="419.0" prefWidth="500.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="uk.org.il2ssd.jfx.BansPresenter">
+  <center>
+    <TableView fx:id="bansTable" editable="true" prefHeight="-1.0" prefWidth="-1.0">
+      <columns>
+        <TableColumn prefWidth="75.0" text="Type" fx:id="banTypeColumn" />
+        <TableColumn maxWidth="5000.0" minWidth="10.0" prefWidth="305.0" text="Value" fx:id="banValueColumn" />
+      </columns>
+      <BorderPane.margin>
+        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+      </BorderPane.margin>
+    </TableView>
+  </center>
+  <right>
+    <VBox prefHeight="-1.0" prefWidth="-1.0" spacing="15.0">
+      <children>
+        <Button fx:id="getBansButton" mnemonicParsing="false" prefHeight="25.0" prefWidth="75.0" text=" Get" />
+        <Button fx:id="removeBanButton" mnemonicParsing="false" prefHeight="25.0" prefWidth="75.0" text=" Lift" />
+        <Button fx:id="clearBansButton" mnemonicParsing="false" prefHeight="25.0" prefWidth="75.0" text=" Clear" />
+      </children>
+      <padding>
+        <Insets bottom="15.0" left="15.0" right="15.0" top="150.0" />
+      </padding>
+    </VBox>
+  </right>
+</BorderPane>

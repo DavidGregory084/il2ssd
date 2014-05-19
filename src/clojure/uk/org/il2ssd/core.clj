@@ -60,7 +60,9 @@
   (jfx/init-controls)
   (jfx/init-choosers)
   (jfx/init-diff-table)
-  (jfx/init-cycle-table))
+  (jfx/init-cycle-table)
+  (jfx/init-pilots-table)
+  (jfx/init-bans-table))
 
 (defn -stop
   "### -stop

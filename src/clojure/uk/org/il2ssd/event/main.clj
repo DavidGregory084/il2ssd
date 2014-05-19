@@ -95,6 +95,46 @@
               (let [{:keys [console]} @state/control-instances]
                 (ui/print-console console text))))))
 
+(defn pilot-listener
+  []
+  (thread (while @state/connected
+            (when-let [text (<!! pilot-channel)]
+              (let [parsed (parse-text pilot-parser text)
+                    {:keys [pilots-data]} @state/control-instances
+                    {:keys [socket ip name]} parsed]
+                (if name
+                  (do (ui/add-pilot-data pilots-data socket ip name)
+                      (server/get-user-details name))
+                  (ui/remove-pilot-data pilots-data socket)))))))
+
+(defn ban-listener
+  []
+  (thread (while @state/connected
+            (when-let [text (<!! ban-channel)]
+              (when (= @state/last-command "ban")
+                (let [ban (string/trim-newline (apply str (drop 2 text)))]
+                  (if (re-matches #"(\d++{1,3}+\.?+){4}+" ban)
+                    (println {:type "IP" :value ban})
+                    (println {:type "Name" :value ban}))))))))
+
+(defn user-listener
+  []
+  (thread (while @state/connected
+            (when-let [text (<!! user-channel)]
+              (when (re-matches #"user\s.+(?!STAT)" @state/last-command)
+                (let [parsed (parse-text user-parser text)
+                      {:keys [name armyname score]} parsed]
+                  (println parsed)))))))
+
+(defn host-listener
+  []
+  (thread (while @state/connected
+            (when-let [text (<!! host-channel)]
+              (when (= @state/last-command "host")
+                (let [parsed (parse-text host-parser text)
+                      {:keys [number name socket ip]} parsed]
+                  (println parsed)))))))
+
 (defn difficulty-listener
   "### difficulty-listener
    This is a zero argument function which spawns another thread. The process on
@@ -109,10 +149,11 @@
   []
   (thread (while @state/connected
             (when-let [text (<!! diff-channel)]
-              (let [parsed (parse-text difficulty-parser text)
-                    {:keys [diff-data]} @state/control-instances
-                    {:keys [setting value]} parsed]
-                (ui/add-diff-data diff-data setting value))))))
+              (when (= @state/last-command "difficulty")
+                (let [parsed (parse-text difficulty-parser text)
+                      {:keys [diff-data]} @state/control-instances
+                      {:keys [setting value]} parsed]
+                  (ui/add-diff-data diff-data setting value)))))))
 
 (defn mission-listener
   "### mission-listener
@@ -136,16 +177,10 @@
   (thread (while @state/connected
             (when-let [text (<!! mis-channel)]
               (reset! state/loading false)
-              (let [parsed (parse-text mission-parser text)]
-                (if (nil? (:mission parsed))
-                  (let [state (:state parsed)]
-                    (when (= state "NOT loaded")
-                      (reset! state/dcg-running false)
-                      (reset! state/loaded false)
-                      (reset! state/playing false)
-                      (set-title)))
-                  (let [{:keys [path mission state]} parsed
-                        mis-path (str path mission)]
+              (let [parsed (parse-text mission-parser text)
+                    {:keys [path mission state]} parsed]
+                (if mission
+                  (let [mis-path (str path mission)]
                     (when (= mis-path @state/dcg-mission-path)
                       (reset! state/dcg-running true))
                     (when (= state "Loaded")
@@ -154,7 +189,12 @@
                     (when (= state "Playing")
                       (reset! state/loaded true)
                       (reset! state/playing true))
-                    (set-title mission state))))))))
+                    (set-title mission state))
+                  (when (= state "NOT loaded")
+                    (reset! state/dcg-running false)
+                    (reset! state/loaded false)
+                    (reset! state/playing false)
+                    (set-title))))))))
 
 (defn error-listener
   "### error-listener
@@ -185,9 +225,13 @@
    will stall - every tap must take each value from the mult to stay synchronised."
   []
   (console-listener)
+  (pilot-listener)
   (difficulty-listener)
   (mission-listener)
-  (error-listener))
+  (error-listener)
+  (ban-listener)
+  (user-listener)
+  (host-listener))
 
 (defn save-ui-state
   "### save-ui-state

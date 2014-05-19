@@ -6,16 +6,16 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane id="BorderPane" fx:id="pilotsPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="419.0" prefWidth="500.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="uk.org.il2ssd.jfx.PilotsPresenter">
+<BorderPane fx:id="pilotsPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="419.0" prefWidth="500.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="uk.org.il2ssd.jfx.PilotsPresenter">
   <bottom>
     <GridPane hgap="5.0" padding="$x1" vgap="5.0">
       <children>
-        <TextField id="cycleMisPathField" fx:id="chatField" prefHeight="25.0" prefWidth="-1.0" GridPane.columnIndex="0" GridPane.hgrow="ALWAYS" GridPane.rowIndex="0">
+        <TextField fx:id="chatField" prefHeight="25.0" prefWidth="-1.0" GridPane.columnIndex="0" GridPane.hgrow="ALWAYS" GridPane.rowIndex="0">
           <GridPane.margin>
             <Insets fx:id="x1" />
           </GridPane.margin>
         </TextField>
-        <Button id="addMissionButton" fx:id="sendChatButton" mnemonicParsing="false" prefHeight="25.0" prefWidth="75.0" text=" Send" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.rowIndex="0" />
+        <Button fx:id="sendChatButton" mnemonicParsing="false" prefHeight="25.0" prefWidth="75.0" text=" Send" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.rowIndex="0" />
       </children>
       <columnConstraints>
         <ColumnConstraints hgrow="SOMETIMES" minWidth="-1.0" prefWidth="385.0" />
@@ -30,9 +30,10 @@
     </GridPane>
   </bottom>
   <center>
-    <TableView id="cycleMissionTable" fx:id="pilotsTable" editable="true" prefHeight="-1.0" prefWidth="-1.0">
+    <TableView fx:id="pilotsTable" editable="false" prefHeight="-1.0" prefWidth="-1.0">
       <columns>
         <TableColumn editable="false" maxWidth="5000.0" minWidth="10.0" prefWidth="34.0" resizable="false" sortable="false" text="#" fx:id="pilotSocketColumn" />
+        <TableColumn editable="false" prefWidth="75.0" resizable="false" sortable="false" text="IP" visible="false" fx:id="pilotIpColumn" />
         <TableColumn editable="false" maxWidth="5000.0" minWidth="10.0" prefWidth="270.0" resizable="false" sortable="false" text="Name" fx:id="pilotNameColumn" />
         <TableColumn editable="false" prefWidth="75.0" resizable="false" sortable="false" text="Score" fx:id="pilotScoreColumn" />
         <TableColumn editable="false" maxWidth="5000.0" minWidth="10.0" prefWidth="167.0" resizable="false" sortable="false" text="Team" visible="false" fx:id="pilotTeamColumn" />
@@ -45,9 +46,9 @@
   <right>
     <VBox prefHeight="-1.0" prefWidth="-1.0" spacing="15.0">
       <children>
-        <Button id="missionUpButton" fx:id="kickButton" mnemonicParsing="false" prefHeight="25.0" prefWidth="75.0" text=" Kick" />
-        <Button id="missionDeleteButton" fx:id="banButton" mnemonicParsing="false" prefHeight="25.0" prefWidth="75.0" text=" Ban" />
-        <Button id="missionDownButton" fx:id="ipBanButton" mnemonicParsing="false" prefHeight="25.0" prefWidth="75.0" text=" IP Ban" />
+        <Button fx:id="kickButton" mnemonicParsing="false" prefHeight="25.0" prefWidth="75.0" text=" Kick" />
+        <Button fx:id="banButton" mnemonicParsing="false" prefHeight="25.0" prefWidth="75.0" text=" Ban" />
+        <Button fx:id="ipBanButton" mnemonicParsing="false" prefHeight="25.0" prefWidth="75.0" text=" IP Ban" />
       </children>
       <padding>
         <Insets bottom="15.0" left="15.0" right="15.0" top="115.0" />

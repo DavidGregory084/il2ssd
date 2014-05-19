@@ -1,5 +1,7 @@
 package uk.org.il2ssd.jfx;
 
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleStringProperty;
 
 /**
@@ -7,9 +9,30 @@ import javafx.beans.property.SimpleStringProperty;
  */
 public class Pilot {
     SimpleStringProperty socket = new SimpleStringProperty();
+    SimpleStringProperty ip = new SimpleStringProperty();
     SimpleStringProperty name = new SimpleStringProperty();
-    SimpleStringProperty score = new SimpleStringProperty();
+    SimpleLongProperty score = new SimpleLongProperty();
     SimpleStringProperty team = new SimpleStringProperty();
+
+    public Pilot(String socket, String ip, String name, Long score, String team) {
+        this.socket.setValue(socket);
+        this.ip.setValue(ip);
+        this.name.setValue(name);
+        this.score.setValue(score);
+        this.team.setValue(team);
+    }
+
+    public String getIp() {
+        return ip.get();
+    }
+
+    public void setIp(String ip) {
+        this.ip.set(ip);
+    }
+
+    public SimpleStringProperty ipProperty() {
+        return ip;
+    }
 
     public String getSocket() {
         return socket.get();
@@ -35,15 +58,15 @@ public class Pilot {
         return name;
     }
 
-    public String getScore() {
+    public Long getScore() {
         return score.get();
     }
 
-    public void setScore(String score) {
+    public void setScore(Long score) {
         this.score.set(score);
     }
 
-    public SimpleStringProperty scoreProperty() {
+    public SimpleLongProperty scoreProperty() {
         return score;
     }
 

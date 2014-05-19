@@ -54,6 +54,7 @@
    This atom should contain the instance of the PrintWriter object that is
    instantiated when we successfully connect to the server."
   [text]
+  (reset! state/last-command text)
   (.print ^PrintWriter @socket-out (str text "\n"))
   (.flush ^PrintWriter @socket-out))
 
@@ -78,6 +79,10 @@
    current mission state to the server console output."
   []
   (write-socket "mission"))
+
+(defn get-user-details
+  [name]
+  (write-socket (str "user " name)))
 
 (defn load-mission
   "### load-mission

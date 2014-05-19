@@ -34,7 +34,8 @@
                               CycleView MainPresenter MainView
                               SettingsPresenter SettingsView
                               SinglePresenter SingleView CycleMission DCGView
-                              DCGPresenter PilotsView PilotsPresenter)
+                              DCGPresenter PilotsView PilotsPresenter BansView
+                              BansPresenter)
            (javafx.util Callback)))
 
 (def modes
@@ -73,6 +74,7 @@
         main-view (MainView.)
         console-view (ConsoleView.)
         pilots-view (PilotsView.)
+        bans-view (BansView.)
         single-view (SingleView.)
         cycle-view (CycleView.)
         dcg-view (DCGView.)
@@ -81,6 +83,7 @@
         main-presenter (.getPresenter main-view)
         console-presenter (.getPresenter console-view)
         pilots-presenter (.getPresenter pilots-view)
+        bans-presenter (.getPresenter bans-view)
         single-presenter (.getPresenter single-view)
         cycle-presenter (.getPresenter cycle-view)
         dcg-presenter (.getPresenter dcg-view)
@@ -95,6 +98,7 @@
             {:main-presenter     main-presenter
              :console-presenter  console-presenter
              :pilots-presenter   pilots-presenter
+             :bans-presenter     bans-presenter
              :single-presenter   single-presenter
              :cycle-presenter    cycle-presenter
              :dcg-presenter      dcg-presenter
@@ -130,6 +134,7 @@
   (let [{:keys [^MainPresenter main-presenter
                 ^ConsolePresenter console-presenter
                 ^PilotsPresenter pilots-presenter
+                ^BansPresenter bans-presenter
                 ^SinglePresenter single-presenter
                 ^CyclePresenter cycle-presenter
                 ^DCGPresenter dcg-presenter
@@ -159,6 +164,7 @@
                               :disabled-by #{:loading}}
           :console-tab       {:instance (.getConsoleTab main-presenter)}
           :pilots-tab        {:instance (.getPilotsTab main-presenter)}
+          :bans-tab          {:instance (.getBansTab main-presenter)}
           :settings-tab      {:instance (.getSettingsTab main-presenter)}
           :mission-pane      {:instance (.getMissionPane main-presenter)}
           :mode-choice       {:instance (.getMissionModeChoice main-presenter)}
@@ -178,7 +184,9 @@
          ;Pilots Tab FXML file controls
           :pilots-pane       {:instance (.getPilotsPane pilots-presenter)}
           :pilots-table      {:instance (.getPilotsTable pilots-presenter)}
+          :pilots-data       {:instance (FXCollections/synchronizedObservableList (FXCollections/observableArrayList))}
           :pilot-socket-col  {:instance (.getPilotSocketColumn pilots-presenter)}
+          :pilot-ip-col      {:instance (.getPilotIpColumn pilots-presenter)}
           :pilot-name-col    {:instance (.getPilotNameColumn pilots-presenter)}
           :pilot-score-col   {:instance (.getPilotScoreColumn pilots-presenter)}
           :pilot-team-col    {:instance (.getPilotTeamColumn pilots-presenter)}
@@ -191,6 +199,18 @@
           :chat-field        {:instance (.getChatField pilots-presenter)
                               :enabled-by #{:connected}}
           :send-chat-btn     {:instance (.getSendChatButton pilots-presenter)
+                              :enabled-by #{:connected}}
+         ;Ban List FXML file controls
+          :bans-pane         {:instance (.getBansPane bans-presenter)}
+          :bans-table        {:instance (.getBansTable bans-presenter)}
+          :bans-data         {:instance (FXCollections/synchronizedObservableList (FXCollections/observableArrayList))}
+          :ban-type-col      {:instance (.getBanTypeColumn bans-presenter)}
+          :ban-value-col     {:instance (.getBanValueColumn bans-presenter)}
+          :get-bans-btn      {:instance (.getGetBansButton bans-presenter)
+                              :enabled-by #{:connected}}
+          :remove-ban-btn    {:instance (.getRemoveBanButton bans-presenter)
+                              :enabled-by #{:connected}}
+          :clear-bans-btn    {:instance (.getClearBansButton bans-presenter)
                               :enabled-by #{:connected}}
          ;Single Mission FXML file controls
           :single-mis-pane   {:instance (.getSingleMisPane single-presenter)}
@@ -342,9 +362,11 @@
   []
   (let [{:keys [^Tab console-tab
                 ^Tab pilots-tab
+                ^Tab bans-tab
                 ^Tab settings-tab
                 ^BorderPane console-pane
                 ^BorderPane pilots-pane
+                ^BorderPane bans-pane
                 ^BorderPane settings-pane
                 ^TextField ip-field
                 ^TextField port-field
@@ -374,6 +396,7 @@
     (HBox/setHgrow mission-spring Priority/ALWAYS)
     (.setContent console-tab console-pane)
     (.setContent pilots-tab pilots-pane)
+    (.setContent bans-tab bans-pane)
     (.setContent settings-tab settings-pane)
     (-> mode-choice .getItems (.addAll ^List (map modes [:single :cycle :dcg])))
     (if config
@@ -501,3 +524,33 @@
     (doto cycle-table
       (.setColumnResizePolicy TableView/CONSTRAINED_RESIZE_POLICY)
       (.setItems cycle-data))))
+
+(defn init-pilots-table
+  []
+  (let [{:keys [^TableView pilots-table
+                ^List pilots-data
+                ^TableColumn pilot-socket-col
+                ^TableColumn pilot-ip-col
+                ^TableColumn pilot-name-col
+                ^TableColumn pilot-score-col
+                ^TableColumn pilot-team-col]} @state/control-instances]
+    (.setCellValueFactory pilot-socket-col (PropertyValueFactory. "socket"))
+    (.setCellValueFactory pilot-ip-col (PropertyValueFactory. "ip"))
+    (.setCellValueFactory pilot-name-col (PropertyValueFactory. "name"))
+    (.setCellValueFactory pilot-score-col (PropertyValueFactory. "score"))
+    (.setCellValueFactory pilot-team-col (PropertyValueFactory. "team"))
+    (doto pilots-table
+      (.setColumnResizePolicy TableView/CONSTRAINED_RESIZE_POLICY)
+      (.setItems pilots-data))))
+
+(defn init-bans-table
+  []
+  (let [{:keys [^TableView bans-table
+                ^List bans-data
+                ^TableColumn ban-type-col
+                ^TableColumn ban-value-col]} @state/control-instances]
+    (.setCellValueFactory ban-type-col (PropertyValueFactory. "type"))
+    (.setCellValueFactory ban-value-col (PropertyValueFactory. "value"))
+    (doto bans-table
+      (.setColumnResizePolicy TableView/CONSTRAINED_RESIZE_POLICY)
+      (.setItems bans-data))))

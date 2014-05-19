@@ -36,6 +36,7 @@
     <TabPane prefHeight="-1.0" prefWidth="-1.0" tabClosingPolicy="UNAVAILABLE">
       <Tab fx:id="consoleTab" closable="false" content="$null" text="Console" />
       <Tab fx:id="pilotsTab" closable="false" content="$null" text="Pilots" />
+      <Tab fx:id="bansTab" closable="false" content="$null" text="Ban List" />
       <Tab id="missionTab" closable="false" text="Mission">
         <content>
           <BorderPane fx:id="missionPane" prefHeight="200.0" prefWidth="200.0">
