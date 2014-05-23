@@ -45,7 +45,7 @@
           (ui/set-label dcg-mis-lbl "..."))
       (do (reset! state/dcg-path dcg-path)
           (let [dcg-mis-path (get-generated-mis)]
-            (when (not (string/blank? dcg-mis-path))
+            (when-not (string/blank? dcg-mis-path)
               (ui/set-label dcg-mis-lbl dcg-mis-path)))))))
 
 (defn generate-dcg-mis
@@ -55,7 +55,7 @@
     (go (println @dcg-gen)
         (let [{:keys [dcg-mis-lbl]} @state/control-instances
               dcg-mis-path (get-generated-mis)]
-          (when (not (string/blank? dcg-mis-path))
+          (when-not (string/blank? dcg-mis-path)
             (ui/set-label dcg-mis-lbl dcg-mis-path)
             (server/load-begin-mission dcg-mis-path))))))
 

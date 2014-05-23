@@ -79,63 +79,7 @@
     (do (reset! state/loading true)
         (server/load-mission @state/single-mission-path))))
 
-(defn console-listener
-  "### console-listener
-   This is a zero argument function which spawns another thread. The process on
-   this thread listens for non-nil output on the print-channel for as long as the
-   global connection state atom says that we are connected. Any text which is read
-   is printed to the application console.
-
-   Functions which spawn a thread return immediately so that execution can
-   proceed in the new thread. This prevents these functions from blocking
-   the calling thread."
-  []
-  (thread (while @state/connected
-            (when-let [text (<!! print-channel)]
-              (let [{:keys [console]} @state/control-instances]
-                (ui/print-console console text))))))
-
-(defn pilot-listener
-  []
-  (thread (while @state/connected
-            (when-let [text (<!! pilot-channel)]
-              (let [parsed (parse-text pilot-parser text)
-                    {:keys [pilots-data]} @state/control-instances
-                    {:keys [socket ip name]} parsed]
-                (if name
-                  (do (ui/add-pilot-data pilots-data socket ip name)
-                      (server/get-user-details name))
-                  (ui/remove-pilot-data pilots-data socket)))))))
-
-(defn ban-listener
-  []
-  (thread (while @state/connected
-            (when-let [text (<!! ban-channel)]
-              (when (= @state/last-command "ban")
-                (let [ban (string/trim-newline (apply str (drop 2 text)))]
-                  (if (re-matches #"(\d++{1,3}+\.?+){4}+" ban)
-                    (println {:type "IP" :value ban})
-                    (println {:type "Name" :value ban}))))))))
-
-(defn user-listener
-  []
-  (thread (while @state/connected
-            (when-let [text (<!! user-channel)]
-              (when (re-matches #"user\s.+(?!STAT)" @state/last-command)
-                (let [parsed (parse-text user-parser text)
-                      {:keys [name armyname score]} parsed]
-                  (println parsed)))))))
-
-(defn host-listener
-  []
-  (thread (while @state/connected
-            (when-let [text (<!! host-channel)]
-              (when (= @state/last-command "host")
-                (let [parsed (parse-text host-parser text)
-                      {:keys [number name socket ip]} parsed]
-                  (println parsed)))))))
-
-(defn difficulty-listener
+(defn handle-difficulty
   "### difficulty-listener
    This is a zero argument function which spawns another thread. The process on
    this thread listens for non-nil output on the diff-channel for as long as the
@@ -146,16 +90,14 @@
 
    As above, we should note that this function will return immediately and
    execution will continue on a new thread without blocking the caller."
-  []
-  (thread (while @state/connected
-            (when-let [text (<!! diff-channel)]
-              (when (= @state/last-command "difficulty")
-                (let [parsed (parse-text difficulty-parser text)
-                      {:keys [diff-data]} @state/control-instances
-                      {:keys [setting value]} parsed]
-                  (ui/add-diff-data diff-data setting value)))))))
+  [text]
+  (when (= @state/last-command "difficulty")
+    (let [parsed (parse-text difficulty-parser text)
+          {:keys [diff-data]} @state/control-instances
+          {:keys [setting value]} parsed]
+      (ui/add-diff-data diff-data setting value))))
 
-(defn mission-listener
+(defn handle-mission
   "### mission-listener
    This is a zero argument function which spawns another thread. The process on
    this thread listens for non-nil output on the mis-channel for as long as the
@@ -173,30 +115,60 @@
    Functions which spawn a thread return immediately so that execution can
    proceed in the new thread. This prevents these functions from blocking
    the calling thread."
-  []
-  (thread (while @state/connected
-            (when-let [text (<!! mis-channel)]
-              (reset! state/loading false)
-              (let [parsed (parse-text mission-parser text)
-                    {:keys [path mission state]} parsed]
-                (if mission
-                  (let [mis-path (str path mission)]
-                    (when (= mis-path @state/dcg-mission-path)
-                      (reset! state/dcg-running true))
-                    (when (= state "Loaded")
-                      (reset! state/loaded true)
-                      (reset! state/playing false))
-                    (when (= state "Playing")
-                      (reset! state/loaded true)
-                      (reset! state/playing true))
-                    (set-title mission state))
-                  (when (= state "NOT loaded")
-                    (reset! state/dcg-running false)
-                    (reset! state/loaded false)
-                    (reset! state/playing false)
-                    (set-title))))))))
+  [text]
+  (reset! state/loading false)
+  (let [parsed (parse-text mission-parser text)
+        {:keys [path mission state]} parsed]
+    (if mission
+      (let [mis-path (str path mission)]
+        (when (= mis-path @state/dcg-mission-path)
+          (reset! state/dcg-running true))
+        (when (= state "Loaded")
+          (reset! state/loaded true)
+          (reset! state/playing false))
+        (when (= state "Playing")
+          (reset! state/loaded true)
+          (reset! state/playing true))
+        (set-title mission state))
+      (when (= state "NOT loaded")
+        (reset! state/dcg-running false)
+        (reset! state/loaded false)
+        (reset! state/playing false)
+        (set-title)))))
 
-(defn error-listener
+(defn handle-pilot
+  [text]
+  (let [parsed (parse-text pilot-parser text)
+        {:keys [pilots-data]} @state/control-instances
+        {:keys [socket ip name]} parsed]
+    (if name
+      (do (ui/add-pilot-data pilots-data socket ip name)
+          (server/get-user-details name))
+      (ui/remove-pilot-data pilots-data socket))))
+
+(defn handle-ban
+  [text]
+  (when (= @state/last-command "ban")
+    (let [ban (string/trim-newline (string/join (drop 2 text)))]
+      (if (re-matches #"(\d++{1,3}+\.?+){4}+" ban)
+        (println {:type "IP" :value ban})
+        (println {:type "Name" :value ban})))))
+
+(defn handle-user
+  [text]
+  (when (re-matches #"user\s.+(?!STAT)" @state/last-command)
+    (let [parsed (parse-text user-parser text)
+          {:keys [name armyname score]} parsed]
+      (println parsed))))
+
+(defn handle-host
+  [text]
+  (when (= @state/last-command "host")
+    (let [parsed (parse-text host-parser text)
+          {:keys [number name socket ip]} parsed]
+      (println parsed))))
+
+(defn handle-error
   "### error-listener
    This is a zero argument function which listens for text on the error channel.
 
@@ -206,15 +178,44 @@
 
    If a mission cycle is running, we know that the scheduled mission failed to
    load and we can skip this mission."
+  [text]
+  (reset! state/loading false)
+  (reset! state/loaded false)
+  (reset! state/playing false)
+  (set-title)
+  (when @state/cycle-running
+    (cycle/next-mission false)))
+
+(defn console-listener
+  "### console-listener
+   This is a zero argument function which spawns another thread. The process on
+   this thread listens for non-nil output on the print-channel for as long as the
+   global connection state atom says that we are connected. Any text which is read
+   is printed to the application console.
+
+   Functions which spawn a thread return immediately so that execution can
+   proceed in the new thread. This prevents these functions from blocking
+   the calling thread."
   []
   (thread (while @state/connected
-            (when-let [_ (<!! err-channel)]
-              (reset! state/loading false)
-              (reset! state/loaded false)
-              (reset! state/playing false)
-              (set-title)
-              (when @state/cycle-running
-                (cycle/next-mission false))))))
+            (when-let [text (<!! print-channel)]
+              (let [{:keys [console]} @state/control-instances]
+                (ui/print-console console text))))))
+
+(defn event-listener
+  []
+  (thread (while @state/connected
+            (when-let [event (<!! event-channel)]
+              (let [type (:type event)
+                    value (:value event)]
+                (condp = type
+                  :diff (handle-difficulty value)
+                  :mis (handle-mission value)
+                  :pilot (handle-pilot value)
+                  :ban (handle-ban value)
+                  :user (handle-user value)
+                  :host (handle-host value)
+                  :error (handle-error value)))))))
 
 (defn start-listeners
   "### start-listeners
@@ -225,13 +226,7 @@
    will stall - every tap must take each value from the mult to stay synchronised."
   []
   (console-listener)
-  (pilot-listener)
-  (difficulty-listener)
-  (mission-listener)
-  (error-listener)
-  (ban-listener)
-  (user-listener)
-  (host-listener))
+  (event-listener))
 
 (defn save-ui-state
   "### save-ui-state
@@ -299,7 +294,7 @@
     :cycle-mission-path nil
     :dcg-mission-path nil
     :cycle-running (do (ui/toggle-cycle-start-txt new @state/control-instances)
-                       (when (not new)
+                       (when-not new
                          (ui/highlight-table-row -1 @state/control-instances)))
     :cycle-index (ui/highlight-table-row new @state/control-instances)
     :dcg-running (ui/toggle-dcg-start-txt new @state/control-instances))

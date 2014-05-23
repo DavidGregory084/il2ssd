@@ -377,7 +377,7 @@
                 ^ChoiceBox mode-choice
                 ^Region mission-spring
                 ^List cycle-data]} @state/control-instances
-        config (-> (read-config-file) (get-configuration))
+        config (get-configuration (read-config-file))
         {ip         :ip-field
          port       :port-field
          srv-path   :server-path-lbl
@@ -411,7 +411,7 @@
               (when-let [saved-mission (get cycle (str index))]
                 (let [[mission timer] (edn/read-string saved-mission)]
                   (.add cycle-data (CycleMission. mission timer))
-                  (when (= index 0)
+                  (when (zero? index)
                     (reset! state/cycle-mission-path mission)))
                 (recur (inc index))))))
       (-> mode-choice .getSelectionModel .selectFirst))))

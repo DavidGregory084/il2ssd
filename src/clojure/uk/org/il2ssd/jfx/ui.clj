@@ -74,7 +74,7 @@
     (if (or (< n 1) (= found n))
       index
       (let [found-idx (.indexOf text (int ch))]
-        (if (< found-idx 0)
+        (if (neg? found-idx)
           found-idx
           (recur (int (+ index (inc found-idx)))
                  (inc found)
@@ -417,7 +417,7 @@
       (when (and (> add-index -1) (not= add-index target))
         (.remove items (int add-index))
         (.add items target to-add))
-      (when (< add-index 0)
+      (when (neg? add-index)
         (.add items target to-add)))))
 
 (defn set-button-state

@@ -65,7 +65,7 @@
     (when (>= index 0)
       (ui/remove-list-item cycle-data index)
       (let [size (ui/get-list-size cycle-data)]
-        (when (= size 0)
+        (when (zero? size)
           (reset! state/cycle-mission-path nil))))))
 
 (defn mission-add
@@ -78,7 +78,7 @@
   (let [{:keys [cycle-data
                 cycle-path-fld]} @state/control-instances
         mission (ui/get-text cycle-path-fld)]
-    (when (not (string/blank? mission))
+    (when-not (string/blank? mission)
       (ui/clear-input cycle-path-fld)
       (ui/add-cycle-data cycle-data mission "60")
       (reset! state/cycle-mission-path
@@ -114,7 +114,7 @@
    is cancelled - the user has chosen to override the scheduler by pressing
    the next button, or loading the mission at the previous index has failed."
   [scheduled]
-  (when (not scheduled)
+  (when-not scheduled
     (stop @scheduled-mis))
   (let [{:keys [cycle-data]} @state/control-instances
         last-mission (dec (ui/get-list-size cycle-data))]
@@ -147,8 +147,8 @@
         timer (mins-to-ms (:timer mission-data))]
     (reset! state/loading true)
     (server/load-begin-mission mission)
-    (->> (after timer #(next-mission true) cycle-schedule)
-         (reset! scheduled-mis))))
+    (reset! scheduled-mis
+            (after timer #(next-mission true) cycle-schedule))))
 
 (defn stop-cycle
   "### stop-cycle

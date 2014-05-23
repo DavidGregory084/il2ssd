@@ -109,14 +109,14 @@
    (when (.isFile (File. ^String path))
      (swap! server-settings assoc "Path" path)))
   ([ip port]
-   (when (not (string/blank? ip))
+   (when-not (string/blank? ip)
      (swap! server-settings assoc "IP" ip))
-   (when (not (string/blank? port))
+   (when-not (string/blank? port)
      (swap! server-settings assoc "Port" port)))
   ([ip port path]
-   (when (not (string/blank? ip))
+   (when-not (string/blank? ip)
      (swap! server-settings assoc "IP" ip))
-   (when (not (string/blank? port))
+   (when-not (string/blank? port)
      (swap! server-settings assoc "Port" port))
    (when (.isFile (File. ^String path))
      (swap! server-settings assoc "Path" path))))
@@ -196,8 +196,7 @@
 
    If this file already exists, it is simply replaced."
   []
-  (->> (build-config-file)
-       (spit "il2ssd.ini")))
+  (spit "il2ssd.ini" (build-config-file)))
 
 (defn read-config-file
   "### read-config-file

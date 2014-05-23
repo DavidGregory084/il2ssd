@@ -26,7 +26,17 @@
 ;; before further puts will block until every channel has taken the oldest put.
 (ns uk.org.il2ssd.channel
   (:require [clojure.core.async :refer [close! chan filter< mult remove<
-                                        tap untap-all]]))
+                                        tap untap-all pipe map>]]))
+
+(defn filter-pipe
+  ([from to type & regexes]
+   (pipe
+     (filter<
+       (fn [x] (some #(re-matches % x) regexes))
+       (tap from (chan 10)))
+     (map>
+       #(assoc {} :type type :value %)
+       to))))
 
 (def in-channel
   "### in-channel
@@ -44,13 +54,16 @@
       #(re-matches #"<consoleN><\d++>" %)
       in-channel)))
 
+(def event-channel
+  (chan 10))
+
 (def print-channel
   "### print-channel
    This channel taps mult-channel, and is used to print directly to the server console
    text area control."
   (tap mult-channel (chan 10)))
 
-(def diff-channel
+(def diff-pipe
   "### diff-channel
    This channel taps mult-channel, and filters for lines which consist of two
    spaces, followed by a single word, followed by a single number which is either
@@ -58,62 +71,68 @@
    difficulty settings by the server console.
 
    This channel is used to parse difficulty settings from the server console output."
-  (filter<
-    #(re-matches #"\s{2}\w+\s*+[0-1]\n" %)
-    (tap mult-channel (chan 10))))
+  (filter-pipe
+    mult-channel
+    event-channel
+    :diff
+    #"\s{2}\w+\s*+[0-1]\n"))
 
-(def mis-channel
+(def mis-pipe
   "### mis-channel
    This channel taps mult-channel, and filters for lines which contain the three
    mission status lines. This channel is used to parse mission load, begin, end
    and unload events from the server console output."
-  (filter<
-    #(re-matches #"(Mission){1}:?+\s.+\S++\n" %)
-    (tap mult-channel (chan 10))))
+  (filter-pipe
+    mult-channel
+    event-channel
+    :mis
+    #"(Mission){1}:?+\s.+\S++\n"))
 
-(def pilot-channel
+(def pilot-pipe
   "### pilot-channel"
-  (filter<
-    #(or (re-matches #"(socket channel){1}\s'\d++'.+is complete created\n" %)
-         (re-matches #"(socketConnection with){1}.+on channel \d++ lost\..+\n" %))
-    (tap mult-channel (chan 10))))
+  (filter-pipe
+    mult-channel
+    event-channel
+    :pilot
+    #"(socket channel){1}\s'\d++'.+is complete created\n"
+    #"(socketConnection with){1}.+on channel \d++ lost\..+\n"))
 
-(def ban-channel
-  (filter<
-    #(re-matches #"\s{2}.+\n" %)
-    (tap mult-channel (chan 10))))
+(def ban-pipe
+  (filter-pipe
+    mult-channel
+    event-channel
+    :ban
+    #"\s{2}.+\n"))
 
-(def user-channel
-  (filter<
-    #(re-matches #"\s\d++\s++.+\s++\d++\s++\d++\s++\(\d\).+\n" %)
-    (tap mult-channel (chan 10))))
+(def user-pipe
+  (filter-pipe
+    mult-channel
+    event-channel
+    :user
+    #"\s\d++\s++.+\s++\d++\s++\d++\s++\(\d\).+\n"))
 
-(def host-channel
-  (filter<
-    #(re-matches #"\s\d++:\s.+\s\[\d++\](\d{1,3}\.?){4}:\d++\n" %)
-    (tap mult-channel (chan 10))))
+(def host-pipe
+  (filter-pipe
+    mult-channel
+    event-channel
+    :host
+    #"\s\d++:\s.+\s\[\d++\](\d{1,3}\.?){4}:\d++\n"))
 
-(def err-channel
+(def error-pipe
   "### err-channel
    This channel taps mult-channel, and filters for lines which contain the
    mission load error text. This channel is used to set the mission status
    to unloaded when the user tries to load an invalid mission path."
-  (filter<
-    #(re-find #"ERROR mission:.+NOT loaded" %)
-    (tap mult-channel (chan 10))))
+  (filter-pipe
+    mult-channel
+    event-channel
+    :error
+    #"ERROR mission:.+NOT loaded" ))
 
 (defn close-channels
   "### close-channels
-   This function untaps the mult and closes all channels so that pending
-   operations don't block and can end successfully."
+   This function closes all channels so that pending operations don't block
+   and can end successfully."
   []
-  (untap-all mult-channel)
   (close! in-channel)
-  (close! print-channel)
-  (close! diff-channel)
-  (close! mis-channel)
-  (close! err-channel)
-  (close! pilot-channel)
-  (close! ban-channel)
-  (close! user-channel)
-  (close! host-channel))
+  (close! event-channel))
