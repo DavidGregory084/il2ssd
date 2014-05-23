@@ -22,7 +22,7 @@
                            (= single-mis "..."))
                  true
                  false)
-      "cycle" (if (> (ui/get-list-size cycle-data) 0)
+      "cycle" (if (pos? (ui/get-list-size cycle-data))
                 true
                 false)
       "dcg" false)))
@@ -103,7 +103,6 @@
       (ui/swap-to-button tool-bar cycle-next-btn [dcg-next-btn])
       (ui/set-mis-pane mission-pane cycle-mis-pane))
     (when (= mode "dcg")
-      #_(if (mis-selected? mode))
       (ui/set-visible load-btn false)
       (ui/set-visible cycle-next-btn false)
       (ui/set-visible dcg-next-btn true)
@@ -122,7 +121,7 @@
   (let [{:keys [single-path-fld
                 single-path-lbl]} @state/control-instances
         mission-path (ui/get-text single-path-fld)]
-    (when (not (string/blank? mission-path))
+    (when-not (string/blank? mission-path)
       (ui/set-label single-path-lbl mission-path))))
 
 (defn single-choose-command
