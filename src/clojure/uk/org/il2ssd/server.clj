@@ -137,6 +137,38 @@
   [setting value]
   (write-socket (str "difficulty " setting " " value)))
 
+(defn chat
+  ([typekey message]
+   (let [oper (condp = typekey
+                :all " ALL")]
+     (write-socket (str "chat " message oper))))
+  ([typekey name message]
+   (let [oper (condp = typekey
+                :name " TO "
+                :number " TO# ")]
+     (write-socket (str "chat " message oper name)))))
+
+(defn kick
+  [typekey value]
+  (let [oper (condp = typekey
+               :name "kick "
+               :number "kick# ")]
+    (write-socket (str oper value))))
+
+(defn ban
+  ([opkey]
+   (let [oper (condp = opkey
+                :clear "CLEAR")]
+     (write-socket (str "ban " oper))))
+  ([opkey typekey value]
+   (let [oper (condp = opkey
+                :add "ADD "
+                :rem "REM ")
+         type (condp = typekey
+                :name "NAME "
+                :ip "IP ")]
+     (write-socket (str "ban " oper type value)))))
+
 (defn connect
   "### connect
    This is a two argument function which instantiates an InetSocketAddress using
