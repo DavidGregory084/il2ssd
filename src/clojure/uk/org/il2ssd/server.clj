@@ -158,14 +158,14 @@
    (let [oper (condp = typekey
                 :name " TO "
                 :number " TO# ")]
-     (write-socket (str "chat " message oper name)))))
+     (write-socket (str "chat " message oper "\"" name "\"")))))
 
 (defn kick
   [typekey value]
   (let [oper (condp = typekey
                :name "kick "
                :number "kick# ")]
-    (write-socket (str oper value))))
+    (write-socket (str oper "\"" value "\""))))
 
 (defn ban
   ([opkey]
@@ -179,7 +179,7 @@
          type (condp = typekey
                 :name "NAME "
                 :ip "IP ")]
-     (write-socket (str "ban " oper type value)))))
+     (write-socket (str "ban " oper type "\"" value "\"")))))
 
 (defn connect
   "### connect
