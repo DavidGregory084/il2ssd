@@ -91,7 +91,7 @@
    As above, we should note that this function will return immediately and
    execution will continue on a new thread without blocking the caller."
   [text]
-  (when (= @state/last-command "difficulty")
+  (when-not (= @state/last-command "ban")
     (let [parsed (parse-text difficulty-parser text)
           {:keys [diff-data]} @state/control-instances
           {:keys [setting value]} parsed]
@@ -143,30 +143,32 @@
         {:keys [socket ip name]} parsed]
     (if name
       (do (ui/add-pilot-data pilots-data socket ip name)
-          (server/get-user-details name))
+          (server/get-host-details name))
       (ui/remove-pilot-data pilots-data socket))))
 
 (defn handle-ban
   [text]
-  (when (= @state/last-command "ban")
-    (let [ban (string/trim-newline (string/join (drop 2 text)))]
-      (if (re-matches #"(\d++{1,3}+\.?+){4}+" ban)
-        (println {:type "IP" :value ban})
-        (println {:type "Name" :value ban})))))
-
-(defn handle-user
-  [text]
-  (when (re-matches #"user\s.+(?!STAT)" @state/last-command)
-    (let [parsed (parse-text user-parser text)
-          {:keys [name armyname score]} parsed]
-      (println parsed))))
+  (when-not (= @state/last-command "difficulty")
+    (let [ban (string/trim-newline (string/join (drop 2 text)))
+          {:keys [bans-data]} @state/control-instances]
+      (if-not (re-matches #"(\d++{1,3}+\.?+){4}+" ban)
+        (ui/add-ban-data bans-data "Name" ban)
+        (ui/add-ban-data bans-data "IP" ban)))))
 
 (defn handle-host
   [text]
-  (when (= @state/last-command "host")
-    (let [parsed (parse-text host-parser text)
-          {:keys [number name socket ip]} parsed]
-      (println parsed))))
+  (let [parsed (parse-text host-parser text)
+        {:keys [pilots-data]} @state/control-instances
+        {:keys [number socket ip name]} parsed]
+    (ui/update-pilot-data pilots-data number socket ip name)
+    (server/get-user-details name)))
+
+(defn handle-user
+  [text]
+  (let [parsed (parse-text user-parser text)
+        {:keys [pilots-data]} @state/control-instances
+        {:keys [number score armyname]} parsed]
+    (ui/update-pilot-data pilots-data number score armyname)))
 
 (defn handle-error
   "### error-listener
@@ -197,25 +199,27 @@
    proceed in the new thread. This prevents these functions from blocking
    the calling thread."
   []
-  (thread (while @state/connected
-            (when-let [text (<!! print-channel)]
-              (let [{:keys [console]} @state/control-instances]
-                (ui/print-console console text))))))
+  (thread
+    (while @state/connected
+      (when-let [text (<!! print-channel)]
+        (let [{:keys [console]} @state/control-instances]
+          (ui/print-console console text))))))
 
 (defn event-listener
   []
-  (thread (while @state/connected
-            (when-let [event (<!! event-channel)]
-              (let [type (:type event)
-                    value (:value event)]
-                (condp = type
-                  :diff (handle-difficulty value)
-                  :mis (handle-mission value)
-                  :pilot (handle-pilot value)
-                  :ban (handle-ban value)
-                  :user (handle-user value)
-                  :host (handle-host value)
-                  :error (handle-error value)))))))
+  (thread
+    (while @state/connected
+      (when-let [event (<!! event-channel)]
+        (let [type (:type event)
+              value (:value event)]
+          (condp = type
+            :diff (handle-difficulty value)
+            :mis (handle-mission value)
+            :pilot (handle-pilot value)
+            :ban (handle-ban value)
+            :user (handle-user value)
+            :host (handle-host value)
+            :error (handle-error value)))))))
 
 (defn start-listeners
   "### start-listeners
@@ -284,7 +288,9 @@
                    (if new
                      (start-listeners)
                      (do (set-title)
-                         (ui/clear-diff-data @state/control-instances))))
+                         (ui/clear-diff-data @state/control-instances)
+                         (ui/clear-bans-data @state/control-instances)
+                         (ui/clear-pilots-data @state/control-instances))))
     :loading (ui/toggle-prog-ind new @state/control-instances)
     :loaded (ui/toggle-load-txt new @state/control-instances)
     :playing (ui/toggle-start-txt new @state/control-instances)

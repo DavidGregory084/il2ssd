@@ -6,8 +6,8 @@ import javafx.beans.property.SimpleStringProperty;
  *
  */
 public class Ban {
-    public SimpleStringProperty type;
-    public SimpleStringProperty value;
+    public SimpleStringProperty type = new SimpleStringProperty();
+    public SimpleStringProperty value = new SimpleStringProperty();
 
     public Ban(String type, String value) {
         this.type.setValue(type);

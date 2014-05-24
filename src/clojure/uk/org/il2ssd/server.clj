@@ -80,9 +80,21 @@
   []
   (write-socket "mission"))
 
+(defn get-pilots
+  []
+  (write-socket "host"))
+
+(defn get-bans
+  []
+  (write-socket "ban"))
+
 (defn get-user-details
   [name]
   (write-socket (str "user " name)))
+
+(defn get-host-details
+  [name]
+  (write-socket (str "host " name)))
 
 (defn load-mission
   "### load-mission
@@ -207,6 +219,8 @@
          (socket-listener)
          (get-server-text)
          (get-mission-state)
+         (get-bans)
+         (get-pilots)
          (catch ConnectException _ nil)
          (catch SocketTimeoutException _ nil))))
 

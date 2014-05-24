@@ -16,6 +16,8 @@ public class PilotsPresenter {
     @FXML
     TableView<Pilot> pilotsTable;
     @FXML
+    TableColumn<Pilot, String> pilotNumberColumn;
+    @FXML
     TableColumn<Pilot, String> pilotSocketColumn;
     @FXML
     TableColumn<Pilot, String> pilotIpColumn;
@@ -35,6 +37,10 @@ public class PilotsPresenter {
     TextField chatField;
     @FXML
     Button sendChatButton;
+
+    public TableColumn<Pilot, String> getPilotNumberColumn() {
+        return pilotNumberColumn;
+    }
 
     public TableColumn<Pilot, String> getPilotIpColumn() {
         return pilotIpColumn;

@@ -1,6 +1,5 @@
 package uk.org.il2ssd.jfx;
 
-import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleStringProperty;
 
@@ -8,18 +7,63 @@ import javafx.beans.property.SimpleStringProperty;
  *
  */
 public class Pilot {
+    SimpleStringProperty number = new SimpleStringProperty();
     SimpleStringProperty socket = new SimpleStringProperty();
     SimpleStringProperty ip = new SimpleStringProperty();
     SimpleStringProperty name = new SimpleStringProperty();
     SimpleLongProperty score = new SimpleLongProperty();
     SimpleStringProperty team = new SimpleStringProperty();
 
-    public Pilot(String socket, String ip, String name, Long score, String team) {
+    public Pilot(String socket, String ip, String name) {
+        this.number.setValue("");
         this.socket.setValue(socket);
         this.ip.setValue(ip);
         this.name.setValue(name);
+        this.score.setValue(0);
+        this.team.setValue("");
+    }
+
+    public Pilot(String number, String socket, String ip, String name) {
+        this.number.setValue(number);
+        this.socket.setValue(socket);
+        this.ip.setValue(ip);
+        this.name.setValue(name);
+        this.score.setValue(0);
+        this.team.setValue("");
+    }
+
+    public Pilot(String number, String name, Long score, String team) {
+        this.number.setValue(number);
+        this.socket.setValue("");
+        this.ip.setValue("");
+        this.name.setValue(name);
         this.score.setValue(score);
         this.team.setValue(team);
+    }
+
+    public Pilot(String number, String name, long score, String team) {
+        this.number.setValue(number);
+        this.socket.setValue("");
+        this.ip.setValue("");
+        this.name.setValue(name);
+        this.score.setValue(score);
+        this.team.setValue(team);
+    }
+
+    public String getNumber() {
+        return number.get();
+    }
+
+    public void setNumber(String number) {
+        this.number.set(number);
+    }
+
+    public SimpleStringProperty numberProperty() {
+        return number;
+    }
+
+    public void setScore(long score) {
+        this.score.set(score);
     }
 
     public String getIp() {

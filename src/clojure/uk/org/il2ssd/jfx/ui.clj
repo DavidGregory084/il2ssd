@@ -25,7 +25,7 @@
                                  ToolBar TableRow)
            (javafx.scene.layout BorderPane)
            (javafx.stage FileChooser Stage)
-           (uk.org.il2ssd.jfx CycleMission DifficultySetting Pilot)))
+           (uk.org.il2ssd.jfx CycleMission DifficultySetting Pilot Ban)))
 
 (defn exit
   "### exit
@@ -49,12 +49,57 @@
    ^String value]
   (util/run-later (.add diff-data (DifficultySetting. setting value))))
 
+(defn clear-bans-data
+  [controls]
+  (let [{:keys [^List bans-data]} controls]
+    (util/run-later (.clear bans-data))))
+
+(defn add-ban-data
+  [^List bans-data
+   ^String type
+   ^String value]
+  (util/run-later (.add bans-data (Ban. type value))))
+
+(defn get-ban
+  ([^List bans-data index]
+   (let [^Ban ban (.get bans-data index)]
+     (-> {}
+         (assoc :type (.getType ban))
+         (assoc :value (.getValue ban))))))
+
+(defn clear-pilots-data
+  [controls]
+  (let [{:keys [^List pilots-data]} controls]
+    (util/run-later (.clear pilots-data))))
+
 (defn add-pilot-data
-  [^List pilots-data
-   ^String socket
-   ^String ip
-   ^String name]
-  (util/run-later (.add pilots-data (Pilot. socket ip name 0 ""))))
+  ([^List pilots-data
+    ^String socket
+    ^String ip
+    ^String name]
+   (util/run-later (.add pilots-data (Pilot. socket ip name))))
+  ([^List pilots-data
+    ^String number
+    ^String socket
+    ^String ip
+    ^String name]
+   (util/run-later (.add pilots-data (Pilot. number socket ip name)))))
+
+(defn update-pilot-data
+  ([pilots-data number score team]
+   (doseq [^Pilot pilot pilots-data
+           :when (= (.getNumber pilot) number)]
+     (util/run-later
+       (doto pilot
+         (.setScore (Long/decode score))
+         (.setTeam team)))))
+  ([pilots-data number socket ip name]
+   (let [update-pilot (for [^Pilot pilot pilots-data
+                            :when (= (.getSocket pilot) socket)]
+                        (do (util/run-later (.setNumber pilot number))
+                            true))]
+     (when-not (some true? update-pilot)
+       (add-pilot-data pilots-data number socket ip name)))))
 
 (defn remove-pilot-data
   [^List pilots-data
@@ -62,6 +107,14 @@
   (doseq [^Pilot pilot pilots-data]
     (when (= (.getSocket pilot) socket)
       (util/run-later (.remove pilots-data pilot)))))
+
+(defn get-pilot
+  ([^List pilots-data index]
+   (let [^Pilot pilot (.get pilots-data index)]
+     (-> {}
+         (assoc :number (.getNumber pilot))
+         (assoc :name (.getName pilot))
+         (assoc :ip (.getIp pilot))))))
 
 (defn get-nth-in-string
   "### get-nth-in-string

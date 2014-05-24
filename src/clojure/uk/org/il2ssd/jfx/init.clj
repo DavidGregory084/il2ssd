@@ -7,11 +7,13 @@
 (ns uk.org.il2ssd.jfx.init
   (:require [clojure.java.io :refer [resource]]
             [clojure.edn :as edn]
+            [uk.org.il2ssd.event.bans :as bans]
             [uk.org.il2ssd.event.console :as console]
             [uk.org.il2ssd.event.cycle :as cycle]
             [uk.org.il2ssd.event.dcg :as dcg]
             [uk.org.il2ssd.event.main :as main]
             [uk.org.il2ssd.event.mission :as mission]
+            [uk.org.il2ssd.event.pilots :as pilots]
             [uk.org.il2ssd.event.settings :as settings]
             [uk.org.il2ssd.jfx.ui :as ui]
             [uk.org.il2ssd.jfx.util :as util]
@@ -185,6 +187,7 @@
           :pilots-pane       {:instance (.getPilotsPane pilots-presenter)}
           :pilots-table      {:instance (.getPilotsTable pilots-presenter)}
           :pilots-data       {:instance (FXCollections/synchronizedObservableList (FXCollections/observableArrayList))}
+          :pilot-number-col  {:instance (.getPilotNumberColumn pilots-presenter)}
           :pilot-socket-col  {:instance (.getPilotSocketColumn pilots-presenter)}
           :pilot-ip-col      {:instance (.getPilotIpColumn pilots-presenter)}
           :pilot-name-col    {:instance (.getPilotNameColumn pilots-presenter)}
@@ -208,7 +211,7 @@
           :ban-value-col     {:instance (.getBanValueColumn bans-presenter)}
           :get-bans-btn      {:instance (.getGetBansButton bans-presenter)
                               :enabled-by #{:connected}}
-          :remove-ban-btn    {:instance (.getRemoveBanButton bans-presenter)
+          :lift-ban-btn    {:instance (.getRemoveBanButton bans-presenter)
                               :enabled-by #{:connected}}
           :clear-bans-btn    {:instance (.getClearBansButton bans-presenter)
                               :enabled-by #{:connected}}
@@ -278,6 +281,14 @@
                 ^Button cycle-start-btn
                 ^Button cycle-next-btn
                 ^TextField cmd-entry
+                ^Button kick-btn
+                ^Button ban-btn
+                ^Button ip-ban-btn
+                ^Button send-chat-btn
+                ^TextField chat-field
+                ^Button get-bans-btn
+                ^Button lift-ban-btn
+                ^Button clear-bans-btn
                 ^ChoiceBox mode-choice
                 ^Button load-btn
                 ^MenuItem exit-btn
@@ -321,6 +332,16 @@
     (util/button-handler exit-btn main/close)
     ;Console tab
     (util/keypress-handler cmd-entry "Enter" console/enter-command)
+    ;Pilots tab
+    (util/button-handler kick-btn pilots/kick-pilot)
+    (util/button-handler ban-btn pilots/ban-pilot)
+    (util/button-handler ip-ban-btn pilots/ip-ban-pilot)
+    (util/button-handler send-chat-btn pilots/send-chat)
+    (util/keypress-handler chat-field "Enter" pilots/send-chat)
+    ;Ban List tab
+    (util/button-handler get-bans-btn bans/get-bans)
+    (util/button-handler lift-ban-btn bans/lift-ban)
+    (util/button-handler clear-bans-btn bans/clear-bans)
     ;Mission tab
     (util/value-listener mode-choice mission/mode-choice modes)
     ;Single mission pane
@@ -529,11 +550,13 @@
   []
   (let [{:keys [^TableView pilots-table
                 ^List pilots-data
+                ^TableColumn pilot-number-col
                 ^TableColumn pilot-socket-col
                 ^TableColumn pilot-ip-col
                 ^TableColumn pilot-name-col
                 ^TableColumn pilot-score-col
                 ^TableColumn pilot-team-col]} @state/control-instances]
+    (.setCellValueFactory pilot-number-col (PropertyValueFactory. "number"))
     (.setCellValueFactory pilot-socket-col (PropertyValueFactory. "socket"))
     (.setCellValueFactory pilot-ip-col (PropertyValueFactory. "ip"))
     (.setCellValueFactory pilot-name-col (PropertyValueFactory. "name"))
