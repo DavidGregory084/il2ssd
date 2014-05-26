@@ -89,8 +89,10 @@
   (write-socket "ban"))
 
 (defn get-user-details
-  [name]
-  (write-socket (str "user " name)))
+  ([]
+   (write-socket "user"))
+  ([name]
+   (write-socket (str "user " name))))
 
 (defn get-host-details
   [name]

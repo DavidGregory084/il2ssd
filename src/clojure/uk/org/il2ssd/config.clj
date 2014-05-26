@@ -40,6 +40,9 @@
    the main \"il2ssd.ini\" config file."
   (atom nil))
 
+(def pilot-settings
+  (atom nil))
+
 (def saved-difficulties
   "### saved-difficulties
    This is an atom to hold the difficulty settings loaded from a saved difficulty
@@ -75,30 +78,36 @@
   String
   (build-conf
     ([this file]
-     (conj file this))
+     (let [newln (System/lineSeparator)]
+       (string/join newln (conj file this))))
     ([this newln? file]
      (let [newln (System/lineSeparator)]
-       (if newln?
-         (conj file (str newln this))
-         (conj file this)))))
+       (string/join newln
+                    (if newln?
+                      (conj file (str newln this))
+                      (conj file this))))))
 
   PersistentArrayMap
   (build-conf [this file]
-    (if (seq this)
-      (reduce conj file
-              (for [setting (reverse this)
-                    :let [[key value] setting]]
-                (str key " = " value)))
-      file))
+    (let [newln (System/lineSeparator)]
+      (string/join newln
+                   (if (seq this)
+                     (reduce conj file
+                             (for [setting (reverse this)
+                                   :let [[key value] setting]]
+                               (str key " = " value)))
+                     file))))
 
   PersistentVector
   (build-conf [this file]
-    (if (seq this)
-      (reduce conj file
-              (for [setting (reverse (map-indexed #(vector (inc %) %2) this))
-                    :let [[key value] setting]]
-                (string/replace (str key " = " value) "\"" "")))
-      file)))
+    (let [newln (System/lineSeparator)]
+      (string/join newln
+                   (if (seq this)
+                     (reduce conj file
+                             (for [setting (reverse (map-indexed #(vector (inc %) %2) this))
+                                   :let [[key value] setting]]
+                               (string/replace (str key " = " value) "\"" "")))
+                     file)))))
 
 (defn save-server
   "### save-server
@@ -149,45 +158,21 @@
   (when (.isFile (File. ^String dcg-path))
     (swap! dcg-settings assoc "DCG Executable" dcg-path)))
 
+(defn save-pilot
+  [pilot-upd]
+  (swap! pilot-settings assoc "Update Interval" pilot-upd))
+
 (defn build-config-file
-  "### build-config-file
-   This is a zero argument function which builds a config file for the program.
-   It first retrieves the system default line separator.
-
-   Then the file is built by using conj to add strings to an empty vector,
-   which is passed through a series of appending calls to build-conf.
-
-   These calls will build the config file accordingly based upon the type of the
-   value passed.
-
-   First, a header comment is added. Then, a section header is written.
-
-   For each section, we call build-conf, passing the contents of the settings
-   atom for this section.
-
-   Whenever we wish to add a blank line to the output (e.g. before section
-   headers), we simply pass an extra parameter to build-conf with the header
-   to prepend the string values with a newline character.
-
-   We repeat this process for each section in the file.
-
-   At the end, we use join from clojure.string to join the vector into a single
-   string using the system default line separator as a separator character.
-
-   We then return this string to the calling function."
-  []
+[& args]
   (let [newln (System/lineSeparator)]
-    (->> []
-         (build-conf "# Il-2 Simple Server Daemon" false)
-         (build-conf "[Server]" true)
-         (build-conf @server-settings)
-         (build-conf "[Mission]" true)
-         (build-conf @mission-settings)
-         (build-conf "[Cycle]" true)
-         (build-conf @mission-cycle)
-         (build-conf "[DCG]" true)
-         (build-conf @dcg-settings)
-         (string/join newln))))
+    (string/join newln
+                 (reduce conj
+                         (vector (build-conf "# Il-2 Simple Server Daemon" false []))
+                         (for [arg args]
+                           (cond
+                             (nil? arg) (build-conf arg [])
+                             (instance? String arg) (build-conf arg true [])
+                             :else (build-conf arg [])))))))
 
 (defn save-config-file
   "### save-config-file
@@ -196,7 +181,17 @@
 
    If this file already exists, it is simply replaced."
   []
-  (spit "il2ssd.ini" (build-config-file)))
+  (spit "il2ssd.ini"
+        (build-config-file "[Server]"
+                           @server-settings
+                           "[Mission]"
+                           @mission-settings
+                           "[Cycle]"
+                           @mission-cycle
+                           "[DCG]"
+                           @dcg-settings
+                           "[Pilots]"
+                           @pilot-settings)))
 
 (defn read-config-file
   "### read-config-file
@@ -229,4 +224,5 @@
     :mode-choice (get-in file ["Mission" "Mode"] "single")
     :single-path-lbl (get-in file ["Mission" "Single Mission"] "...")
     :cycle-data (get file "Cycle" "")
-    :dcg-path-lbl (get-in file ["DCG" "DCG Executable"] "...")))
+    :dcg-path-lbl (get-in file ["DCG" "DCG Executable"] "...")
+    :pilot-upd-fld (get-in file ["Pilots" "Update Interval"] "10")))

@@ -193,6 +193,7 @@
           :pilot-name-col    {:instance (.getPilotNameColumn pilots-presenter)}
           :pilot-score-col   {:instance (.getPilotScoreColumn pilots-presenter)}
           :pilot-team-col    {:instance (.getPilotTeamColumn pilots-presenter)}
+          :pilot-upd-fld     {:instance (.getPilotUpdateTimerField pilots-presenter)}
           :kick-btn          {:instance (.getKickButton pilots-presenter)
                               :enabled-by #{:connected}}
           :ban-btn           {:instance (.getBanButton pilots-presenter)
@@ -391,6 +392,7 @@
                 ^BorderPane settings-pane
                 ^TextField ip-field
                 ^TextField port-field
+                ^TextField pilot-upd-fld
                 ^Label server-path-lbl
                 ^Label single-path-lbl
                 ^Label dcg-path-lbl
@@ -406,12 +408,14 @@
          single-mis :single-path-lbl
          cycle      :cycle-data
          dcg-path   :dcg-path-lbl
+         pilot-upd  :pilot-upd-fld
          :or        {:ip-field        ""
                      :port-field      ""
                      :server-path-lbl "..."
                      :mode-choice     "single"
                      :single-path-lbl "..."
-                     :dcg-path-lbl "..."}} config
+                     :dcg-path-lbl "..."
+                     :pilot-upd-fld "10"}} config
         mode (-> mode-key keyword modes)]
     (HBox/setHgrow prog-stack Priority/ALWAYS)
     (HBox/setHgrow mission-spring Priority/ALWAYS)
@@ -427,6 +431,7 @@
           (.setText server-path-lbl srv-path)
           (.setText single-path-lbl single-mis)
           (.setText dcg-path-lbl dcg-path)
+          (.setText pilot-upd-fld pilot-upd)
           (when (seq cycle)
             (loop [index 0]
               (when-let [saved-mission (get cycle (str index))]
@@ -564,7 +569,12 @@
     (.setCellValueFactory pilot-team-col (PropertyValueFactory. "team"))
     (doto pilots-table
       (.setColumnResizePolicy TableView/CONSTRAINED_RESIZE_POLICY)
-      (.setItems pilots-data))))
+      (.setItems pilots-data)
+      (-> .getSortOrder
+          (.addAll
+            (into-array TableColumn [pilot-team-col
+                                     pilot-score-col
+                                     pilot-number-col]))))))
 
 (defn init-bans-table
   []

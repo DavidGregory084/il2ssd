@@ -3,7 +3,7 @@
   <groupId>uk.org.il2ssd</groupId>
   <artifactId>il2ssd</artifactId>
   <packaging>jar</packaging>
-  <version>0.3.0</version>
+  <version>0.3.1</version>
   <name>il2ssd</name>
   <description>Il-2 Simple Server Daemon is a very simple server controller for the Il-2 Sturmovik 1946 dedicated server. It aims to be an easy-to-use tool with IL-2 DCG integration.</description>
   <url>https://github.com/DavidGregory084/il2ssd</url>

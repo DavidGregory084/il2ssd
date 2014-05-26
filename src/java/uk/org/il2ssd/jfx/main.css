@@ -9,6 +9,10 @@
     -fx-background-color: black;
 }
 
-.highlightRow {
+.highlightRed {
     -fx-background-color: red;
+}
+
+.highlightBlue {
+    -fx-background-color: blue;
 }

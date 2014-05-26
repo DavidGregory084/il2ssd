@@ -510,8 +510,37 @@
             :let [row-index (.getIndex row)]]
       (-> row
           .getStyleClass
-          (.remove "highlightRow"))
+          (.remove "highlightRed"))
       (when (= row-index index)
         (-> row
             .getStyleClass
-            (.add "highlightRow"))))))
+            (.add "highlightRed"))))))
+
+(defn highlight-team
+  [number team controls]
+  (let [{:keys [^TableView pilots-table]} controls
+        rows (.lookupAll pilots-table "TableRow")]
+    (doseq [^TableRow row rows
+            :let [row-number (try
+                               (-> row .getItem .getNumber)
+                               (catch NullPointerException _))]
+            :when (= row-number number)]
+      (when (= team "Blue")
+        (-> row
+            .getStyleClass
+            (.remove "highlightRed"))
+        (-> row
+            .getStyleClass
+            (.add "highlightBlue")))
+      (when (= team "Red")
+        (-> row
+            .getStyleClass
+            (.remove "highlightBlue"))
+        (-> row
+            .getStyleClass
+            (.add "highlightRed")))
+      (when (= team "None")
+        (-> row
+            .getStyleClass
+            (.removeAll
+              (into-array String ["highlightRed" "highlightBlue"])))))))

@@ -30,14 +30,14 @@
     </GridPane>
   </bottom>
   <center>
-    <TableView fx:id="pilotsTable" editable="false" prefHeight="-1.0" prefWidth="-1.0">
+    <TableView fx:id="pilotsTable" editable="false" prefHeight="374.0" prefWidth="385.0">
       <columns>
         <TableColumn editable="false" maxWidth="5000.0" minWidth="10.0" prefWidth="34.0" resizable="false" sortable="false" text="#" fx:id="pilotNumberColumn" />
         <TableColumn editable="false" maxWidth="5000.0" minWidth="10.0" prefWidth="34.0" resizable="false" sortable="false" text="Socket" visible="false" fx:id="pilotSocketColumn" />
         <TableColumn editable="false" prefWidth="75.0" resizable="false" sortable="false" text="IP" visible="false" fx:id="pilotIpColumn" />
-        <TableColumn editable="false" maxWidth="5000.0" minWidth="10.0" prefWidth="270.0" resizable="false" sortable="false" text="Name" fx:id="pilotNameColumn" />
-        <TableColumn editable="false" prefWidth="75.0" resizable="false" sortable="false" text="Score" fx:id="pilotScoreColumn" />
-        <TableColumn editable="false" maxWidth="5000.0" minWidth="10.0" prefWidth="167.0" resizable="false" sortable="false" text="Team" visible="false" fx:id="pilotTeamColumn" />
+        <TableColumn editable="false" maxWidth="5000.0" minWidth="10.0" prefWidth="200.0" resizable="false" sortable="false" text="Name" fx:id="pilotNameColumn" />
+        <TableColumn editable="false" maxWidth="5000.0" minWidth="10.0" prefWidth="75.0" resizable="false" sortable="false" text="Score" fx:id="pilotScoreColumn" />
+        <TableColumn editable="false" maxWidth="5000.0" minWidth="10.0" prefWidth="75.0" resizable="false" sortable="false" text="Team" visible="true" fx:id="pilotTeamColumn" />
       </columns>
       <BorderPane.margin>
         <Insets left="5.0" right="5.0" top="5.0" />
@@ -45,14 +45,16 @@
     </TableView>
   </center>
   <right>
-    <VBox prefHeight="-1.0" prefWidth="-1.0" spacing="15.0">
+    <VBox prefHeight="-1.0" prefWidth="-1.0" spacing="10.0">
       <children>
+        <Label prefWidth="75.0" text="Update Timer" textAlignment="CENTER" wrapText="true" />
+        <TextField fx:id="pilotUpdateTimerField" prefWidth="75.0" text="10" />
         <Button fx:id="kickButton" mnemonicParsing="false" prefHeight="25.0" prefWidth="75.0" text=" Kick" />
         <Button fx:id="banButton" mnemonicParsing="false" prefHeight="25.0" prefWidth="75.0" text=" Ban" />
         <Button fx:id="ipBanButton" mnemonicParsing="false" prefHeight="25.0" prefWidth="75.0" text=" IP Ban" />
       </children>
       <padding>
-        <Insets bottom="15.0" left="15.0" right="15.0" top="115.0" />
+        <Insets bottom="15.0" left="15.0" right="15.0" top="120.0" />
       </padding>
     </VBox>
   </right>

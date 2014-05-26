@@ -140,10 +140,9 @@
   [text]
   (let [parsed (parse-text pilot-parser text)
         {:keys [pilots-data]} @state/control-instances
-        {:keys [socket ip name]} parsed]
+        {:keys [socket name]} parsed]
     (if name
-      (do (ui/add-pilot-data pilots-data socket ip name)
-          (server/get-host-details name))
+      (server/get-host-details name)
       (ui/remove-pilot-data pilots-data socket))))
 
 (defn handle-ban
@@ -160,7 +159,7 @@
   (let [parsed (parse-text host-parser text)
         {:keys [pilots-data]} @state/control-instances
         {:keys [number socket ip name]} parsed]
-    (ui/update-pilot-data pilots-data number socket ip name)
+    (ui/add-pilot-data pilots-data number socket ip name)
     (server/get-user-details name)))
 
 (defn handle-user
@@ -168,7 +167,8 @@
   (let [parsed (parse-text user-parser text)
         {:keys [pilots-data]} @state/control-instances
         {:keys [number score armyname]} parsed]
-    (ui/update-pilot-data pilots-data number score armyname)))
+    (ui/update-pilot-data pilots-data number score armyname)
+    (ui/highlight-team number armyname @state/control-instances)))
 
 (defn handle-error
   "### error-listener
@@ -187,6 +187,19 @@
   (set-title)
   (when @state/cycle-running
     (cycle/next-mission false)))
+
+(defn update-users
+  []
+  (thread
+    (while @state/connected
+      (let [{:keys [pilot-upd-fld]} @state/control-instances
+            fld-text (ui/get-text pilot-upd-fld)
+            fld-long (try (Long/decode fld-text)
+                          (catch NumberFormatException _ nil))
+            timer (if (and fld-long (<= fld-long 60) (>= fld-long 5)) fld-long 10)]
+        (Thread/sleep (* timer 1000))
+        (when @state/playing
+          (server/get-user-details))))))
 
 (defn console-listener
   "### console-listener
@@ -242,16 +255,19 @@
                 server-path-lbl
                 single-path-lbl
                 dcg-path-lbl
-                cycle-data]} @state/control-instances
+                cycle-data
+                pilot-upd-fld]} @state/control-instances
         mode @state/mode
         ip-addr (ui/get-text ip-field)
         port (ui/get-text port-field)
         server-path (ui/get-text server-path-lbl)
         single-path (ui/get-text single-path-lbl)
-        dcg-path (ui/get-text dcg-path-lbl)]
+        dcg-path (ui/get-text dcg-path-lbl)
+        pilot-upd (ui/get-text pilot-upd-fld)]
     (config/save-server ip-addr port server-path)
     (config/save-mission mode single-path)
     (config/save-dcg dcg-path)
+    (config/save-pilot pilot-upd)
     (doseq [item cycle-data
             :let [cycle-mission (ui/get-cycle-mission item)
                   mission (:mission cycle-mission)
@@ -286,7 +302,8 @@
   (case key
     :connected (do (ui/toggle-console-text new @state/control-instances)
                    (if new
-                     (start-listeners)
+                     (do (start-listeners)
+                         (update-users))
                      (do (set-title)
                          (ui/clear-diff-data @state/control-instances)
                          (ui/clear-bans-data @state/control-instances)

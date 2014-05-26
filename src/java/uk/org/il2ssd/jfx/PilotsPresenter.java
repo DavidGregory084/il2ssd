@@ -28,6 +28,8 @@ public class PilotsPresenter {
     @FXML
     TableColumn<Pilot, String> pilotTeamColumn;
     @FXML
+    TextField pilotUpdateTimerField;
+    @FXML
     Button kickButton;
     @FXML
     Button banButton;
@@ -37,6 +39,10 @@ public class PilotsPresenter {
     TextField chatField;
     @FXML
     Button sendChatButton;
+
+    public TextField getPilotUpdateTimerField() {
+        return pilotUpdateTimerField;
+    }
 
     public TableColumn<Pilot, String> getPilotNumberColumn() {
         return pilotNumberColumn;
