@@ -72,8 +72,8 @@
 
   nil
   (build-conf
-    ([this file] file)
-    ([this newln? file] file))
+    ([this file] "")
+    ([this newln? file] ""))
 
   String
   (build-conf
@@ -96,7 +96,7 @@
                              (for [setting (reverse this)
                                    :let [[key value] setting]]
                                (str key " = " value)))
-                     file))))
+                     ""))))
 
   PersistentVector
   (build-conf [this file]
@@ -107,7 +107,7 @@
                              (for [setting (reverse (map-indexed #(vector (inc %) %2) this))
                                    :let [[key value] setting]]
                                (string/replace (str key " = " value) "\"" "")))
-                     file)))))
+                     "")))))
 
 (defn save-server
   "### save-server
