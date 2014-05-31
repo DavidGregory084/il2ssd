@@ -107,6 +107,9 @@
    indicate whether a DCG mission can be loaded."
   (atom nil))
 
+(def dcg-timer
+  (atom nil))
+
 (def mode
   "### mode
    This atom stores the current mission loading mode for global use
@@ -139,4 +142,5 @@
    :dcg-mission-path    @dcg-mission-path
    :cycle-running       @cycle-running
    :cycle-index         @cycle-index
-   :dcg-running         @dcg-running})
+   :dcg-running         @dcg-running
+   :dcg-timer           @dcg-timer})

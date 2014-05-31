@@ -22,7 +22,7 @@
                                  ProgressIndicator SelectionModel TableColumn
                                  TableColumn$CellEditEvent TableView
                                  TextArea TextField TextInputControl TablePosition
-                                 ToolBar TableRow)
+                                 ToolBar TableRow ToggleButton)
            (javafx.scene.layout BorderPane)
            (javafx.stage FileChooser Stage)
            (uk.org.il2ssd.jfx CycleMission DifficultySetting Pilot Ban)))
@@ -262,6 +262,10 @@
   ^String [^ChoiceBox choicebox]
   (str (.getValue choicebox)))
 
+(defn get-toggle-selected
+  [^ToggleButton toggle]
+  (.isSelected toggle))
+
 (defn set-label
   "### set-label
    This two argument function sets the text content of the supplied Label to the
@@ -450,6 +454,13 @@
       (util/run-later (.setText dcg-start-btn "\uf04d \uf021 Stop"))
       (util/run-later (.setText dcg-start-btn "\uf04b \uf021 Start")))))
 
+(defn toggle-dcg-toggle-txt
+  [enabled controls]
+  (let [{:keys [^ToggleButton dcg-timer-toggle]} controls]
+    (if enabled
+      (util/run-later (.setText dcg-timer-toggle "Enabled"))
+      (util/run-later (.setText dcg-timer-toggle "Disabled")))))
+
 (defn swap-to-button
   "### swap-to-button
    This three argument function removes the listed buttons and adds the button
@@ -525,22 +536,15 @@
                                (-> row .getItem .getNumber)
                                (catch NullPointerException _))]
             :when (= row-number number)]
+      (-> row
+          .getStyleClass
+          (.removeAll
+            (into-array String ["highlightRed" "highlightBlue"])))
       (when (= team "Blue")
-        (-> row
-            .getStyleClass
-            (.remove "highlightRed"))
         (-> row
             .getStyleClass
             (.add "highlightBlue")))
       (when (= team "Red")
         (-> row
             .getStyleClass
-            (.remove "highlightBlue"))
-        (-> row
-            .getStyleClass
-            (.add "highlightRed")))
-      (when (= team "None")
-        (-> row
-            .getStyleClass
-            (.removeAll
-              (into-array String ["highlightRed" "highlightBlue"])))))))
+            (.add "highlightRed"))))))

@@ -25,7 +25,7 @@
            (javafx.collections FXCollections)
            (javafx.scene Scene)
            (javafx.scene.control Button ChoiceBox Label MenuItem SelectionModel
-                                 TableColumn TableView Tab TextField)
+                                 TableColumn TableView Tab TextField ToggleButton)
            (javafx.scene.control.cell PropertyValueFactory
                                       TextFieldTableCell ChoiceBoxTableCell
                                       ComboBoxTableCell)
@@ -244,6 +244,8 @@
           :cycle-mis-addbtn  {:instance (.getAddMissionButton cycle-presenter)}
          ;DCG Mode FXML file controls
           :dcg-mis-pane      {:instance (.getDcgMisPane dcg-presenter)}
+          :dcg-timer-toggle  {:instance (.getDcgMisTimerToggle dcg-presenter)}
+          :dcg-timer-fld     {:instance (.getDcgMisTimerField dcg-presenter)}
           :dcg-mis-lbl       {:instance (.getDcgMisPathLabel dcg-presenter)}
           :dcg-path-lbl      {:instance (.getDcgExePathLabel dcg-presenter)}
           :dcg-path-btn      {:instance (.getDcgExePathSelectButton dcg-presenter)}
@@ -305,6 +307,7 @@
                 ^Button cycle-mis-dwnbtn
                 ^Button cycle-mis-addbtn
                 ^Button cycle-path-btn
+                ^ToggleButton dcg-timer-toggle
                 ^Button dcg-path-btn
                 ^Button dcg-start-btn
                 ^Button dcg-next-btn
@@ -321,6 +324,7 @@
     (add-watch state/dcg-path :dcg-path watch-fn)
     (add-watch state/single-mission-path :single-mission-path watch-fn)
     (add-watch state/cycle-mission-path :cycle-mission-path watch-fn)
+    (add-watch state/dcg-timer :dcg-timer watch-fn)
     (add-watch state/dcg-mission-path :dcg-mission-path watch-fn)
     (add-watch state/cycle-running :cycle-running watch-fn)
     (add-watch state/cycle-index :cycle-index watch-fn)
@@ -358,9 +362,10 @@
     (util/button-handler cycle-start-btn cycle/start-stop-cycle-command)
     (util/button-handler cycle-next-btn cycle/next-mission false)
     ;DCG generation pane
+    (util/button-handler dcg-timer-toggle dcg/toggle-timer)
     (util/button-handler dcg-path-btn dcg/dcg-choose-command)
     (util/button-handler dcg-start-btn dcg/start-stop-dcg-command)
-    (util/button-handler dcg-next-btn dcg/generate-dcg-mis)
+    (util/button-handler dcg-next-btn dcg/generate-dcg-mis false)
     (util/text-listener dcg-path-lbl dcg/dcg-path-select)
     (util/text-listener dcg-mis-lbl dcg/dcg-mis-generated)
     ;Settings tab
@@ -395,6 +400,8 @@
                 ^TextField pilot-upd-fld
                 ^Label server-path-lbl
                 ^Label single-path-lbl
+                ^ToggleButton dcg-timer-toggle
+                ^TextField dcg-timer-fld
                 ^Label dcg-path-lbl
                 ^StackPane prog-stack
                 ^ChoiceBox mode-choice
@@ -407,6 +414,8 @@
          mode-key   :mode-choice
          single-mis :single-path-lbl
          cycle      :cycle-data
+         dcg-timer  :dcg-timer-toggle
+         dcg-mins   :dcg-timer-fld
          dcg-path   :dcg-path-lbl
          pilot-upd  :pilot-upd-fld
          :or        {:ip-field        ""
@@ -414,6 +423,8 @@
                      :server-path-lbl "..."
                      :mode-choice     "single"
                      :single-path-lbl "..."
+                     :dcg-timer-toggle "false"
+                     :dcg-timer-fld ""
                      :dcg-path-lbl "..."
                      :pilot-upd-fld "10"}} config
         mode (-> mode-key keyword modes)]
@@ -432,6 +443,11 @@
           (.setText single-path-lbl single-mis)
           (.setText dcg-path-lbl dcg-path)
           (.setText pilot-upd-fld pilot-upd)
+          (case dcg-timer
+            "true" (.setSelected dcg-timer-toggle true)
+            "false" (.setSelected dcg-timer-toggle false))
+          (dcg/toggle-timer)
+          (.setText dcg-timer-fld dcg-mins)
           (when (seq cycle)
             (loop [index 0]
               (when-let [saved-mission (get cycle (str index))]

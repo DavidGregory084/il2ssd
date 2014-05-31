@@ -5,10 +5,24 @@
             [uk.org.il2ssd.jfx.ui :as ui]
             [uk.org.il2ssd.server :as server]
             [uk.org.il2ssd.event.cycle :as cycle]
-            [clj-commons-exec :as exec])
+            [clj-commons-exec :as exec]
+            [uk.org.il2ssd.event.scheduler :as schedule])
   (:import (java.io BufferedReader File)
            (java.nio.file Files Path Paths LinkOption)
            (java.nio.charset Charset)))
+
+(declare schedule-next-mis)
+
+(defn toggle-timer
+  []
+  (let [{:keys [dcg-timer-toggle]} @state/control-instances
+        enabled (ui/get-toggle-selected dcg-timer-toggle)]
+    (if enabled
+      (reset! state/dcg-timer true)
+      (do (reset! state/dcg-timer false)
+          (when @state/dcg-running
+            (schedule/stop-scheduled-mis)
+            (schedule/reset-schedule))))))
 
 (defn get-generated-mis
   []
@@ -49,7 +63,9 @@
               (ui/set-label dcg-mis-lbl dcg-mis-path)))))))
 
 (defn generate-dcg-mis
-  []
+  [scheduled]
+  (when-not scheduled
+    (schedule/stop-scheduled-mis))
   (let [dcg-gen (exec/sh [@state/dcg-path "/netdogfight"])]
     (reset! state/loading true)
     (go (println @dcg-gen)
@@ -57,7 +73,15 @@
               dcg-mis-path (get-generated-mis)]
           (when-not (string/blank? dcg-mis-path)
             (ui/set-label dcg-mis-lbl dcg-mis-path)
-            (server/load-begin-mission dcg-mis-path))))))
+            (server/load-begin-mission dcg-mis-path)
+            (schedule-next-mis))))))
+
+(defn schedule-next-mis
+  []
+  (when @state/dcg-timer
+    (let [{:keys [dcg-timer-fld]} @state/control-instances
+          timer (ui/get-text dcg-timer-fld)]
+      (schedule/schedule-mission #(generate-dcg-mis true) timer))))
 
 (defn dcg-mis-generated
   []
@@ -72,11 +96,14 @@
   (let [{:keys [dcg-mis-lbl]} @state/control-instances
         dcg-mis-path (ui/get-text dcg-mis-lbl)]
     (if @state/dcg-running
-      (server/unload-mission)
+      (do (schedule/stop-scheduled-mis)
+          (schedule/reset-schedule)
+          (server/unload-mission))
       (do (when @state/cycle-running
             (cycle/stop-cycle))
           (reset! state/dcg-running true)
           (if (= dcg-mis-path "...")
-            (generate-dcg-mis)
+            (generate-dcg-mis true)
             (do (reset! state/loading true)
-                (server/load-begin-mission dcg-mis-path)))))))
+                (server/load-begin-mission dcg-mis-path)
+                (schedule-next-mis)))))))

@@ -8,7 +8,8 @@
             [uk.org.il2ssd.parse :refer :all]
             [uk.org.il2ssd.server :as server]
             [uk.org.il2ssd.config :as config]
-            [uk.org.il2ssd.state :as state]))
+            [uk.org.il2ssd.state :as state]
+            [uk.org.il2ssd.event.scheduler :as schedule]))
 
 (defn set-title
   "### set-title
@@ -254,6 +255,8 @@
                 port-field
                 server-path-lbl
                 single-path-lbl
+                dcg-timer-toggle
+                dcg-timer-fld
                 dcg-path-lbl
                 cycle-data
                 pilot-upd-fld]} @state/control-instances
@@ -262,11 +265,13 @@
         port (ui/get-text port-field)
         server-path (ui/get-text server-path-lbl)
         single-path (ui/get-text single-path-lbl)
+        dcg-timer (ui/get-toggle-selected dcg-timer-toggle)
+        dcg-mins (ui/get-text dcg-timer-fld)
         dcg-path (ui/get-text dcg-path-lbl)
         pilot-upd (ui/get-text pilot-upd-fld)]
     (config/save-server ip-addr port server-path)
     (config/save-mission mode single-path)
-    (config/save-dcg dcg-path)
+    (config/save-dcg dcg-path dcg-timer dcg-mins)
     (config/save-pilot pilot-upd)
     (doseq [item cycle-data
             :let [cycle-mission (ui/get-cycle-mission item)
@@ -320,6 +325,7 @@
                        (when-not new
                          (ui/highlight-table-row -1 @state/control-instances)))
     :cycle-index (ui/highlight-table-row new @state/control-instances)
-    :dcg-running (ui/toggle-dcg-start-txt new @state/control-instances))
+    :dcg-running (ui/toggle-dcg-start-txt new @state/control-instances)
+    :dcg-timer (ui/toggle-dcg-toggle-txt new @state/control-instances))
   (let [new-state (assoc (state) key new)]
     (ui/set-button-state new-state controls)))

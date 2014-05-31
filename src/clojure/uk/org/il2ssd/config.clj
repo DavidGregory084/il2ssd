@@ -154,9 +154,11 @@
 (defn save-dcg
   "### save-dcg
    This one argument function saves DCG configuration data."
-  [dcg-path]
+  [dcg-path timer-on timer-mins]
   (when (.isFile (File. ^String dcg-path))
-    (swap! dcg-settings assoc "DCG Executable" dcg-path)))
+    (swap! dcg-settings assoc "DCG Executable" dcg-path))
+  (swap! dcg-settings assoc "Timer Enabled" timer-on)
+  (swap! dcg-settings assoc "Timer Minutes" timer-mins))
 
 (defn save-pilot
   [pilot-upd]
@@ -224,5 +226,7 @@
     :mode-choice (get-in file ["Mission" "Mode"] "single")
     :single-path-lbl (get-in file ["Mission" "Single Mission"] "...")
     :cycle-data (get file "Cycle" "")
+    :dcg-timer-toggle (get-in file ["DCG" "Timer Enabled"] "false")
+    :dcg-timer-fld (get-in file ["DCG" "Timer Minutes"] "")
     :dcg-path-lbl (get-in file ["DCG" "DCG Executable"] "...")
     :pilot-upd-fld (get-in file ["Pilots" "Update Interval"] "10")))

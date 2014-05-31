@@ -6,36 +6,14 @@
 (ns uk.org.il2ssd.event.cycle
   (:require [clojure.string :as string]
             [uk.org.il2ssd.event.mission :as mission]
+            [uk.org.il2ssd.event.scheduler :as schedule]
             [uk.org.il2ssd.server :as server]
             [uk.org.il2ssd.state :as state]
-            [uk.org.il2ssd.jfx.ui :as ui]
-            [overtone.at-at :refer [after mk-pool
-                                    kill
-                                    scheduled-jobs
-                                    show-schedule
-                                    stop
-                                    stop-and-reset-pool!]])
+            [uk.org.il2ssd.jfx.ui :as ui])
   (:import (java.io File)
            (uk.org.il2ssd.jfx CycleMission)))
 
 (declare load-cycle-mis)
-
-(def cycle-schedule
-  "### cycle-schedule
-   This is the scheduled task pool for the cycle mission scheduler."
-  (mk-pool))
-
-(def scheduled-mis
-  "### scheduled-mis
-   This is the next scheduled mission load event. It's stored in an atom
-   so that it can be cancelled if the user loads the next mission explicitly."
-  (atom nil))
-
-(defn mins-to-ms
-  "### mins-to-ms
-   This function converts a minutes string to a millisecond integer value."
-  [mins]
-  (* (Integer/decode mins) 60000))
 
 (defn mission-swap
   "### mission-swap
@@ -45,12 +23,14 @@
   [f]
   (let [{:keys [cycle-table
                 cycle-data]} @state/control-instances
-        list-size (dec (ui/get-list-size cycle-data))
+        max (dec (ui/get-list-size cycle-data))
         source (ui/get-selected-index cycle-table)
-        target (f source)]
-    (when (and (>= target 0)
-               (<= target list-size)
-               (not= source target))
+        new (f source)
+        target (cond
+                 (neg? new) 0
+                 (> new max) max
+                 :else new)]
+    (when (not= source target)
       (ui/swap-list-items cycle-data source target)
       (ui/select-table-index cycle-table target))))
 
@@ -115,7 +95,7 @@
    the next button, or loading the mission at the previous index has failed."
   [scheduled]
   (when-not scheduled
-    (stop @scheduled-mis))
+    (schedule/stop-scheduled-mis))
   (let [{:keys [cycle-data]} @state/control-instances
         last-mission (dec (ui/get-list-size cycle-data))]
     (if (= @state/cycle-index last-mission)
@@ -144,20 +124,18 @@
   (let [{:keys [cycle-data]} @state/control-instances
         mission-data (ui/get-cycle-mission cycle-data @state/cycle-index)
         mission (:mission mission-data)
-        timer (mins-to-ms (:timer mission-data))]
+        timer (:timer mission-data)]
     (reset! state/loading true)
     (server/load-begin-mission mission)
-    (reset! scheduled-mis
-            (after timer #(next-mission true) cycle-schedule))))
+    (schedule/schedule-mission #(next-mission true) timer)))
 
 (defn stop-cycle
   "### stop-cycle
    This function stops the cycle by resetting the schedule pool and
    each of the state atoms associated with the cycle scheduler."
   []
-  (stop @scheduled-mis)
-  (stop-and-reset-pool! cycle-schedule :strategy :kill)
-  (reset! scheduled-mis nil)
+  (schedule/stop-scheduled-mis)
+  (schedule/reset-schedule)
   (reset! state/cycle-running false))
 
 (defn start-stop-cycle-command
