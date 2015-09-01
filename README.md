@@ -5,11 +5,11 @@ Il-2 Simple Server Daemon is a very simple server controller for the Il-2 Sturmo
 
 ### Requirements:
 
-[Java JRE 7][1] must be installed.
+[Java JRE 8][1] must be installed.
 
 ### Implemented:
 
-- Cross-platform compatibility: Simple Server Daemon is based upon Java SE 7, the JavaFX 2.x framework and Clojure. As such, it is capable of running on most desktop operating systems as long as the JavaFX runtime is available.
+- Cross-platform compatibility: Simple Server Daemon is capable of running on most desktop operating systems as long as the Java 8 runtime is available.
 - Remote server console connection: As long as you have unblocked access to the server console port via TCP and your IP is whitelisted in confs.ini, you should be able to connect.
 - Direct access to the remote console via the interface: Simple Server Daemon features a console area for direct command entry and console monitoring.
 - Local usage for direct mission file selection and loading: Select your il2server.exe and .mis file directly.
@@ -23,16 +23,9 @@ Il-2 Simple Server Daemon is a very simple server controller for the Il-2 Sturmo
 ### Planned:
 
 - In-game control via chat: enter macro commands into the Il-2 text chat and the controller will process them accordingly.
-- Statistics: It's planned that Simple Server Daemon will at least replicate the functionality of FBDj in this respect.
 
 ### Installation:
 
-The program .jar file and lib directory can be extracted to the location of your choice. You must ensure that an up-to-date version of the Java 7 runtime is installed. After extraction the program can be started by double-clicking the .jar file.
+The program .jar file and lib directory can be extracted to the location of your choice. You must ensure that an up-to-date version of the Java 8 runtime is installed. After extraction the program can be started by double-clicking the .jar file.
 
-### License
-
-Copyright © 2014 David Gregory
-
-Distributed under the Eclipse Public License version 1.0.
-
-[1]: http://www.oracle.com/technetwork/java/javase/downloads/jre7-downloads-1880261.html
+[1]: http://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html
