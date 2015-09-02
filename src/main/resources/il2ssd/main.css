@@ -1,0 +1,18 @@
+.root {
+    -fx-font-family: "FontAwesome";
+    -fx-font-size: 12px;
+}
+
+.text-area .content {
+    -fx-font-family: monospace;
+    -fx-text-fill: white;
+    -fx-background-color: black;
+}
+
+.highlightRed {
+    -fx-background-color: red;
+}
+
+.highlightBlue {
+    -fx-background-color: blue;
+}

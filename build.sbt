@@ -17,6 +17,10 @@ lazy val root = (project in file(".")).
     ),
     libraryDependencies ++= Seq(
       "org.scalafx" %% "scalafx" % "8.0.40-R8",
+      "com.typesafe" % "config" % "1.3.0",
+      "org.parboiled" %% "parboiled" % "2.1.0",
+      "org.apache.commons" % "commons-lang3" % "3.4",
+      "com.lihaoyi" %% "ammonite-ops" % "0.4.6",
       "org.scalatest" %% "scalatest" % "2.2.4" % "test",
       "org.scalacheck" %% "scalacheck" % "1.12.4" % "test"
     )
