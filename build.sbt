@@ -18,6 +18,7 @@ lazy val root = (project in file(".")).
     libraryDependencies ++= Seq(
       "org.scalafx" %% "scalafx" % "8.0.40-R8",
       "com.typesafe" % "config" % "1.3.0",
+      "com.typesafe.akka" %% "akka-stream-experimental" % "1.0",
       "org.parboiled" %% "parboiled" % "2.1.0",
       "org.apache.commons" % "commons-lang3" % "3.4",
       "com.lihaoyi" %% "ammonite-ops" % "0.4.6",
