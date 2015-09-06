@@ -6,22 +6,19 @@ import akka.util.ByteString
 import java.net.InetSocketAddress
 import org.apache.commons.lang3.StringEscapeUtils
 
-object Daemon extends App {
-  case object Stop
-  val system = ActorSystem("system")
-  val daemon = system.actorOf(Props(classOf[Daemon], new InetSocketAddress("ghserver", 21003)), "daemon")
+object Daemon {
+  trait Command
+  case object Close extends Command
 
-  daemon ! ByteString("server\n")
+  private lazy val actorSystem = ActorSystem("system")
 
-  Thread.sleep(2000)
+  def start(address: InetSocketAddress) = actorSystem.actorOf(Daemon.props(address), "daemon")
+  def stop() = actorSystem.shutdown()
 
-  daemon ! Stop
-
-  system.shutdown()
+  def props(address: InetSocketAddress) = Props(classOf[Daemon], address)
 }
 
 class Daemon(address: InetSocketAddress) extends Actor with ActorLogging with Stash {
-  import Daemon._
   import Tcp._
   import context.system
 
@@ -31,11 +28,11 @@ class Daemon(address: InetSocketAddress) extends Actor with ActorLogging with St
     case data: ByteString =>
       log.debug(s"Write: ${StringEscapeUtils.escapeJava(data.utf8String)}")
       connection ! Write(data)
-    case CommandFailed(w: Write) =>
-      log.error("failed to write!")
+    case CommandFailed(_: Write) =>
+      log.error("CommandFailed: Write")
     case Received(data) =>
       log.debug(s"Received: '${StringEscapeUtils.escapeJava(data.utf8String)}'")
-    case Stop =>
+    case Daemon.Close =>
       log.debug("Stop")
       connection ! Close
     case _: ConnectionClosed =>
