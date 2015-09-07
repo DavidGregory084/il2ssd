@@ -1,12 +1,14 @@
 package il2ssd
 
-import akka.actor.ActorSystem
-import akka.stream.ActorMaterializer
+import akka.actor.{ ActorRef, ActorSystem }
+import akka.stream.{ ActorMaterializer, OverflowStrategy }
 import akka.stream.io.Framing
-import akka.stream.scaladsl.{ Concat, Keep, Flow, FlowGraph, Source, Tcp }
+import akka.stream.scaladsl.{ Sink, Keep, Flow, FlowGraph, Source, Tcp }
+import akka.stream.scaladsl.FlowGraph.Builder
 import akka.stream.stage.{ Context, PushStage, SyncDirective }
 import akka.util.ByteString
 import java.net.InetSocketAddress
+import org.apache.commons.lang3.StringEscapeUtils
 
 object Daemon extends App {
   implicit val system = ActorSystem("system")
@@ -14,34 +16,26 @@ object Daemon extends App {
   val address = new InetSocketAddress("ghserver", 21003)
   val connection = Tcp().outgoingConnection(address)
 
-  val clientLogic = Flow() { implicit b =>
-    import FlowGraph.Implicits._
+  val clientLogic = Flow(Source.actorRef(bufferSize = 10, overflowStrategy = OverflowStrategy.dropNew)) {
+    implicit builder =>
+      commandInput =>
+        import FlowGraph.Implicits._
 
-    val replParser = new PushStage[String, ByteString] {
-      override def onPush(elem: String, ctx: Context[ByteString]): SyncDirective = {
-        elem match {
-          case "exit" => ctx.finish()
-          case _ => ctx.push(ByteString("$elem\n"))
-        }
-      }
-    }
+        val serverOutput = builder.add(
+          Flow[ByteString]
+            .via(Framing.delimiter(ByteString("\r\n"), maximumFrameLength = Int.MaxValue, allowTruncation = false))
+            .filter(s => !s.startsWith(ByteString("<consoleN>")))
+            .map(s => StringEscapeUtils.unescapeJava(s.utf8String))
+            .to(Sink.foreach(s => print(s"Received: $s")))
+        )
 
-    val initialRequest = Source.single(ByteString("server\n"))
-    val repl = b.add(Flow[ByteString]
-      .via(Framing.delimiter(ByteString("\n"), maximumFrameLength = Int.MaxValue, allowTruncation = false))
-      .map(_.utf8String)
-      .map(text => println(s"Received: $text"))
-      .map(_ => readLine("> "))
-      .transform(() => replParser))
-    val concat = b.add(Concat[ByteString]())
-
-    initialRequest ~> concat.in(0)
-    repl.outlet ~> concat.in(1)
-
-    (repl.inlet, concat.out)
+        (serverOutput.inlet, commandInput.outlet)
   }
 
-  connection.join(clientLogic).run()
+  val commandStream = connection.joinMat(clientLogic)(Keep.right).run()
+
+  commandStream ! ByteString("difficulty\n")
+  commandStream ! ByteString("server\n")
 
   Thread.sleep(10000)
   system.shutdown()
