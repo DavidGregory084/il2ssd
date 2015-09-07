@@ -1,55 +1,48 @@
 package il2ssd
 
-import akka.actor.{ Actor, ActorLogging, ActorRef, ActorSystem, Props, Stash }
-import akka.io.{ IO, Tcp }
+import akka.actor.ActorSystem
+import akka.stream.ActorMaterializer
+import akka.stream.io.Framing
+import akka.stream.scaladsl.{ Concat, Keep, Flow, FlowGraph, Source, Tcp }
+import akka.stream.stage.{ Context, PushStage, SyncDirective }
 import akka.util.ByteString
 import java.net.InetSocketAddress
-import org.apache.commons.lang3.StringEscapeUtils
 
-object Daemon {
-  trait Command
-  case object Close extends Command
+object Daemon extends App {
+  implicit val system = ActorSystem("system")
+  implicit val materializer = ActorMaterializer()
+  val address = new InetSocketAddress("ghserver", 21003)
+  val connection = Tcp().outgoingConnection(address)
 
-  private lazy val actorSystem = ActorSystem("system")
+  val clientLogic = Flow() { implicit b =>
+    import FlowGraph.Implicits._
 
-  def start(address: InetSocketAddress) = actorSystem.actorOf(Daemon.props(address), "daemon")
-  def stop() = actorSystem.shutdown()
+    val replParser = new PushStage[String, ByteString] {
+      override def onPush(elem: String, ctx: Context[ByteString]): SyncDirective = {
+        elem match {
+          case "exit" => ctx.finish()
+          case _ => ctx.push(ByteString("$elem\n"))
+        }
+      }
+    }
 
-  def props(address: InetSocketAddress) = Props(classOf[Daemon], address)
-}
+    val initialRequest = Source.single(ByteString("server\n"))
+    val repl = b.add(Flow[ByteString]
+      .via(Framing.delimiter(ByteString("\n"), maximumFrameLength = Int.MaxValue, allowTruncation = false))
+      .map(_.utf8String)
+      .map(text => println(s"Received: $text"))
+      .map(_ => readLine("> "))
+      .transform(() => replParser))
+    val concat = b.add(Concat[ByteString]())
 
-class Daemon(address: InetSocketAddress) extends Actor with ActorLogging with Stash {
-  import Tcp._
-  import context.system
+    initialRequest ~> concat.in(0)
+    repl.outlet ~> concat.in(1)
 
-  IO(Tcp) ! Connect(address)
-
-  def tcpClient(connection: ActorRef): Receive = {
-    case data: ByteString =>
-      log.debug(s"Write: ${StringEscapeUtils.escapeJava(data.utf8String)}")
-      connection ! Write(data)
-    case CommandFailed(_: Write) =>
-      log.error("CommandFailed: Write")
-    case Received(data) =>
-      log.debug(s"Received: '${StringEscapeUtils.escapeJava(data.utf8String)}'")
-    case Daemon.Close =>
-      log.debug("Stop")
-      connection ! Close
-    case _: ConnectionClosed =>
-      log.debug("ConnectionClosed")
-      context stop self
+    (repl.inlet, concat.out)
   }
 
-  def receive = {
-    case CommandFailed(_: Connect) =>
-      log.error("CommandFailed: Connect")
-      context stop self
-    case _: Connected =>
-      log.info("Connected")
-      val connection = sender()
-      connection ! Register(self)
-      unstashAll
-      context become tcpClient(connection)
-    case _ => stash()
-  }
+  connection.join(clientLogic).run()
+
+  Thread.sleep(10000)
+  system.shutdown()
 }
