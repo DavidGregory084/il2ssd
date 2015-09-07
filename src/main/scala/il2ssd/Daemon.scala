@@ -16,20 +16,22 @@ object Daemon extends App {
   val address = new InetSocketAddress("ghserver", 21003)
   val connection = Tcp().outgoingConnection(address)
 
-  val clientLogic = Flow(Source.actorRef(bufferSize = 10, overflowStrategy = OverflowStrategy.dropNew)) {
-    implicit builder =>
-      commandInput =>
-        import FlowGraph.Implicits._
+  val commandSource = Source.actorRef(
+  	bufferSize = 10, 
+  	overflowStrategy = OverflowStrategy.dropNew
+  )
 
-        val serverOutput = builder.add(
-          Flow[ByteString]
-            .via(Framing.delimiter(ByteString("\r\n"), maximumFrameLength = Int.MaxValue, allowTruncation = false))
-            .filter(s => !s.startsWith(ByteString("<consoleN>")))
-            .map(s => StringEscapeUtils.unescapeJava(s.utf8String))
-            .to(Sink.foreach(s => print(s"Received: $s")))
-        )
+  val serverOutputFlow = Flow[ByteString]
+    .via(Framing.delimiter(ByteString("\r\n"), maximumFrameLength = Int.MaxValue, allowTruncation = false))
+    .filter(s => !s.startsWith(ByteString("<consoleN>")))
+    .map(s => StringEscapeUtils.unescapeJava(s.utf8String))
+    .to(Sink.foreach(s => print(s"Received: $s")))
 
-        (serverOutput.inlet, commandInput.outlet)
+  val clientLogic = Flow(commandSource) {
+    implicit builder => commandInput =>
+      import FlowGraph.Implicits._
+      val serverOutput = builder.add(serverOutputFlow)
+      (serverOutput.inlet, commandInput.outlet)
   }
 
   val commandStream = connection.joinMat(clientLogic)(Keep.right).run()
