@@ -17,8 +17,8 @@ object Daemon extends App {
   val connection = Tcp().outgoingConnection(address)
 
   val commandSource = Source.actorRef(
-  	bufferSize = 10, 
-  	overflowStrategy = OverflowStrategy.dropNew
+    bufferSize = 10, 
+    overflowStrategy = OverflowStrategy.dropNew
   )
 
   val serverOutputFlow = Flow[ByteString]
