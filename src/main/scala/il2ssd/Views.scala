@@ -1,13 +1,14 @@
 package il2ssd
 
-import scalafx.geometry.Insets
+import scalafx.collections._
+import scalafx.geometry._
 import scalafx.scene.control._
 import scalafx.scene.layout._
 
 object Views {
   def sceneRoot = new BorderPane {
-    prefHeight = 528.0
-    prefWidth = 500.0
+    prefHeight = 528
+    prefWidth = 500
     top = menuBar
     center = tabBar
     bottom = toolBar
@@ -27,10 +28,19 @@ object Views {
         text = "Console"
         content = consoleTab
       },
-      new Tab { text = "Pilots" },
-      new Tab { text = "Ban List" },
-      new Tab { text = "Mission" },
-      new Tab { text = "Settings" }
+      new Tab {
+        text = "Pilots"
+        content = pilotsTab
+      },
+      new Tab {
+        text = "Ban List"
+      },
+      new Tab {
+        text = "Mission"
+      },
+      new Tab {
+        text = "Settings"
+      }
     )
   }
 
@@ -39,10 +49,11 @@ object Views {
       toolBarButton("\uf090 Connect"),
       toolBarButton("\uf08b Disconnect"),
       new StackPane {
+        prefHeight = 20
         hgrow = Priority.Always
         children = List(
           new ProgressIndicator {
-            progress = -1.0
+            progress = -1
             visible = false
           }
         )
@@ -54,26 +65,32 @@ object Views {
 
   def toolBarButton(text: String) = {
     new Button(text) {
-      prefHeight = 30.0
-      prefWidth = 95.0
+      prefHeight = 30
+      prefWidth = 95
     }
   }
 
   def consoleTab = new BorderPane {
-    prefHeight = 419.0
+    padding = Insets(5)
     center = new BorderPane {
-      padding = Insets(10.0, 10.0, 5.0, 10.0)
       center = new TextArea {
         editable = false
         focusTraversable = false
       }
     }
     bottom = new BorderPane {
-      padding = Insets(5.0, 10.0, 0.0, 10.0)
+      padding = Insets(5, 0, 0, 0)
       center = new TextField {
-        prefHeight = 30.0
+        prefHeight = 30
         promptText = "enter command"
       }
+    }
+  }
+
+  def pilotsTab = new BorderPane {
+    padding = Insets(5)
+    center = new TableView {
+      items = ObservableBuffer()
     }
   }
 }

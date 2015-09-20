@@ -1,22 +1,33 @@
 package il2ssd
 
+import akka.actor.ActorSystem
+import akka.stream.ActorMaterializer
+import java.net.InetSocketAddress
 import scalafx.application.JFXApp
 import scalafx.application.JFXApp.PrimaryStage
 import scalafx.scene.Scene
 import scalafx.scene.text.Font
+import scalafx.stage.WindowEvent
+import scalafx.Includes._
 
 object App extends JFXApp {
-  import Daemon._
+  implicit val system = ActorSystem("system")
+  implicit val materializer = ActorMaterializer()
+
+  val connection = new Connection(new InetSocketAddress("ghserver", 21003))
 
   val fontAwesome = getClass.getResource("fontawesome-webfont.ttf")
   val styleSheet = getClass.getResource("main.css")
   Font.loadFont(fontAwesome.toExternalForm, 12.0)
 
   stage = new PrimaryStage {
+    onCloseRequest = (_: WindowEvent) => system.shutdown()
     title = "Il-2 Simple Server Daemon"
     scene = new Scene {
       stylesheets = List(styleSheet.toExternalForm)
       root = Views.sceneRoot
     }
   }
+
+  connection.send("server")
 }
