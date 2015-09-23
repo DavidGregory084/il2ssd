@@ -24,12 +24,10 @@ class Connection(address: InetSocketAddress)(implicit system: ActorSystem, mater
     .map(s => StringEscapeUtils.unescapeJava(s.utf8String))
     .to(Sink.foreach(s => print(s"Received: $s")))
 
-  private val clientLogic = Flow(commandSource) {
-    implicit builder =>
-      commandInput =>
-        import FlowGraph.Implicits._
-        val serverOutput = builder.add(serverOutputFlow)
-        (serverOutput.inlet, commandInput.outlet)
+  private val clientLogic = Flow(commandSource) { implicit builder => commandInput =>
+    import FlowGraph.Implicits._
+    val serverOutput = builder.add(serverOutputFlow)
+    (serverOutput.inlet, commandInput.outlet)
   }
 
   private val commandStream = connection.joinMat(clientLogic)(Keep.right).run()

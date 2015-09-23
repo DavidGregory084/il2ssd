@@ -1,5 +1,7 @@
 package il2ssd
 
+import rx._
+import RxOps._
 import scalafx.collections._
 import scalafx.geometry._
 import scalafx.scene.control._
@@ -46,28 +48,37 @@ object Views {
 
   def toolBar = new ToolBar {
     content = List(
-      toolBarButton("\uf090 Connect"),
-      toolBarButton("\uf08b Disconnect"),
+      new Button("\uf090 Connect") {
+        prefHeight = 30
+        prefWidth = 95
+        disable |= State.connected()
+      },
+      new Button("\uf08b Disconnect") {
+        prefHeight = 30
+        prefWidth = 95
+        disable |= !State.connected()
+      },
       new StackPane {
         prefHeight = 20
         hgrow = Priority.Always
         children = List(
           new ProgressIndicator {
             progress = -1
-            visible = false
+            visible = State.loading()
           }
         )
       },
-      toolBarButton("\uf04b\uf021 Start"),
-      toolBarButton("\uf04e Next")
+      new Button("\uf04b\uf021 Start") {
+        prefHeight = 30
+        prefWidth = 95
+        disable |= Rx { !State.connected() || !State.loaded() }()
+      },
+      new Button("\uf04e Next") {
+        prefHeight = 30
+        prefWidth = 95
+        disable = true
+      }
     )
-  }
-
-  def toolBarButton(text: String) = {
-    new Button(text) {
-      prefHeight = 30
-      prefWidth = 95
-    }
   }
 
   def consoleTab = new BorderPane {
