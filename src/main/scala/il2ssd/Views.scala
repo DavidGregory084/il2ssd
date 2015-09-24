@@ -1,14 +1,19 @@
 package il2ssd
 
 import rx._
-import RxOps._
+import rx.ops._
+import RxFxOps._
+import scalafx.application._
 import scalafx.collections._
+import scalafx.event._
 import scalafx.geometry._
 import scalafx.scene.control._
+import scalafx.scene.input._
 import scalafx.scene.layout._
+import scalafx.Includes._
 
 object Views {
-  def sceneRoot = new BorderPane {
+  lazy val sceneRoot = new BorderPane {
     prefHeight = 528
     prefWidth = 500
     top = menuBar
@@ -16,14 +21,20 @@ object Views {
     bottom = toolBar
   }
 
-  def menuBar = new MenuBar {
+  lazy val menuBar = new MenuBar {
     menus = List(
-      new Menu("File") { items = List(new MenuItem("Exit")) },
+      new Menu("File") {
+        items = List(
+          new MenuItem("Exit") {
+            onAction = (_: ActionEvent) => Platform.exit()
+          }
+        )
+      },
       new Menu("Help") { items = List(new MenuItem("About")) }
     )
   }
 
-  def tabBar = new TabPane {
+  lazy val tabBar = new TabPane {
     tabClosingPolicy = TabPane.TabClosingPolicy.UNAVAILABLE
     tabs = List(
       new Tab {
@@ -46,7 +57,7 @@ object Views {
     )
   }
 
-  def toolBar = new ToolBar {
+  lazy val toolBar = new ToolBar {
     content = List(
       new Button("\uf090 Connect") {
         prefHeight = 30
@@ -81,24 +92,53 @@ object Views {
     )
   }
 
-  def consoleTab = new BorderPane {
+  lazy val consoleTab = new BorderPane {
     padding = Insets(5)
     center = new BorderPane {
-      center = new TextArea {
-        editable = false
-        focusTraversable = false
-      }
+      center = consoleTextArea
     }
     bottom = new BorderPane {
       padding = Insets(5, 0, 0, 0)
-      center = new TextField {
-        prefHeight = 30
-        promptText = "enter command"
-      }
+      center = commandEntryField
     }
   }
 
-  def pilotsTab = new BorderPane {
+  lazy val consoleTextArea = new TextArea {
+    promptText = "<disconnected>"
+    editable = false
+    focusTraversable = false
+    text |= State.received.reduce { (current, add) =>
+      val dropped =
+        if (current.count(_ == '\n') > 999)
+          current.dropWhile(_ != '\n')
+        else current
+      dropped ++ add
+    }()
+
+    text.onInvalidate {
+      this.scrollTop = Double.MaxValue
+    }
+  }
+
+  lazy val commandEntryField = new TextField {
+    prefHeight = 30
+    promptText = "enter command"
+    onKeyPressed = (ev: KeyEvent) => ev match {
+      case EnterKeyPressed() =>
+        this.text.value match {
+          case "clear" =>
+            State.received() = ""
+            consoleTextArea.clear
+            this.clear
+          case command =>
+            State.connection().map(_.send(command))
+            this.clear
+        }
+      case _ =>
+    }
+  }
+
+  lazy val pilotsTab = new BorderPane {
     padding = Insets(5)
     center = new TableView {
       items = ObservableBuffer()

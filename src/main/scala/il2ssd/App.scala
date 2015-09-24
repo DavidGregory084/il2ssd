@@ -9,7 +9,6 @@ import scalafx.application.JFXApp
 import scalafx.application.JFXApp.PrimaryStage
 import scalafx.scene.Scene
 import scalafx.scene.text.Font
-import scalafx.stage.WindowEvent
 import scalafx.Includes._
 
 object App extends JFXApp {
@@ -17,12 +16,14 @@ object App extends JFXApp {
   implicit val system = ActorSystem("system")
   implicit val materializer = ActorMaterializer()
 
+  override def stopApp() { system.shutdown() }
+
   val fontAwesome = getClass.getResource("fontawesome-webfont.ttf")
   val styleSheet = getClass.getResource("main.css")
   Font.loadFont(fontAwesome.toExternalForm, 12.0)
 
+  State.connection() = Some(new Connection(new InetSocketAddress("ghserver", 21003)))
   stage = new PrimaryStage {
-    onCloseRequest = (_: WindowEvent) => system.shutdown()
     title = "Il-2 Simple Server Daemon"
     scene = new Scene {
       stylesheets = List(styleSheet.toExternalForm)

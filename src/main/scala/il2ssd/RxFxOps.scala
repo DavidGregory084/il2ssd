@@ -6,7 +6,7 @@ import javafx.beans.value.{ ObservableValue, ChangeListener }
 /**
  *  Scala.Rx integration, mostly taken from Eugen Kiss' [[https://github.com/eugenkiss/7guis 7guis]]
  */
-object RxOps {
+object RxFxOps {
   val observers: scala.collection.mutable.Buffer[Obs] = scala.collection.mutable.Buffer()
 
   implicit class PropertyExtensions[T, J](p: scalafx.beans.property.Property[T, J]) {

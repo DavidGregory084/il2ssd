@@ -5,8 +5,11 @@
 
 .text-area .content {
     -fx-font-family: monospace;
-    -fx-text-fill: white;
     -fx-background-color: black;
+}
+
+.text-area {
+    -fx-text-fill: white;
 }
 
 .highlightRed {

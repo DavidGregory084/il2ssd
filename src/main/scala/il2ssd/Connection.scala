@@ -22,7 +22,7 @@ class Connection(address: InetSocketAddress)(implicit system: ActorSystem, mater
     .via(Framing.delimiter(ByteString("\r\n"), maximumFrameLength = Int.MaxValue, allowTruncation = false))
     .filter(s => !s.startsWith(ByteString("<consoleN>")))
     .map(s => StringEscapeUtils.unescapeJava(s.utf8String))
-    .to(Sink.foreach(s => print(s"Received: $s")))
+    .to(Sink.foreach(s => State.received() = State.received() ++ s))
 
   private val clientLogic = Flow(commandSource) { implicit builder => commandInput =>
     import FlowGraph.Implicits._
