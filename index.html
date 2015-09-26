@@ -37,11 +37,9 @@
     <p>GSS layout</p>
 
     <script type="text/javascript" src="./bower_components/gss/dist/gss.js"></script>
-    <script type="text/javascript">
-      window.engine = new GSS(document);
-    </script>
     <script type="text/javascript" src="./target/scala-2.11/il2ssd-fastopt.js"></script>
     <script type="text/javascript">
+      window.engine = new GSS(document);
       il2ssd.App().main()
     </script>
   </body>
