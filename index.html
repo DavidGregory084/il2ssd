@@ -5,41 +5,6 @@
     <title>Il-2 Simple Server Daemon</title>
   </head>
   <body>
-    <style type="text/css">
-      body {
-        background-color: #231028;
-        color: #fdf9ad;
-        font-family: "museo-sans",sans-serif;
-        font-style: normal;
-        font-weight: 300;
-      }
-
-      h1 {
-        font-family: "adelle", georgia,serif;
-        font-style: normal;
-        font-weight: 400;
-      }
-    </style>
-    <style type="text/gss">
-      #cassowaryImg[height] == 250;
-      #cassowaryImg[width] == #cassowaryImg[height] * 409/450;
-      #cassowaryImg[center] == ::window[center];
-      
-      h1[size] == h1[intrinsic-size];
-      p[size] == p[intrinsic-size];
-      
-      outer-gap >= 0;
-      @v (h1)-30-(#cassowaryImg)-20-(p);
-      h1[center-x] == p[center-x] == #cassowaryImg[center-x];
-    </style>
-    <img id="cassowaryImg" class='cassowary' src="http://gridstylesheets.org/assets/images/Intro/CassowaryBird.png" />
-    <h1>Hello!</h1>
-    <p>GSS layout</p>
-
-    <script type="text/javascript" src="./bower_components/gss/dist/gss.js"></script>
     <script type="text/javascript" src="./target/scala-2.11/il2ssd-fastopt.js"></script>
-    <script type="text/javascript">
-      window.engine = new GSS(document);
-    </script>
   </body>
 </html>
