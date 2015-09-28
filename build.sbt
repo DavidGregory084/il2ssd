@@ -50,7 +50,7 @@ genMain := {
   |  var __ScalaJSEnv = { global: {} };
   |  addGlobalProps(__ScalaJSEnv.global)
   |}
-  """.stripMargin
+  |""".stripMargin
 
   val destination = mainPath.value
   IO.write(destination, electronGlobal + projectCode + launcherCode, Charset.forName("UTF-8"))
