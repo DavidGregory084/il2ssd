@@ -11,7 +11,7 @@ lazy val root = (project in file(".")).
   settings(commonSettings: _*).
   settings(scalariformSettings: _*).
   settings(
-    jsDependencies += RuntimeDOM
+    libraryDependencies += "com.lihaoyi" %%% "scalarx" % "0.2.8"
   )
 
 enablePlugins(ScalaJSPlugin)
